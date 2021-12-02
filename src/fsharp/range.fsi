@@ -6,7 +6,7 @@ namespace FSharp.Compiler.Text
 open System.Collections.Generic
 
 /// An index into a global tables of filenames
-type internal FileIndex = int32 
+type internal FileIndex = int32
 
 [<RequireQualifiedAccess>]
 type internal RangeDebugPointKind =
@@ -36,7 +36,7 @@ type Position =
     /// Decode a position fro a 64-bit integer
     static member internal Decode: int64 -> pos
 
-    /// The maximum number of bits needed to store an encoded position 
+    /// The maximum number of bits needed to store an encoded position
     static member internal EncodingSize: int
 
 /// Represents a position in a file
@@ -79,7 +79,7 @@ type Range =
     /// Synthetic marks ranges which are produced by intermediate compilation phases. This
     /// bit signifies that the range covers something that should not be visible to language
     /// service operations like dot-completion.
-    member IsSynthetic: bool 
+    member IsSynthetic: bool
 
     /// When de-sugaring computation expressions we convert a debug point into a plain range, and then later
     /// recover that the range definitely indicates a debug point.
@@ -99,14 +99,15 @@ type Range =
 
     /// The range where all values are zero
     static member Zero: range
-  
+
 /// Represents a range within a file
 and range = Range
 
 /// Represents a line number when using zero-based line counting (used by Visual Studio)
 #if CHECK_LINE0_TYPES
-// Visual Studio uses line counts starting at 0, F# uses them starting at 1 
-[<Measure>] type ZeroBasedLineAnnotation
+// Visual Studio uses line counts starting at 0, F# uses them starting at 1
+[<Measure>]
+type ZeroBasedLineAnnotation
 
 type Line0 = int<ZeroBasedLineAnnotation>
 #else
@@ -121,7 +122,7 @@ type Range01 = Position01 * Position01
 
 module Position =
     /// Create a position for the given line and column
-    val mkPos: line:int -> column:int -> pos
+    val mkPos: line: int -> column: int -> pos
 
     /// Compare positions for less-than
     val posLt: pos -> pos -> bool
@@ -135,8 +136,8 @@ module Position =
     /// Compare positions for greater-than-or-equal-to
     val posGeq: pos -> pos -> bool
 
-    /// Convert a position from zero-based line counting (used by Visual Studio) to one-based line counting (used internally in the F# compiler and in F# error messages) 
-    val fromZ: line:Line0 -> column:int -> pos
+    /// Convert a position from zero-based line counting (used by Visual Studio) to one-based line counting (used internally in the F# compiler and in F# error messages)
+    val fromZ: line: Line0 -> column: int -> pos
 
     /// Convert a position from one-based line counting (used internally in the F# compiler and in F# error messages) to zero-based line counting (used by Visual Studio)
     val toZ: pos -> Position01
@@ -145,7 +146,7 @@ module Position =
     val outputPos: System.IO.TextWriter -> pos -> unit
 
     /// Convert a position to a string
-    val stringOfPos: pos   -> string
+    val stringOfPos: pos -> string
 
     /// The zero position
     val pos0: pos
@@ -165,10 +166,10 @@ module Range =
     /// Ordering on positions
     val posOrder: IComparer<pos>
 
-    /// This view of range marks uses file indexes explicitly 
+    /// This view of range marks uses file indexes explicitly
     val mkFileIndexRange: FileIndex -> pos -> pos -> range
 
-    /// This view hides the use of file indexes and just uses filenames 
+    /// This view hides the use of file indexes and just uses filenames
     val mkRange: string -> pos -> pos -> range
 
     /// Make a range for the first non-whitespace line of the file if any. Otherwise use line 1 chars 0-80.
@@ -180,7 +181,7 @@ module Range =
     /// Reduce a range so it only covers a line
     val trimRangeToLine: range -> range
 
-    /// not a total order, but enough to sort on ranges 
+    /// not a total order, but enough to sort on ranges
     val rangeOrder: IComparer<range>
 
     /// Output a range
@@ -209,7 +210,7 @@ module Range =
 
     /// A range associated with a dummy file for the command line arguments
     val rangeCmdArgs: range
- 
+
     /// Convert a range to a string
     val stringOfRange: range -> string
 
@@ -225,10 +226,8 @@ module Range =
 /// Functions related to converting between lines indexed at 0 and 1
 module Line =
 
-    /// Convert a line number from zero-based line counting (used by Visual Studio) to one-based line counting (used internally in the F# compiler and in F# error messages) 
+    /// Convert a line number from zero-based line counting (used by Visual Studio) to one-based line counting (used internally in the F# compiler and in F# error messages)
     val fromZ: Line0 -> int
 
     /// Convert a line number from one-based line counting (used internally in the F# compiler and in F# error messages) to zero-based line counting (used by Visual Studio)
-    val toZ: int -> Line0 
-
-
+    val toZ: int -> Line0

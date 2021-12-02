@@ -12,62 +12,67 @@ open FSharp.Compiler.TcGlobals
 open FSharp.Compiler.Text
 open FSharp.Compiler.TypedTree
 
-val AddLocalRootModuleOrNamespace : TcResultsSink -> TcGlobals -> ImportMap -> range -> TcEnv -> ModuleOrNamespaceType -> TcEnv
+val AddLocalRootModuleOrNamespace:
+    TcResultsSink -> TcGlobals -> ImportMap -> range -> TcEnv -> ModuleOrNamespaceType -> TcEnv
 
 val CreateInitialTcEnv:
-    TcGlobals *
-    ImportMap *
-    range *
-    assemblyName: string *
-    (CcuThunk * string list * string list) list
-        -> OpenDeclaration list * TcEnv 
+    TcGlobals * ImportMap * range * assemblyName: string * (CcuThunk * string list * string list) list ->
+    OpenDeclaration list * TcEnv
 
 val AddCcuToTcEnv:
-    TcGlobals *
-    ImportMap *
-    range *
-    TcEnv *
-    assemblyName: string *
-    ccu: CcuThunk *
-    autoOpens: string list *
-    internalsVisibleToAttributes: string list
-        -> OpenDeclaration list * TcEnv
+    TcGlobals
+    * ImportMap
+    * range
+    * TcEnv
+    * assemblyName: string
+    * ccu: CcuThunk
+    * autoOpens: string list
+    * internalsVisibleToAttributes: string list ->
+    OpenDeclaration list * TcEnv
 
 type TopAttribs =
     { mainMethodAttrs: Attribs
       netModuleAttrs: Attribs
-      assemblyAttrs: Attribs  }
+      assemblyAttrs: Attribs }
 
 type ConditionalDefines = string list
 
-val EmptyTopAttrs : TopAttribs
+val EmptyTopAttrs: TopAttribs
 
-val CombineTopAttrs : TopAttribs -> TopAttribs -> TopAttribs
+val CombineTopAttrs: TopAttribs -> TopAttribs -> TopAttribs
 
-val TcOpenModuleOrNamespaceDecl: TcResultsSink  -> TcGlobals -> ImportMap -> range -> TcEnv -> LongIdent * range -> TcEnv * OpenDeclaration list
+val TcOpenModuleOrNamespaceDecl:
+    TcResultsSink -> TcGlobals -> ImportMap -> range -> TcEnv -> LongIdent * range -> TcEnv * OpenDeclaration list
 
 val AddLocalSubModule: g: TcGlobals -> amap: ImportMap -> m: range -> env: TcEnv -> modul: ModuleOrNamespace -> TcEnv
 
-val TypeCheckOneImplFile: 
-    TcGlobals *
-    NiceNameGenerator *
-    ImportMap *
-    CcuThunk *
-    OpenDeclaration list *
-    (unit -> bool) *
-    ConditionalDefines option *
-    TcResultsSink *
-    bool * 
-    TcEnv *
-    ModuleOrNamespaceType option *
-    ParsedImplFileInput
-        -> Cancellable<TopAttribs * TypedImplFile * ModuleOrNamespaceType * TcEnv * bool>
+val TypeCheckOneImplFile:
+    TcGlobals
+    * NiceNameGenerator
+    * ImportMap
+    * CcuThunk
+    * OpenDeclaration list
+    * (unit -> bool)
+    * ConditionalDefines option
+    * TcResultsSink
+    * bool
+    * TcEnv
+    * ModuleOrNamespaceType option
+    * ParsedImplFileInput ->
+    Cancellable<TopAttribs * TypedImplFile * ModuleOrNamespaceType * TcEnv * bool>
 
-val TypeCheckOneSigFile : 
-      TcGlobals * NiceNameGenerator * ImportMap * CcuThunk  * (unit -> bool) * ConditionalDefines option * TcResultsSink * bool
-      -> TcEnv                             
-      -> ParsedSigFileInput
-      -> Cancellable<TcEnv * ModuleOrNamespaceType * bool>
+val TypeCheckOneSigFile:
+    TcGlobals
+    * NiceNameGenerator
+    * ImportMap
+    * CcuThunk
+    * (unit -> bool)
+    * ConditionalDefines option
+    * TcResultsSink
+    * bool ->
+    TcEnv ->
+    ParsedSigFileInput ->
+    Cancellable<TcEnv * ModuleOrNamespaceType * bool>
 
 exception ParameterlessStructCtor of range
 

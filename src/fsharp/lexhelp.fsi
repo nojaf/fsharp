@@ -18,7 +18,7 @@ val stdinMockFilename: string
 /// directive is processed. This alters the behaviour of the lexfilter.
 [<Sealed>]
 type LightSyntaxStatus =
-    new: initial:bool * warn: bool -> LightSyntaxStatus
+    new: initial: bool * warn: bool -> LightSyntaxStatus
     member ExplicitlySet: bool
     member Status: bool
     member Status: bool with set
@@ -30,16 +30,14 @@ type LexResourceManager =
 
 /// The context applicable to all lexing functions (tokens, strings etc.)
 type LexArgs =
-    {
-      defines: string list
+    { defines: string list
       resourceManager: LexResourceManager
       errorLogger: ErrorLogger
       applyLineDirectives: bool
       pathMap: PathMap
       mutable ifdefStack: LexerIfdefStack
-      mutable lightStatus : LightSyntaxStatus
-      mutable stringNest: LexerInterpolatedStringNesting
-    }
+      mutable lightStatus: LightSyntaxStatus
+      mutable stringNest: LexerInterpolatedStringNesting }
 
 type LongUnicodeLexResult =
     | SurrogatePair of uint16 * uint16
@@ -62,7 +60,12 @@ type LexerStringFinisherContext =
 type LexerStringFinisher =
     | LexerStringFinisher of (ByteBuffer -> LexerStringKind -> LexerStringFinisherContext -> LexerContinuation -> token)
 
-    member Finish: buf: ByteBuffer -> kind: LexerStringKind -> context: LexerStringFinisherContext -> cont: LexerContinuation -> token
+    member Finish:
+        buf: ByteBuffer ->
+        kind: LexerStringKind ->
+        context: LexerStringFinisherContext ->
+        cont: LexerContinuation ->
+        token
 
     static member Default: LexerStringFinisher
 
@@ -74,7 +77,7 @@ val addByteChar: ByteBuffer -> char -> unit
 
 val stringBufferAsString: ByteBuffer -> string
 
-val stringBufferAsBytes: ByteBuffer -> byte[]
+val stringBufferAsBytes: ByteBuffer -> byte []
 
 val stringBufferIsBytes: ByteBuffer -> bool
 
@@ -105,4 +108,3 @@ module Keywords =
     val IdentifierToken: LexArgs -> Lexbuf -> string -> token
 
     val keywordNames: string list
-
