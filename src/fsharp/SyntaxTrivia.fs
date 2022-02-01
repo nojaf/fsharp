@@ -46,3 +46,8 @@ type SynEnumCaseTrivia =
 
 [<NoEquality; NoComparison>]
 type SynUnionCaseTrivia = { BarRange: range option }
+
+[<NoEquality; NoComparison>]
+type SynExprAndBangTrivia =
+    { EqualsRange: range
+      InKeyword: range option }

@@ -662,7 +662,7 @@ comp {
                         SynModuleDecl.DoExpr(expr = SynExpr.App(argExpr =
                             SynExpr.ComputationExpr(expr =
                                 SynExpr.LetOrUseBang(equalsRange = Some mLetBangEquals
-                                                     andBangs = [ SynExprAndBang(equalsRange = mAndBangEquals) ]))))
+                                                     andBangs = [ SynExprAndBang(trivia= { EqualsRange = mAndBangEquals }) ]))))
                     ])
                 ])) ->
             assertRange (3, 11) (3, 12) mLetBangEquals
@@ -2991,12 +2991,13 @@ async {
         | ParsedInput.ImplFile(ParsedImplFileInput(modules = [
             SynModuleOrNamespace.SynModuleOrNamespace(decls = [
                 SynModuleDecl.DoExpr (expr = SynExpr.App(argExpr = SynExpr.ComputationExpr(expr = SynExpr.LetOrUseBang(andBangs = [
-                    SynExprAndBang(range = mAndBang1)
+                    SynExprAndBang(range = mAndBang1; trivia={ InKeyword = Some mIn })
                     SynExprAndBang(range = mAndBang2)
                     ]))))
                 ])
             ])) ->
             assertRange (4, 4) (4, 24) mAndBang1
+            assertRange (4, 25) (4, 27) mIn
             assertRange (5, 4) (5, 24) mAndBang2
         | _ ->
             Assert.Fail "Could not get valid AST"

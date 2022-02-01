@@ -89,3 +89,13 @@ type SynUnionCaseTrivia =
         /// The syntax range of the `|` token.
         BarRange: range option
     }
+
+/// Represents additional information for SynExprAndBang
+[<NoEquality; NoComparison>]
+type SynExprAndBangTrivia =
+    {
+        /// The syntax range of the `=` token.
+        EqualsRange: range
+        /// The syntax range of the `in` keyword.
+        InKeyword: range option
+    }
