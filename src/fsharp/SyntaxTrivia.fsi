@@ -99,3 +99,11 @@ type SynExprAndBangTrivia =
         /// The syntax range of the `in` keyword.
         InKeyword: range option
     }
+
+/// Represents additional information for SynPat.Or
+[<NoEquality; NoComparison>]
+type SynPatOrTrivia =
+    {
+        /// The syntax range of the `|` token.
+        BarRange: range
+    }
