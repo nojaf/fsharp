@@ -107,3 +107,20 @@ type SynPatOrTrivia =
         /// The syntax range of the `|` token.
         BarRange: range
     }
+
+/// Represents additional information for SynMemberFlags
+[<NoEquality; NoComparison>]
+type SynMemberFlagsTrivia =
+    {
+        /// The syntax range of the `member` keyword
+        MemberRange: range option
+        /// The syntax range of the `override` keyword
+        OverrideRange: range option
+        /// The syntax range of the `abstract` keyword
+        AbstractRange: range option
+        /// The syntax range of the `member` keyword
+        StaticRange: range option
+        /// The syntax range of the `default` keyword
+        DefaultRange: range option
+    }
+    static member Zero: SynMemberFlagsTrivia

@@ -576,47 +576,95 @@ let mkSynBinding (xmlDoc: PreXmlDoc, headPat) (vis, isInline, isMutable, mBind, 
     let mBind = unionRangeWithXmlDoc xmlDoc mBind
     SynBinding (vis, SynBindingKind.Normal, isInline, isMutable, attrs, xmlDoc, info, headPat, retTyOpt, mEquals, rhsExpr, mBind, spBind)
 
-let NonVirtualMemberFlags k : SynMemberFlags =
+let NonVirtualMemberFlags trivia k : SynMemberFlags =
     { MemberKind=k
       IsInstance=true
       IsDispatchSlot=false
       IsOverrideOrExplicitImpl=false
-      IsFinal=false }
+      IsFinal=false
+      Trivia=trivia }
 
-let CtorMemberFlags : SynMemberFlags =
+let CtorMemberFlags trivia : SynMemberFlags =
     { MemberKind=SynMemberKind.Constructor
       IsInstance=false
       IsDispatchSlot=false
       IsOverrideOrExplicitImpl=false
-      IsFinal=false }
+      IsFinal=false
+      Trivia=trivia }
 
-let ClassCtorMemberFlags : SynMemberFlags =
+let ClassCtorMemberFlags trivia : SynMemberFlags =
     { MemberKind=SynMemberKind.ClassConstructor
       IsInstance=false
       IsDispatchSlot=false
       IsOverrideOrExplicitImpl=false
-      IsFinal=false }
+      IsFinal=false
+      Trivia=trivia }
 
-let OverrideMemberFlags k : SynMemberFlags =
+let OverrideMemberFlags trivia k : SynMemberFlags =
     { MemberKind=k
       IsInstance=true
       IsDispatchSlot=false
       IsOverrideOrExplicitImpl=true
-      IsFinal=false }
+      IsFinal=false
+      Trivia=trivia }
 
-let AbstractMemberFlags k : SynMemberFlags =
+let AbstractMemberFlags trivia k : SynMemberFlags =
     { MemberKind=k
       IsInstance=true
       IsDispatchSlot=true
       IsOverrideOrExplicitImpl=false
-      IsFinal=false }
+      IsFinal=false
+      Trivia=trivia }
 
-let StaticMemberFlags k : SynMemberFlags =
+let StaticMemberFlags trivia k : SynMemberFlags =
     { MemberKind=k
       IsInstance=false
       IsDispatchSlot=false
       IsOverrideOrExplicitImpl=false
-      IsFinal=false }
+      IsFinal=false
+      Trivia=trivia }
+
+let MemberSynMemberFlagsTrivia (mMember: range) : SynMemberFlagsTrivia =
+    { MemberRange = Some mMember
+      OverrideRange = None
+      AbstractRange = None
+      StaticRange = None
+      DefaultRange = None }
+
+let OverrideSynMemberFlagsTrivia (mOverride: range) : SynMemberFlagsTrivia =
+    { MemberRange = None
+      OverrideRange = Some mOverride
+      AbstractRange = None
+      StaticRange = None
+      DefaultRange = None }
+
+let StaticMemberSynMemberFlagsTrivia (mStatic: range) (mMember: range) : SynMemberFlagsTrivia =
+    { MemberRange = Some mMember
+      OverrideRange = None
+      AbstractRange = None
+      StaticRange = Some mStatic
+      DefaultRange = None }
+
+let DefaultSynMemberFlagsTrivia (mDefault: range) : SynMemberFlagsTrivia =
+    { MemberRange = None
+      OverrideRange = None
+      AbstractRange = None
+      StaticRange = None
+      DefaultRange = Some mDefault }
+
+let AbstractSynMemberFlagsTrivia (mAbstract: range) : SynMemberFlagsTrivia =
+    { MemberRange = None
+      OverrideRange = None
+      AbstractRange = Some mAbstract
+      StaticRange = None
+      DefaultRange = None }
+
+let AbstractMemberSynMemberFlagsTrivia (mAbstract: range) (mMember: range) : SynMemberFlagsTrivia =
+    { MemberRange = Some mMember
+      OverrideRange = None
+      AbstractRange = Some mAbstract
+      StaticRange = None
+      DefaultRange = None }
 
 let inferredTyparDecls = SynValTyparDecls(None, true)
 
@@ -794,3 +842,7 @@ let (|SynPipeRight3|_|) input =
         when synId.idText = "op_PipeRight3" -> 
         Some (x1a, x1b, x1c, x2)
     | _ -> None
+
+let unionBindingAndMembers (bindings: SynBinding list) (members: SynMemberDefn list): SynBinding list =
+    [ yield! bindings
+      yield! List.choose (function | SynMemberDefn.Member(b,_) -> Some b | _ -> None) members ]

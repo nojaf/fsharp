@@ -5,6 +5,7 @@ module internal FSharp.Compiler.SyntaxTreeOps
 open FSharp.Compiler.Text
 open FSharp.Compiler.Xml
 open FSharp.Compiler.Syntax
+open FSharp.Compiler.SyntaxTrivia
 
 [<Class>]
 type SynArgNameGenerator =
@@ -246,17 +247,29 @@ val mkSynBinding:
       staticOptimizations:(SynStaticOptimizationConstraint list * SynExpr) list * attrs:SynAttributes * memberFlagsOpt:SynMemberFlags option 
         -> SynBinding
 
-val NonVirtualMemberFlags: k:SynMemberKind -> SynMemberFlags
+val NonVirtualMemberFlags: trivia:SynMemberFlagsTrivia -> k:SynMemberKind -> SynMemberFlags
 
-val CtorMemberFlags: SynMemberFlags
+val CtorMemberFlags: trivia:SynMemberFlagsTrivia -> SynMemberFlags
 
-val ClassCtorMemberFlags: SynMemberFlags
+val ClassCtorMemberFlags: trivia:SynMemberFlagsTrivia -> SynMemberFlags
 
-val OverrideMemberFlags: k:SynMemberKind -> SynMemberFlags
+val OverrideMemberFlags: trivia:SynMemberFlagsTrivia -> k:SynMemberKind -> SynMemberFlags
 
-val AbstractMemberFlags: k:SynMemberKind -> SynMemberFlags
+val AbstractMemberFlags: trivia:SynMemberFlagsTrivia -> k:SynMemberKind -> SynMemberFlags
 
-val StaticMemberFlags: k:SynMemberKind -> SynMemberFlags
+val StaticMemberFlags: trivia:SynMemberFlagsTrivia -> k:SynMemberKind -> SynMemberFlags
+
+val MemberSynMemberFlagsTrivia: mMember: range -> SynMemberFlagsTrivia
+
+val OverrideSynMemberFlagsTrivia: mOverride: range -> SynMemberFlagsTrivia
+
+val StaticMemberSynMemberFlagsTrivia: mStatic: range -> mMember: range -> SynMemberFlagsTrivia
+
+val DefaultSynMemberFlagsTrivia: mDefault: range -> SynMemberFlagsTrivia
+
+val AbstractSynMemberFlagsTrivia: mAbstract: range -> SynMemberFlagsTrivia
+
+val AbstractMemberSynMemberFlagsTrivia: mAbstract: range -> mMember: range -> SynMemberFlagsTrivia
 
 val inferredTyparDecls: SynValTyparDecls
 
@@ -272,3 +285,4 @@ val (|SynPipeRight2|_|): SynExpr -> (SynExpr * SynExpr * SynExpr) option
 
 val (|SynPipeRight3|_|): SynExpr -> (SynExpr * SynExpr * SynExpr * SynExpr) option
 
+val unionBindingAndMembers: bindings: SynBinding list -> members: SynMemberDefn list -> SynBinding list
