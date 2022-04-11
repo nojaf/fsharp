@@ -395,6 +395,7 @@ type BackgroundCompiler(
                 let getBuilderNode = 
                     GraphNode(CreateOneIncrementalBuilder(options, userOpName))
                 incrementalBuildersCache.Set (AnyCallerThread, options, getBuilderNode)
+                Logger.LogMessage $"Add {options.ProjectFileName} to incrementalBuildersCache" LogCompilerFunctionId.Service_IncrementalBuildersCache_BuildingNewCache
                 getBuilderNode
         )
 
