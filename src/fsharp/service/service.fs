@@ -392,15 +392,12 @@ type BackgroundCompiler(
             if ct.IsCancellationRequested then
                 GraphNode(node { return None, [||] })
             else
-                match incrementalBuildersCache.TryGetSimilar(AnyCallerThread, options) with
-                | Some getBuilderNode -> getBuilderNode
-                | None ->
-                    let getBuilderNode = 
-                        GraphNode(CreateOneIncrementalBuilder(options, userOpName))
-                    
-                    incrementalBuildersCache.Set (AnyCallerThread, options, getBuilderNode)
-                    Logger.LogMessage $"Add {options.ProjectFileName} to incrementalBuildersCache" LogCompilerFunctionId.Service_IncrementalBuildersCache_BuildingNewCache
-                    getBuilderNode
+                let getBuilderNode = 
+                    GraphNode(CreateOneIncrementalBuilder(options, userOpName))
+                
+                incrementalBuildersCache.Set (AnyCallerThread, options, getBuilderNode)
+                Logger.LogMessage $"Add {options.ProjectFileName} to incrementalBuildersCache" LogCompilerFunctionId.Service_IncrementalBuildersCache_BuildingNewCache
+                getBuilderNode
         )
 
     let createAndGetBuilder (options, userOpName) =

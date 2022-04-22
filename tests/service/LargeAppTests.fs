@@ -61,3 +61,11 @@ let ``Parsing file from project zero`` () =
 
     Assert.False(parseResults.ParseHadErrors)
     Assert.True(Array.isEmpty checkResults.OpenDeclarations)
+
+
+// TODO:
+// create a test with dependent projects
+// call GetBackgroundCheckResultsForFileInProject
+// make a change
+// call GetBackgroundCheckResultsForFileInProject
+// assert a delta in symbols
