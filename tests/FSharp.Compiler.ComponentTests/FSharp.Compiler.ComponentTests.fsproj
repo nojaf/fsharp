@@ -197,6 +197,7 @@
     <Compile Include="OCamlCompat\OCamlCompat.fs" />
     <Compile Include="Miscellaneous\ListLiterals.fs" />
     <Compile Include="Signatures\ModuleOrNamespaceTests.fs" />
+    <Compile Include="Signatures\SignatureTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\**" CopyToOutputDirectory="Never" CopyToPublishDirectory="PreserveNewest" />
