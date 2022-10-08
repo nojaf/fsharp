@@ -44,6 +44,7 @@ type LanguageFeature =
     | LowercaseDUWhenRequireQualifiedAccess
     | InterfacesWithAbstractStaticMembers
     | SelfTypeConstraints
+    | CSharpExtensionAttributeNotRequired
 
 /// LanguageVersion management
 type LanguageVersion =
