@@ -6,7 +6,11 @@ open FSharp.Test.Compiler
 
 module ExtensionMethodTests =
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Extension method with toplevel attribute on type`` () =
         Fsx
             """
@@ -23,7 +27,11 @@ let f (b:int) = b.PlusOne()
         |> compile
         |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Extension method without toplevel attribute on type`` () =
         Fsx
             """
@@ -39,7 +47,11 @@ let f (b:int) = b.PlusOne()
         |> compile
         |> shouldSucceed
         
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Extension method without toplevel attribute on type lang version 7`` () =
         Fsx
             """
@@ -58,7 +70,11 @@ let f (b:int) = b.PlusOne()
             (Error 39, Line 8, Col 19, Line 8, Col 26, "The type 'Int32' does not define the field, constructor or member 'PlusOne'.")
         ]
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Extension method without toplevel attribute on recursive type`` () =
         Fsx
             """
@@ -77,7 +93,11 @@ let f (b:int) = b.PlusOne()
         |> compile
         |> shouldSucceed
     
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``F# CSharpStyleExtensionMethod consumed in C#`` () =
         let fsharp =
             FSharp
@@ -114,7 +134,11 @@ namespace Consumer
 
         csharp |> compile |> shouldSucceed
         
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``F# lang version 7 CSharpStyleExtensionMethod consumed in C#`` () =
         let fsharp =
             FSharp
@@ -156,7 +180,11 @@ namespace Consumer
             (Error 1061, Line 9, Col 25, Line 9, Col 32, "'int' does not contain a definition for 'PlusOne' and no accessible extension method 'PlusOne' accepting a first argument of type 'int' could be found (are you missing a using directive or an assembly reference?)")
         ]
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``F# CSharpStyleExtensionMethod in recursive type consumed in C#`` () =
         let fsharp =
             FSharp
@@ -196,7 +224,11 @@ namespace Consumer
 
         csharp |> compile |> shouldSucceed
     
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``F# CSharpStyleExtensionMethod defined in top level module with attribute consumed in C#`` () =
         let fsharp =
             FSharp
@@ -234,7 +266,11 @@ namespace Consumer
 
         csharp |> compile |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``F# CSharpStyleExtensionMethod defined in top level module without attribute consumed in C#`` () =
         let fsharp =
             FSharp
@@ -271,7 +307,11 @@ namespace Consumer
 
         csharp |> compile |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Toplevel named module with Extension attribute and top level let binding with Extension attribute`` () =
         let fsharp =
             FSharp """
@@ -305,7 +345,11 @@ namespace Consumer
         
         csharp |> compile |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Toplevel named module without Extension attribute and top level let binding with Extension attribute`` () =
         let fsharp =
             FSharp """
@@ -338,7 +382,11 @@ namespace Consumer
         
         csharp |> compile |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Recursive toplevel named module with Extension attribute and top level let binding with Extension attribute`` () =
         let fsharp =
             FSharp """
@@ -372,7 +420,11 @@ namespace Consumer
         
         csharp |> compile |> shouldSucceed
     
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Recursive toplevel named module without Extension attribute and top level let binding with Extension attribute`` () =
         let fsharp =
             FSharp """
@@ -405,7 +457,11 @@ namespace Consumer
         
         csharp |> compile |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Foobar `` () =
         let fsharp =
             FSharp """
@@ -439,7 +495,11 @@ type Bar =
         
         csharp |> compile |> shouldSucceed
     
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Recursive named module with type with CSharp style extension can be consumed in CSharp`` () =
         let fsharp =
             FSharp """
@@ -472,7 +532,11 @@ type Bar =
         
         csharp |> compile |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``CSharp style extension method in F# type backed by a signature`` () =
         let implementation =
             SourceCodeFileKind.Create(
@@ -523,7 +587,11 @@ type Bar =
         
         csharp |> compile |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``CSharp style extension method in F# type backed by a signature in a recursive module`` () =
         let implementation =
             SourceCodeFileKind.Create(
@@ -574,7 +642,11 @@ type Bar =
         
         csharp |> compile |> shouldSucceed
 
+    #if !NETCOREAPP
+    [<Fact(Skip = "Implicit Extension Attribute is not supported by NET472.")>]
+    #else
     [<Fact>]
+    #endif
     let ``Multiple top level let binding with Extension attribute`` () =
         let fsharp =
             FSharp """
