@@ -1395,7 +1395,7 @@ let CheckMultipleInputsInParallel
         ctok,
         checkForErrors,
         tcConfig: TcConfig,
-        tcImports,
+        tcImports: TcImports,
         tcGlobals,
         prefixPathOpt,
         tcState,
@@ -1414,48 +1414,181 @@ let CheckMultipleInputsInParallel
     UseMultipleDiagnosticLoggers (inputs, diagnosticsLogger, Some eagerFormat) (fun inputsWithLoggers ->
 
         // Equip loggers to locally filter w.r.t. scope pragmas in each input
-        let inputsWithLoggers =
+        let inputsWithLoggers: (ParsedInput * DiagnosticsLogger)[] =
             inputsWithLoggers
-            |> List.map (fun (input, oldLogger) ->
+            |> Seq.map (fun (input, oldLogger) ->
                 let logger = DiagnosticsLoggerForInput(tcConfig, input, oldLogger)
                 input, logger)
+            |> Seq.toArray
 
         // In the first linear part of parallel checking, we use a 'checkForErrors' that checks either for errors
         // somewhere in the files processed prior to each one, or in the processing of this particular file.
         let priorErrors = checkForErrors ()
 
-        // Do the first linear phase, checking all signatures and any implementation files that don't have a signature.
-        // Implementation files that do have a signature will result in a Choice2Of2 indicating to next do some of the
-        // checking in parallel.
+        // Grand experiment
+        // This code assumes the following file structure
+        // A.fs
+        // B1.fs (uses A)
+        // B2.fs (uses A, B1)
+        // C1.fs (uses A)
+        // C2.fs (uses A, C1)
+        // D.fs (uses A, B2, C2)
+        assert (inputsWithLoggers.Length = 6)
+
+        let fileDependencies =
+            [|
+                Set.empty
+                set [ 0 ]
+                set [ 0; 1 ]
+                set [ 0 ]
+                set [ 0; 3 ]
+                set [ 0; 2; 4 ]
+            |]
+
         let partialResults, (tcState, _) =
-            ((tcState, priorErrors), inputsWithLoggers)
-            ||> List.mapFold (fun (tcState, priorErrors) (input, logger) ->
-                use _ = UseDiagnosticsLogger logger
+            let lastIndex = inputsWithLoggers.Length - 1
+            let amap = tcImports.GetImportMap()
 
-                let checkForErrors2 () = priorErrors || (logger.ErrorCount > 0)
+            let conditionalDefines =
+                if tcConfig.noConditionalErasure then
+                    None
+                else
+                    Some tcConfig.conditionalDefines
 
-                let partialResult, tcState =
-                    CheckOneInputAux(
-                        checkForErrors2,
-                        tcConfig,
-                        tcImports,
-                        tcGlobals,
-                        prefixPathOpt,
-                        TcResultsSink.NoSink,
-                        tcState,
-                        input,
-                        true
-                    )
-                    |> Cancellable.runWithoutCancellation
+            // This function will type check all the files where it knows all the dependent file have already been seen.
+            // The `freeFiles` are a set of file indexes that have been type checked in a previous run.
+            //  `processedFiles` stores the result of a typed checked file in a mutable fashion.
+            let rec visit (currentTcState: TcState, currentPriorErrors: bool) (freeFiles: Set<int>) (processedFiles: Choice<_, _> array) =
+                // Find files that still needs processing.
+                let unprocessedFiles = freeFiles |> Set.difference (set [| 0..lastIndex |])
 
-                let priorErrors = checkForErrors2 ()
-                partialResult, (tcState, priorErrors))
+                if Set.isEmpty unprocessedFiles then
+                    // All done
+                    processedFiles, (currentTcState, currentPriorErrors)
+                else
+                    // What files can we type check from the files that are left to type check.
+                    let nextFreeIndexes =
+                        unprocessedFiles
+                        |> Seq.choose (fun fileIndex ->
+                            let isFreeFile =
+                                Seq.forall (fun idx -> Set.contains idx freeFiles) fileDependencies.[fileIndex]
+
+                            if isFreeFile then
+                                Some(fileIndex, inputsWithLoggers.[fileIndex])
+                            else
+                                None)
+                        |> Seq.toArray
+
+                    // The next batch of files we can process in parallel, if there are multiple of course
+                    let next =
+                        if nextFreeIndexes.Length = 1 then
+                            let fileIndex, (input, logger) = nextFreeIndexes.[0]
+                            use _ = UseDiagnosticsLogger logger
+
+                            let checkForErrors2 () = priorErrors || (logger.ErrorCount > 0)
+
+                            let partialResult, tcState =
+                                CheckOneInputAux(
+                                    checkForErrors2,
+                                    tcConfig,
+                                    tcImports,
+                                    tcGlobals,
+                                    prefixPathOpt,
+                                    TcResultsSink.NoSink,
+                                    currentTcState,
+                                    input,
+                                    true
+                                )
+                                |> Cancellable.runWithoutCancellation
+
+                            // Yikes!
+                            processedFiles.[fileIndex] <- partialResult
+
+                            let priorErrors = checkForErrors2 ()
+                            tcState, priorErrors
+                        else
+                            nextFreeIndexes
+                            |> ArrayParallel.map (fun (fileIndex, (input, logger)) ->
+                                cancellable {
+                                    use _ = UseDiagnosticsLogger logger
+                                    let checkForErrors2 () = priorErrors || (logger.ErrorCount > 0)
+
+                                    // this is taken mostly from CheckOneInputAux, the case where the impl has no signature file
+                                    let file =
+                                        match input with
+                                        | ParsedInput.ImplFile file -> file
+                                        | ParsedInput.SigFile _ -> failwith "not expecting a signature file for now"
+
+                                    let tcSink = TcResultsSink.NoSink
+
+                                    // Typecheck the implementation file
+                                    let! topAttrs, implFile, tcEnvAtEnd, createsGeneratedProvidedTypes =
+                                        CheckOneImplFile(
+                                            tcGlobals,
+                                            amap,
+                                            currentTcState.tcsCcu,
+                                            currentTcState.tcsImplicitOpenDeclarations,
+                                            checkForErrors2,
+                                            conditionalDefines,
+                                            TcResultsSink.NoSink,
+                                            tcConfig.internalTestSpanStackReferring,
+                                            currentTcState.tcsTcImplEnv,
+                                            None,
+                                            file
+                                        )
+
+                                    return
+                                        (fun tcState ->
+                                            let tcState =
+                                                { tcState with
+                                                    tcsCreatesGeneratedProvidedTypes =
+                                                        tcState.tcsCreatesGeneratedProvidedTypes || createsGeneratedProvidedTypes
+                                                }
+
+                                            let ccuSigForFile, updateTcState =
+                                                AddCheckResultsToTcState
+                                                    (tcGlobals,
+                                                     amap,
+                                                     false,
+                                                     prefixPathOpt,
+                                                     tcSink,
+                                                     tcState.tcsTcImplEnv,
+                                                     input.QualifiedName,
+                                                     implFile.Signature)
+                                                    tcState
+
+                                            fileIndex, Choice1Of2(tcEnvAtEnd, topAttrs, Some implFile, ccuSigForFile), logger, updateTcState)
+                                }
+                                |> Cancellable.runWithoutCancellation)
+                            |> fun results ->
+                                ((currentTcState, currentPriorErrors), results)
+                                ||> Array.fold (fun (tcState, priorErrors) result ->
+                                    // the `result` callback ensure that the TcState is synced correctly after a batch of file has been type checked in parallel.
+                                    // I believe this bit cannot be done in parallel, yet the order in which we fold the state does not matter.
+                                    let fileIndex, partialResult, logger, nextTcState = result tcState
+
+                                    // Yikes!
+                                    processedFiles.[fileIndex] <- partialResult
+
+                                    let priorErrors = priorErrors || (logger.ErrorCount > 0)
+                                    (nextTcState, priorErrors))
+
+                    // The next set of free files are the previous ones + the files we just type checked.
+                    let nextFreeIndexes =
+                        seq {
+                            yield! freeFiles
+                            yield! (Seq.map fst nextFreeIndexes)
+                        }
+                        |> Set.ofSeq
+
+                    // Next round!
+                    visit next nextFreeIndexes processedFiles
+
+            visit (tcState, priorErrors) Set.empty (Array.zeroCreate inputsWithLoggers.Length)
 
         // Do the parallel phase, checking all implementation files that did have a signature, in parallel.
         let results, createsGeneratedProvidedTypesFlags =
-
-            List.zip partialResults inputsWithLoggers
-            |> List.toArray
+            Array.zip partialResults inputsWithLoggers
             |> ArrayParallel.map (fun (partialResult, (_, logger)) ->
                 use _ = UseDiagnosticsLogger logger
                 use _ = UseBuildPhase BuildPhase.TypeCheck
