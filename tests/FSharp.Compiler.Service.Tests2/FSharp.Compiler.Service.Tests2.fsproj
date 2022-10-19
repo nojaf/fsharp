@@ -28,6 +28,11 @@
     </Compile>
     <Compile Include="TypeTests.fs" />
     <Compile Include="DepResolving.fs" />
+    <Compile Include="HorsingAround\Types.fs" />
+    <Compile Include="HorsingAround\ContentParser.fs" />
+    <Compile Include="HorsingAround\TreeWalking.fsi" />
+    <Compile Include="HorsingAround\TreeWalking.fs" />
+    <Compile Include="HorsingAround\Lookup.fs" />
     <Compile Include="..\service\Program.fs">
       <Link>Program.fs</Link>
     </Compile>
