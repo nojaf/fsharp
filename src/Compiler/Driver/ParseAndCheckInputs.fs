@@ -1394,13 +1394,16 @@ type PartialResult = TcEnv * TopAttribs * CheckedImplFile option * ModuleOrNames
 type SignaturePairResult =
     Import.ImportMap * string list option * ModuleOrNamespaceType * bool * ParsedImplFileInput * TcState * ModuleOrNamespaceType
 
+[<NoEquality; NoComparison; RequireQualifiedAccess>]
+type TypeCheckResponse =
+    | ImplementationFile of topAttrs: TopAttribs * implFile: CheckedImplFile * tcEnvAtEnd: TcEnv * createsGeneratedProvidedTypes: bool
+    | SignatureFile of tcEnv: TcEnv * sigFileType: ModuleOrNamespaceType * createsGeneratedProvidedTypes: bool
+    | ImplementationFileBackedBySignature of rootSig: ModuleOrNamespaceType * file: ParsedImplFileInput
+
 type ParallelTypeCheckMsg =
     | TypeCheckCompleted of
         index: int *
-        topAttrs: TopAttribs *
-        implFile: CheckedImplFile *
-        tcEnvAtEnd: TcEnv *
-        createsGeneratedProvidedTypes: bool *
+        response: TypeCheckResponse *
         replyChannel: AsyncReplyChannel<Choice<PartialResult, SignaturePairResult> array * TcState>
     | StartTypeCheck of index: int * replyChannel: AsyncReplyChannel<Choice<PartialResult, SignaturePairResult> array * TcState>
     | Start of
@@ -1527,35 +1530,85 @@ let CheckMultipleInputsInParallel
                                 let! msg = inbox.Receive()
 
                                 match msg with
-                                | ParallelTypeCheckMsg.TypeCheckCompleted (index,
-                                                                           topAttrs,
-                                                                           implFile,
-                                                                           tcEnvAtEnd,
-                                                                           createsGeneratedProvidedTypes,
-                                                                           channel) ->
+                                | ParallelTypeCheckMsg.TypeCheckCompleted (index, response, channel) ->
                                     let input, _ = inputsWithLoggers.[index]
 
-                                    let tcState =
-                                        { state.CurrentTcState with
-                                            tcsCreatesGeneratedProvidedTypes =
-                                                state.CurrentTcState.tcsCreatesGeneratedProvidedTypes
-                                                || createsGeneratedProvidedTypes
-                                        }
+                                    let updateTcState =
+                                        match response with
+                                        | TypeCheckResponse.ImplementationFile (topAttrs,
+                                                                                implFile,
+                                                                                tcEnvAtEnd,
+                                                                                createsGeneratedProvidedTypes) ->
+                                            let tcState =
+                                                { state.CurrentTcState with
+                                                    tcsCreatesGeneratedProvidedTypes =
+                                                        state.CurrentTcState.tcsCreatesGeneratedProvidedTypes
+                                                        || createsGeneratedProvidedTypes
+                                                }
 
-                                    let ccuSigForFile, updateTcState =
-                                        AddCheckResultsToTcState
-                                            (tcGlobals,
-                                             amap,
-                                             false,
-                                             prefixPathOpt,
-                                             TcResultsSink.NoSink,
-                                             tcState.tcsTcImplEnv,
-                                             input.QualifiedName,
-                                             implFile.Signature)
+                                            let ccuSigForFile, updateTcState =
+                                                AddCheckResultsToTcState
+                                                    (tcGlobals,
+                                                     amap,
+                                                     false,
+                                                     prefixPathOpt,
+                                                     TcResultsSink.NoSink,
+                                                     tcState.tcsTcImplEnv,
+                                                     input.QualifiedName,
+                                                     implFile.Signature)
+                                                    tcState
+
+                                            state.Results.[index] <- Choice1Of2(tcEnvAtEnd, topAttrs, Some implFile, ccuSigForFile)
+                                            updateTcState
+                                        | TypeCheckResponse.SignatureFile (tcEnv, sigFileType, createsGeneratedProvidedTypes) ->
+                                            let qualNameOfFile = input.QualifiedName
+                                            let rootSigs = Zmap.add qualNameOfFile sigFileType tcState.tcsRootSigs
+
+                                            // Add the signature to the signature env (unless it had an explicit signature)
+                                            let ccuSigForFile = CombineCcuContentFragments [ sigFileType; tcState.tcsCcuSig ]
+
+                                            let tcState =
+                                                { tcState with
+                                                    tcsTcSigEnv = tcEnv
+                                                    tcsTcImplEnv = tcState.tcsTcImplEnv
+                                                    tcsRootSigs = rootSigs
+                                                    tcsCreatesGeneratedProvidedTypes =
+                                                        tcState.tcsCreatesGeneratedProvidedTypes || createsGeneratedProvidedTypes
+                                                }
+
+                                            state.Results.[index] <- Choice1Of2(tcEnv, EmptyTopAttrs, None, ccuSigForFile)
                                             tcState
+                                        | TypeCheckResponse.ImplementationFileBackedBySignature (rootSig, file) ->
+                                            // Adjust the TcState as if it has been checked, which makes the signature for the file available later
+                                            // in the compilation order.
+                                            let tcStateForImplFile = tcState
+                                            let qualNameOfFile = input.QualifiedName
+                                            let priorErrors = checkForErrors ()
 
-                                    let partialResult = Choice1Of2(tcEnvAtEnd, topAttrs, Some implFile, ccuSigForFile)
-                                    state.Results.[index] <- partialResult
+                                            let ccuSigForFile, tcState =
+                                                AddCheckResultsToTcState
+                                                    (tcGlobals,
+                                                     amap,
+                                                     true,
+                                                     prefixPathOpt,
+                                                     TcResultsSink.NoSink,
+                                                     tcState.tcsTcImplEnv,
+                                                     qualNameOfFile,
+                                                     rootSig)
+                                                    tcState
+
+                                            state.Results.[index] <-
+                                                Choice2Of2(
+                                                    amap,
+                                                    conditionalDefines,
+                                                    rootSig,
+                                                    priorErrors,
+                                                    file,
+                                                    tcStateForImplFile,
+                                                    ccuSigForFile
+                                                )
+
+                                            tcState
 
                                     let allFree = Set.add index state.Free
 
@@ -1585,47 +1638,114 @@ let CheckMultipleInputsInParallel
                                                 }
 
                                 | ParallelTypeCheckMsg.StartTypeCheck (idx, channel) ->
-                                    cancellable {
-                                        let _seen = Seq.toArray state.Free
-                                        let input, logger = inputsWithLoggers.[idx]
-                                        use _ = UseDiagnosticsLogger logger
-                                        let checkForErrors2 () = priorErrors || (logger.ErrorCount > 0)
+                                    let input, logger = inputsWithLoggers.[idx]
+                                    use _ = UseDiagnosticsLogger logger
 
-                                        // this is taken mostly from CheckOneInputAux, the case where the impl has no signature file
-                                        let file =
-                                            match input with
-                                            | ParsedInput.ImplFile file -> file
-                                            | ParsedInput.SigFile _ -> failwith "not expecting a signature file for now"
+                                    let checkForErrors2 () = priorErrors || (logger.ErrorCount > 0)
 
-                                        // Typecheck the implementation file
-                                        let! topAttrs, implFile, tcEnvAtEnd, createsGeneratedProvidedTypes =
-                                            CheckOneImplFile(
-                                                tcGlobals,
-                                                amap,
-                                                state.CurrentTcState.tcsCcu,
-                                                state.CurrentTcState.tcsImplicitOpenDeclarations,
-                                                checkForErrors2,
-                                                conditionalDefines,
-                                                TcResultsSink.NoSink,
-                                                tcConfig.internalTestSpanStackReferring,
-                                                state.CurrentTcState.tcsTcImplEnv,
-                                                None,
-                                                file
+                                    match input with
+                                    | ParsedInput.SigFile file ->
+                                        let m = input.Range
+                                        let qualNameOfFile = file.QualifiedName
+
+                                        // Check if we've seen this top module signature before.
+                                        if Zmap.mem qualNameOfFile tcState.tcsRootSigs then
+                                            errorR (Error(FSComp.SR.buildSignatureAlreadySpecified qualNameOfFile.Text, m.StartRange))
+
+                                        // Check if the implementation came first in compilation order
+                                        if Zset.contains qualNameOfFile tcState.tcsRootImpls then
+                                            errorR (Error(FSComp.SR.buildImplementationAlreadyGivenDetail (qualNameOfFile.Text), m))
+
+                                        let conditionalDefines =
+                                            if tcConfig.noConditionalErasure then
+                                                None
+                                            else
+                                                Some tcConfig.conditionalDefines
+
+                                        // Typecheck the signature file
+                                        cancellable {
+                                            let! tcEnv, sigFileType, createsGeneratedProvidedTypes =
+                                                CheckOneSigFile
+                                                    (tcGlobals,
+                                                     amap,
+                                                     tcState.tcsCcu,
+                                                     checkForErrors,
+                                                     conditionalDefines,
+                                                     TcResultsSink.NoSink,
+                                                     tcConfig.internalTestSpanStackReferring)
+                                                    tcState.tcsTcSigEnv
+                                                    file
+
+                                            inbox.Post(
+                                                ParallelTypeCheckMsg.TypeCheckCompleted(
+                                                    idx,
+                                                    TypeCheckResponse.SignatureFile(tcEnv, sigFileType, createsGeneratedProvidedTypes),
+                                                    channel
+                                                )
                                             )
+                                        }
+                                        |> Cancellable.toAsync
+                                        |> Async.Start
 
-                                        inbox.Post(
-                                            ParallelTypeCheckMsg.TypeCheckCompleted(
-                                                idx,
-                                                topAttrs,
-                                                implFile,
-                                                tcEnvAtEnd,
-                                                createsGeneratedProvidedTypes,
-                                                channel
+                                    | ParsedInput.ImplFile file ->
+                                        let qualNameOfFile = file.QualifiedName
+
+                                        // Check if we've got an interface for this fragment
+                                        let rootSigOpt = tcState.tcsRootSigs.TryFind qualNameOfFile
+
+                                        // Check if we've already seen an implementation for this fragment
+                                        if Zset.contains qualNameOfFile tcState.tcsRootImpls then
+                                            errorR (Error(FSComp.SR.buildImplementationAlreadyGiven qualNameOfFile.Text, input.Range))
+
+                                        let conditionalDefines =
+                                            if tcConfig.noConditionalErasure then
+                                                None
+                                            else
+                                                Some tcConfig.conditionalDefines
+
+                                        match rootSigOpt with
+                                        | Some rootSig ->
+                                            // Delay the typecheck the implementation file until the second phase of parallel processing.
+                                            inbox.Post(
+                                                ParallelTypeCheckMsg.TypeCheckCompleted(
+                                                    idx,
+                                                    TypeCheckResponse.ImplementationFileBackedBySignature(rootSig, file),
+                                                    channel
+                                                )
                                             )
-                                        )
-                                    }
-                                    |> Cancellable.toAsync
-                                    |> Async.Start
+                                        | _ ->
+                                            // Typecheck the implementation file
+                                            cancellable {
+                                                let! topAttrs, implFile, tcEnvAtEnd, createsGeneratedProvidedTypes =
+                                                    CheckOneImplFile(
+                                                        tcGlobals,
+                                                        amap,
+                                                        state.CurrentTcState.tcsCcu,
+                                                        state.CurrentTcState.tcsImplicitOpenDeclarations,
+                                                        checkForErrors2,
+                                                        conditionalDefines,
+                                                        TcResultsSink.NoSink,
+                                                        tcConfig.internalTestSpanStackReferring,
+                                                        state.CurrentTcState.tcsTcImplEnv,
+                                                        None,
+                                                        file
+                                                    )
+
+                                                inbox.Post(
+                                                    ParallelTypeCheckMsg.TypeCheckCompleted(
+                                                        idx,
+                                                        TypeCheckResponse.ImplementationFile(
+                                                            topAttrs,
+                                                            implFile,
+                                                            tcEnvAtEnd,
+                                                            createsGeneratedProvidedTypes
+                                                        ),
+                                                        channel
+                                                    )
+                                                )
+                                            }
+                                            |> Cancellable.toAsync
+                                            |> Async.Start
 
                                     return! loop state
 
