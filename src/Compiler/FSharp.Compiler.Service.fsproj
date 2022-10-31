@@ -379,6 +379,12 @@
     <Compile Include="Driver\CompilerImports.fs" />
     <Compile Include="Driver\CompilerDiagnostics.fsi" />
     <Compile Include="Driver\CompilerDiagnostics.fs" />
+    <Compile Include="Driver\Graph\Utils.fs" />
+    <Compile Include="Driver\Graph\Types.fs" />
+    <Compile Include="Driver\Graph\ASTVisit.fs" />
+    <Compile Include="Driver\Graph\FileInfoGathering.fs" />
+    <Compile Include="Driver\Graph\Graph.fs" />
+    <Compile Include="Driver\Graph\DepResolving.fs" />
     <Compile Include="Driver\ParseAndCheckInputs.fsi" />
     <Compile Include="Driver\ParseAndCheckInputs.fs" />
     <Compile Include="Driver\ScriptClosure.fsi" />

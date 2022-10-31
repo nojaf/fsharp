@@ -1419,6 +1419,8 @@ type ParallelTypeCheckModel =
         Results: Choice<PartialResult, SignaturePairResult> array
     }
 
+open FSharp.Compiler.Graph.Utils
+
 /// Use parallel checking of implementation files that have signature files
 let CheckMultipleInputsInParallel
     (
@@ -1455,63 +1457,15 @@ let CheckMultipleInputsInParallel
         // somewhere in the files processed prior to each one, or in the processing of this particular file.
         let priorErrors = checkForErrors ()
 
-        // Grand experiment
-        // This code assumes the following file structure
-        // A.fs
-        // B1.fs (uses A)
-        // B2.fs (uses A, B1)
-        // C1.fs (uses A)
-        // C2.fs (uses A, C1)
-        // D.fs (uses A, B2, C2)
-        assert (inputsWithLoggers.Length = 22)
+        let graph: Graph.DepResolving.DepsResult =
+            let sourceFiles =
+                inputs
+                |> List.toArray
+                |> Array.mapi (fun i inp -> { Idx = FileIdx.Make i; AST = inp }: FSharp.Compiler.Graph.Types.SourceFile)
 
-        let fileDependencies =
-            [|
-                // 0 .NETStandard,Version=v2.0.AssemblyAttributes.fs"
-                Set.empty
-                // 1 Fantomas.Core.AssemblyInfo.fs
-                Set.empty
-                // 2 AssemblyInfo.fs
-                Set.empty
-                // 3 ISourceTextExtensions.fs
-                Set.empty
-                // 4 RangeHelpers.fs
-                Set.empty
-                // 5 AstExtensions.fs
-                set [| 4 |]
-                // 6 TriviaTypes.fs
-                Set.empty
-                // 7 Utils.fs
-                Set.empty
-                // 8 SourceParser.fs
-                set [| 4; 7; 5; 6 |]
-                // 9 AstTransformer.fs
-                set [| 4; 7; 5; 6; 8 |]
-                // 10 Version.fs
-                set [| 6 |]
-                // 11 Queue.fs
-                Set.empty
-                // 12 FormatConfig.fs
-                Set.empty
-                // 13 Defines.fs
-                set [| 4; 7; 11; 6; 12 |]
-                // 14 Trivia.fs
-                set [| 4; 7; 11; 8; 5; 6; 9; 12 |]
-                // 15 SourceTransformer.fs
-                set [| 7; 11; 5; 8; 6 |]
-                // 16 Context.fs
-                set [| 4; 7; 11; 12; 6; 15; 5; 8; 14; 9 |]
-                // 17 CodePrinter.fs
-                set [| 4; 7; 11; 5; 12; 8; 6; 15; 16; 14; 9 |]
-                // 18 CodeFormatterImpl.fs
-                set [| 4; 7; 11; 12; 8; 5; 6; 17; 15; 16; 14; 9; 13 |]
-                // 19 Validation.fs
-                set [| 18; 4; 7; 11; 12; 8; 5; 6; 17; 15; 16; 14; 9; 13 |]
-                // 20 Selection.fs
-                set [| 19; 18; 4; 7; 11; 12; 8; 5; 6; 17; 15; 16; 14; 9; 13 |]
-                // 21 CodeFormatter.fs
-                set [| 18; 4; 7; 11; 12; 8; 5; 6; 17; 15; 16; 14; 9; 13; 20; 19; 10 |]
-            |]
+            FSharp.Compiler.Graph.DepResolving.AutomatedDependencyResolving.detectFileDependencies sourceFiles
+
+        do ()
 
         let partialResults, tcState =
             let amap = tcImports.GetImportMap()
@@ -1562,18 +1516,17 @@ let CheckMultipleInputsInParallel
                                             updateTcState
                                         | TypeCheckResponse.SignatureFile (tcEnv, sigFileType, createsGeneratedProvidedTypes) ->
                                             let qualNameOfFile = input.QualifiedName
-                                            let rootSigs = Zmap.add qualNameOfFile sigFileType tcState.tcsRootSigs
+                                            let rootSigs = Zmap.add qualNameOfFile sigFileType state.CurrentTcState.tcsRootSigs
 
                                             // Add the signature to the signature env (unless it had an explicit signature)
-                                            let ccuSigForFile = CombineCcuContentFragments [ sigFileType; tcState.tcsCcuSig ]
+                                            let ccuSigForFile = CombineCcuContentFragments [ sigFileType; state.CurrentTcState.tcsCcuSig ]
 
                                             let tcState =
-                                                { tcState with
+                                                { state.CurrentTcState with
                                                     tcsTcSigEnv = tcEnv
-                                                    tcsTcImplEnv = tcState.tcsTcImplEnv
                                                     tcsRootSigs = rootSigs
                                                     tcsCreatesGeneratedProvidedTypes =
-                                                        tcState.tcsCreatesGeneratedProvidedTypes || createsGeneratedProvidedTypes
+                                                        state.CurrentTcState.tcsCreatesGeneratedProvidedTypes || createsGeneratedProvidedTypes
                                                 }
 
                                             state.Results.[index] <- Choice1Of2(tcEnv, EmptyTopAttrs, None, ccuSigForFile)
@@ -1581,7 +1534,7 @@ let CheckMultipleInputsInParallel
                                         | TypeCheckResponse.ImplementationFileBackedBySignature (rootSig, file) ->
                                             // Adjust the TcState as if it has been checked, which makes the signature for the file available later
                                             // in the compilation order.
-                                            let tcStateForImplFile = tcState
+                                            let tcStateForImplFile = state.CurrentTcState
                                             let qualNameOfFile = input.QualifiedName
                                             let priorErrors = checkForErrors ()
 
@@ -1592,10 +1545,10 @@ let CheckMultipleInputsInParallel
                                                      true,
                                                      prefixPathOpt,
                                                      TcResultsSink.NoSink,
-                                                     tcState.tcsTcImplEnv,
+                                                     tcStateForImplFile.tcsTcImplEnv,
                                                      qualNameOfFile,
                                                      rootSig)
-                                                    tcState
+                                                    tcStateForImplFile
 
                                             state.Results.[index] <-
                                                 Choice2Of2(
@@ -1612,17 +1565,22 @@ let CheckMultipleInputsInParallel
 
                                     let allFree = Set.add index state.Free
 
-                                    let unprocessedFiles =
-                                        Set.unionMany [| allFree; state.Processing |]
-                                        |> Set.difference (set [| 0 .. state.Input.Length - 1 |])
-
-                                    if Set.isEmpty unprocessedFiles then
+                                    if allFree.Count = state.Input.Length then
                                         channel.Reply(state.Results, updateTcState)
                                     else
                                         let nextFree =
-                                            unprocessedFiles
-                                            |> Seq.filter (fun idx ->
-                                                Seq.forall (fun dep -> Set.contains dep allFree) fileDependencies.[idx])
+                                            let alreadyFired = Set.union allFree state.Processing
+
+                                            graph.Graph
+                                            |> Seq.choose (fun (KeyValue (f, deps)) ->
+                                                let idx = f.Idx.Idx
+
+                                                if alreadyFired.Contains idx then
+                                                    None
+                                                elif Seq.forall (fun (dep: Graph.Types.File) -> Set.contains dep.Idx.Idx allFree) deps then
+                                                    Some idx
+                                                else
+                                                    None)
                                             |> Seq.toArray
 
                                         Array.iter
@@ -1649,11 +1607,11 @@ let CheckMultipleInputsInParallel
                                         let qualNameOfFile = file.QualifiedName
 
                                         // Check if we've seen this top module signature before.
-                                        if Zmap.mem qualNameOfFile tcState.tcsRootSigs then
+                                        if Zmap.mem qualNameOfFile state.CurrentTcState.tcsRootSigs then
                                             errorR (Error(FSComp.SR.buildSignatureAlreadySpecified qualNameOfFile.Text, m.StartRange))
 
                                         // Check if the implementation came first in compilation order
-                                        if Zset.contains qualNameOfFile tcState.tcsRootImpls then
+                                        if Zset.contains qualNameOfFile state.CurrentTcState.tcsRootImpls then
                                             errorR (Error(FSComp.SR.buildImplementationAlreadyGivenDetail (qualNameOfFile.Text), m))
 
                                         let conditionalDefines =
@@ -1668,12 +1626,12 @@ let CheckMultipleInputsInParallel
                                                 CheckOneSigFile
                                                     (tcGlobals,
                                                      amap,
-                                                     tcState.tcsCcu,
+                                                     state.CurrentTcState.tcsCcu,
                                                      checkForErrors,
                                                      conditionalDefines,
                                                      TcResultsSink.NoSink,
                                                      tcConfig.internalTestSpanStackReferring)
-                                                    tcState.tcsTcSigEnv
+                                                    state.CurrentTcState.tcsTcSigEnv
                                                     file
 
                                             inbox.Post(
@@ -1691,10 +1649,10 @@ let CheckMultipleInputsInParallel
                                         let qualNameOfFile = file.QualifiedName
 
                                         // Check if we've got an interface for this fragment
-                                        let rootSigOpt = tcState.tcsRootSigs.TryFind qualNameOfFile
+                                        let rootSigOpt = state.CurrentTcState.tcsRootSigs.TryFind qualNameOfFile
 
                                         // Check if we've already seen an implementation for this fragment
-                                        if Zset.contains qualNameOfFile tcState.tcsRootImpls then
+                                        if Zset.contains qualNameOfFile state.CurrentTcState.tcsRootImpls then
                                             errorR (Error(FSComp.SR.buildImplementationAlreadyGiven qualNameOfFile.Text, input.Range))
 
                                         let conditionalDefines =
@@ -1752,9 +1710,9 @@ let CheckMultipleInputsInParallel
                                 | ParallelTypeCheckMsg.Start (inputFiles, channel) ->
                                     let initialFreeIndexes =
                                         [|
-                                            for i = 0 to (inputFiles.Length - 1) do
-                                                if fileDependencies.[i].IsEmpty then
-                                                    yield i
+                                            for KeyValue (file, deps) in graph.Graph do
+                                                if Array.isEmpty deps then
+                                                    yield file.Idx.Idx
                                         |]
                                         |> set
 
@@ -1776,7 +1734,7 @@ let CheckMultipleInputsInParallel
                                 Free = Set.empty
                                 Processing = Set.empty
                                 Input = Array.empty
-                                Results = Array.zeroCreate fileDependencies.Length
+                                Results = Array.zeroCreate graph.Graph.Count
                             })
 
             agent.PostAndReply(fun channel -> ParallelTypeCheckMsg.Start(inputsWithLoggers, channel))
