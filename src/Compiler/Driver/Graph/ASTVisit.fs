@@ -2,7 +2,6 @@
 
 open FSharp.Compiler.Syntax
 open FSharp.Compiler.SyntaxTrivia
-
 let unsupported = "unsupported"
 type ReferenceKind =
     | Type
@@ -650,7 +649,7 @@ and visitBindingReturnInfo (x : SynBindingReturnInfo) : References =
 
 and visitSynBinding (x : SynBinding) : References =
     match x with
-    | SynBinding.SynBinding(synAccessOption, _synBindingKind, _isInline, _isMutable, synAttributeLists, preXmlDoc, synValData, headPat, synBindingReturnInfoOption, synExpr, _range, _debugPointAtBinding, _synBindingTrivia) ->
+    | SynBinding.SynBinding(synAccessOption, _, _, _, synAttributeLists, preXmlDoc, synValData, headPat, synBindingReturnInfoOption, synExpr, _, _, _) ->
         seq {
             match synAccessOption with | Some access -> yield! visitSynAccess access | None -> ()
             yield! visitSynAttributeLists synAttributeLists
@@ -666,14 +665,14 @@ and visitBindings (bindings : SynBinding list) : References =
 
 and visitSynOpenDeclTarget (target : SynOpenDeclTarget) : References =
     match target with
-    | SynOpenDeclTarget.Type(typeName, _range) ->
+    | SynOpenDeclTarget.Type(typeName, _) ->
         visitType typeName
-    | SynOpenDeclTarget.ModuleOrNamespace(synLongIdent, _range) ->
+    | SynOpenDeclTarget.ModuleOrNamespace(synLongIdent, _) ->
         [ReferenceOrAbbreviation.Reference {Ident = synLongIdent.LongIdent; Kind = ReferenceKind.ModuleOrNamespace}] 
 
 and visitSynComponentInfo (info : SynComponentInfo) : References =
     match info with
-    | SynComponentInfo(synAttributeLists, synTyparDeclsOption, _synTypeConstraints, _longId, preXmlDoc, _preferPostfix, synAccessOption, _range) ->
+    | SynComponentInfo(synAttributeLists, synTyparDeclsOption, _, _, preXmlDoc, _, synAccessOption, _) ->
         seq {
             yield! visitSynAttributeLists synAttributeLists
             match synTyparDeclsOption with | Some decls -> yield! visitSynTyparDecls decls | None -> ()
@@ -691,7 +690,7 @@ and visitSynLongIdent (ident : SynLongIdent) : References  =
    
 and visitSynMatchClause (x : SynMatchClause) : References =
     match x with
-    | SynMatchClause(synPat, synExprOption, resultExpr, _range, _debugPointAtTarget, _) ->
+    | SynMatchClause(synPat, synExprOption, resultExpr, _, _, _) ->
         seq {
             yield! visitPat synPat
             match synExprOption with | Some expr -> yield! visitExpr expr | None -> ()

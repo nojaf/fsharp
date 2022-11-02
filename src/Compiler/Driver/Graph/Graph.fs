@@ -2,6 +2,7 @@
 
 #nowarn "40"
 
+open System.Linq
 open System.Collections.Generic
 open FSharp.Compiler.Graph.Utils
 
@@ -9,38 +10,49 @@ open FSharp.Compiler.Graph.Utils
 type Graph<'Node> = IReadOnlyDictionary<'Node, 'Node[]>
 
 module Graph =
-    
-    let transitive<'Node when 'Node : equality> (graph : Graph<'Node>) : Graph<'Node> =
+
+    let fillEmptyNodes<'Node when 'Node: equality> (graph: Graph<'Node>) : Graph<'Node> =
+        let missingNodes =
+            graph.Values |> Seq.toArray |> Array.concat |> Array.except graph.Keys
+
+        let toAdd = missingNodes |> Array.map (fun n -> KeyValuePair(n, [||]))
+
+        let x: KeyValuePair<'Node, 'Node[]>[] = Array.append (graph |> Seq.toArray) toAdd
+        x.ToDictionary((fun (KeyValue (x, _)) -> x), (fun (KeyValue (_, v)) -> v)) :> IReadOnlyDictionary<_, _>
+
+    let transitive<'Node when 'Node: equality> (graph: Graph<'Node>) : Graph<'Node> =
         let rec calcTransitiveEdges =
-            fun (node : 'Node) ->
-                let edgeTargets = graph[node]
+            fun (node: 'Node) ->
+                let edgeTargets =
+                    match graph.TryGetValue node with
+                    | true, x -> x
+                    | false, _ -> failwith "FOO"
+
                 edgeTargets
                 |> Array.collect calcTransitiveEdges
                 |> Array.append edgeTargets
                 |> Array.distinct
             // Dispose of memoisation context
             |> memoize
-        
+
         graph.Keys
         |> Seq.map (fun node -> node, calcTransitiveEdges node)
         |> readOnlyDict
-        
-    let reverse (originalGraph : Graph<'Node>) : Graph<'Node> =
+
+    let reverse (originalGraph: Graph<'Node>) : Graph<'Node> =
         originalGraph
         // Collect all edges
-        |> Seq.collect (fun (KeyValue(idx, deps)) -> deps |> Array.map (fun dep -> idx, dep))
+        |> Seq.collect (fun (KeyValue (idx, deps)) -> deps |> Array.map (fun dep -> idx, dep))
         // Group dependants of the same dependencies together
-        |> Seq.groupBy snd
+        |> Seq.groupBy (fun (_idx, dep) -> dep)
         // Construct reversed graph
         |> Seq.map (fun (dep, edges) -> dep, edges |> Seq.map fst |> Seq.toArray)
         |> dict
         // Add nodes that are missing due to having no dependants
         |> fun graph ->
             originalGraph
-            |> Seq.map (fun (KeyValue(idx, _)) ->
+            |> Seq.map (fun (KeyValue (idx, _deps)) ->
                 match graph.TryGetValue idx with
                 | true, dependants -> idx, dependants
-                | false, _ -> idx, [||]
-            )
+                | false, _ -> idx, [||])
         |> readOnlyDict
-    

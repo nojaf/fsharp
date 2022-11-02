@@ -61,11 +61,9 @@ module internal AutomatedDependencyResolving =
         System.Collections.Generic.List<'a>()
 
     let rec cloneTrie (trie : TrieNode) : TrieNode =
-        let children: Dictionary<ModuleSegment,TrieNode> =
+        let children =
             // TODO Perf
-            //let children =
             trie.Children.ToDictionary((fun kv -> kv.Key) , (fun kv -> cloneTrie kv.Value))
-            // Dictionary<ModuleSegment,TrieNode>(children)
         {
             // TODO Can avoid copying here by using an immutable structure or just using the same reference
             Files = List<_>(trie.Files)
@@ -149,7 +147,7 @@ module internal AutomatedDependencyResolving =
             let deps =
                 // Assume that a file with module abbreviations can depend on anything
                 match node.Data.ContainsModuleAbbreviations with
-                | true -> nodes
+                | true -> nodes |> Array.map (fun n -> n.File)
                 | false ->
                     // Clone the original Trie as we're going to mutate the copy
                     let trie = cloneTrie trie
@@ -224,31 +222,35 @@ module internal AutomatedDependencyResolving =
                         // For starters: can module abbreviations affect other files?
                         // If not, then the below is not necessary.
                         |> Seq.append filesWithModuleAbbreviations
+                        |> Seq.map (fun f -> f.File)
                         |> Seq.toArray
                     
                     deps
                 // We know a file can't depend on a file further down in the project definition (or on itself)
-                |> Array.filter (fun dep -> dep.File.Idx < node.File.Idx)
+                |> Array.filter (fun dep -> dep.Idx < node.File.Idx)
                 // Filter out deps onto .fs files that have backing .fsi files
-                |> Array.filter (fun dep -> not dep.File.FsiBacked)
+                |> Array.filter (fun dep -> not dep.FsiBacked)
+                |> Array.distinct
                 
             // Return the node and its dependencies
-            node.File, deps |> Array.map (fun d -> d.File)
+            node.File, deps
         
         // Find dependencies for all files
         let graph =
             nodes
             // TODO Async + cancellations
-            |> Array.map processFile
-            // |> Array.Parallel.map processFile
+            // |> Array.map processFile
+            |> Array.Parallel.map processFile
             |> readOnlyDict
         
         let totalSize1 =
             graph
             |> Seq.sumBy (fun (KeyValue(_k,v)) -> v.Length)
-        let totalSize2 =
+        let t =
             graph
             |> Graph.transitive 
+        let totalSize2 =
+            t
             |> Seq.sumBy (fun (KeyValue(_k,v)) -> v.Length)
         
         printfn $"Non-transitive size: {totalSize1}, transitive size: {totalSize2}"
@@ -260,30 +262,30 @@ module internal AutomatedDependencyResolving =
             }
         res
 
-// /// <summary>
-// /// Calculate and print some stats about the expected parallelism factor of a dependency graph 
-// /// </summary>
-// let analyseEfficiency (result : DepsResult) : unit =
-//     let totalFileSize =
-//         result.Files
-//         |> Array.sumBy (fun file -> int64(file.CodeSize))
-//     
-//     // Use depth-first search to calculate 'depth' of each file
-//     let rec depthDfs =
-//         Utils.memoize (
-//             fun (file : File) ->
-//                 let deepestChild =
-//                     match result.Graph[file] with
-//                     | [||] -> 0L
-//                     | d -> d |> Array.map depthDfs |> Array.max
-//                 let depth = int64(file.CodeSize) + deepestChild
-//                 depth
-//         )
-//     
-//     // Run DFS for every file node, collect the maximum depth found
-//     let maxDepth =
-//         result.Files
-//         |> Array.map (fun f -> depthDfs f.File)
-//         |> Array.max
-//         
-//     log $"Total file size: {totalFileSize}. Max depth: {maxDepth}. Max Depth/Size = %.1f{100.0 * double(maxDepth) / double(totalFileSize)}%%"
+/// <summary>
+/// Calculate and print some stats about the expected parallelism factor of a dependency graph 
+/// </summary>
+let analyseEfficiency (result : DepsResult) : unit =
+    let totalFileSize =
+        result.Files
+        |> Array.sumBy (fun file -> int64(file.CodeSize))
+    
+    // Use depth-first search to calculate 'depth' of each file
+    let rec depthDfs =
+        Utils.memoize (
+            fun (file : File) ->
+                let deepestChild =
+                    match result.Graph[file] with
+                    | [||] -> 0L
+                    | d -> d |> Array.map depthDfs |> Array.max
+                let depth = int64(file.CodeSize) + deepestChild
+                depth
+        )
+    
+    // Run DFS for every file node, collect the maximum depth found
+    let maxDepth =
+        result.Files
+        |> Array.map (fun f -> depthDfs f.File)
+        |> Array.max
+        
+    log $"Total file size: {totalFileSize}. Max depth: {maxDepth}. Max Depth/Size = %.1f{100.0 * double(maxDepth) / double(totalFileSize)}%%"

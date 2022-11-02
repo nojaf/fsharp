@@ -593,7 +593,7 @@ let ``debug FSC proj`` () =
     let checker = FSharpChecker.Create()
 
     let diagnostics, _exitCode =
-        checker.Compile(fscProj false) |> Async.RunSynchronously
+        checker.Compile(fscProj true) |> Async.RunSynchronously
 
     if diagnostics.Length > 0 then
         Assert.Fail($"Got errors, {diagnostics}")

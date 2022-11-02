@@ -23,7 +23,7 @@ let internal gatherBackingInfo (files : SourceFiles) : Files =
         {
             Idx = FileIdx.Make i
             Code = "no code here" // TODO
-            AST = f.AST
+            AST = ASTOrX.AST f.AST
             FsiBacked = fsiBacked
         }
     )
@@ -45,9 +45,9 @@ type FileData =
     }
     with member this.CodeSize = this.File.CodeSize
 
-let private gatherFileData (file : File) : ExtractedData =
-    let moduleRefs, containsModuleAbbreviations = ASTVisit.findModuleRefs file.AST
-    let tops = ASTVisit.topModuleOrNamespaces file.AST
+let private gatherFileData (ast : ParsedInput) : ExtractedData =
+    let moduleRefs, containsModuleAbbreviations = ASTVisit.findModuleRefs ast
+    let tops = ASTVisit.topModuleOrNamespaces ast
     // TODO As a perf optimisation we can skip top-level ids scanning for FsiBacked .fs files
     // However, it is unlikely to give a noticable speedup due to parallelism (citation needed)
     {
@@ -63,7 +63,8 @@ let gatherForAllFiles (files : SourceFiles) =
         files
         // TODO Proper async with cancellation
         |> Array.Parallel.map (fun f ->
-            let data = gatherFileData f
+            let ast = match f.AST with ASTOrX.AST ast -> ast | X _ -> failwith "Unexpected X item"
+            let data = gatherFileData ast
             {
                 File = f
                 Data = data
