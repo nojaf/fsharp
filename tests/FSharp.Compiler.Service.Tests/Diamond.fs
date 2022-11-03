@@ -1,6 +1,8 @@
 ﻿module FSharp.Compiler.Service.Tests.Diamond
 
 open System
+open FSharp.Compiler.Text
+open Microsoft.FSharp.Collections
 open NUnit.Framework
 open FSharp.Compiler.CodeAnalysis
 
@@ -642,14 +644,77 @@ let ``debug diamond`` () =
         Assert.Pass()
 
 open System.IO
+open System.Linq
 open FSharp.Compiler.Symbols
 
+type DepCollector(projectRoot: string, projectFile: string) =
+    let deps = System.Collections.Generic.HashSet<string>()
+
+    member this.Add(declarationLocation: range) : unit =
+        let sourceLocation = declarationLocation.FileName
+
+        if sourceLocation.StartsWith projectRoot && sourceLocation <> projectFile then
+            deps.Add(sourceLocation.Substring(projectRoot.Length + 1)) |> ignore
+
+    member this.Deps = Seq.toArray deps
+
+let rec collectFromSymbol (collector: DepCollector) (s: FSharpSymbol) =
+    match s with
+    | :? FSharpMemberOrFunctionOrValue as mfv ->
+        if mfv.ImplementationLocation.IsSome || mfv.SignatureLocation.IsSome then
+            collector.Add mfv.DeclarationLocation
+
+        collectFromSymbol collector mfv.ReturnParameter
+
+        for cpg in mfv.CurriedParameterGroups do
+            for p in cpg do
+                collectFromSymbol collector p
+
+    | :? FSharpParameter as fp ->
+        if fp.Type.HasTypeDefinition then
+            collector.Add fp.Type.TypeDefinition.DeclarationLocation
+
+    | :? FSharpEntity as e ->
+        if
+            not (e.IsFSharpModule || e.IsNamespace)
+            && (e.ImplementationLocation.IsSome || e.SignatureLocation.IsSome)
+        then
+            collector.Add e.DeclarationLocation
+
+    | :? FSharpActivePatternCase as apc -> collector.Add apc.DeclarationLocation
+    | _ -> ()
+
+let graphFromTypedTree (fsProj: string) (projectOptions: FSharpProjectOptions) : (string * string[])[] =
+    let projectDir = Path.GetDirectoryName(fsProj)
+    let checker = FSharpChecker.Create(keepAssemblyContents = true)
+
+    projectOptions
+        .SourceFiles
+        .AsParallel()
+        .AsOrdered()
+        .Select(fun fileName ->
+            async {
+                let sourceText = (File.ReadAllText >> SourceText.ofString) fileName
+                let! _parseResult, checkResult = checker.ParseAndCheckFileInProject(fileName, 1, sourceText, projectOptions)
+
+                match checkResult with
+                | FSharpCheckFileAnswer.Aborted _ -> return failwith "aborted"
+                | FSharpCheckFileAnswer.Succeeded fileResult ->
+                    let allSymbols = fileResult.GetAllUsesOfAllSymbolsInFile() |> Seq.toArray
+                    let collector = DepCollector(projectDir, fileName)
+
+                    for s in allSymbols do
+                        collectFromSymbol collector s.Symbol
+
+                    return (fileName, collector.Deps)
+            }
+            |> Async.RunSynchronously)
+    |> Seq.toArray
+
 [<Test>]
-let ``Graph from typed tree`` () =
+let ``Fantomas.Core graph from typed tree`` () =
     let fsProj =
         @"C:\Users\nojaf\Projects\main-fantomas\src\Fantomas.Core\Fantomas.Core.fsproj"
-
-    let projectDir = Path.GetDirectoryName(fsProj)
 
     let projectOptions: FSharpProjectOptions =
         {
@@ -850,14 +915,553 @@ let ``Graph from typed tree`` () =
             Stamp = None
         }
 
-    let checker = FSharpChecker.Create(keepAssemblyContents = true)
-    let result = checker.ParseAndCheckProject(projectOptions) |> Async.RunSynchronously
-
-    let files =
-        result.AssemblyContents.ImplementationFiles
-        |> List.choose (fun implContents ->
-            match implContents.Declarations with
-            | [ FSharpImplementationFileDeclaration.Entity(entity, _decls) ] -> Some entity.DeclarationLocation.FileName
-            | d -> failwithf "was %A" d)
+    let graph = graphFromTypedTree fsProj projectOptions
 
     ()
+
+[<Test>]
+let ``FCS graph from typed tree`` () =
+    let proj =
+        @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\FSharp.Compiler.Service.fsproj"
+
+    let projectOptions =
+        {
+            ProjectFileName = "FSharp.Compiler.Service"
+            ProjectId = None
+            SourceFiles =
+                [|
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSComp.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSIstrings.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\UtilsStrings.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\buildproperties.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.InternalsVisibleTo.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\.NETStandard,Version=v2.0.AssemblyAttributes.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.AssemblyInfo.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\sformat.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\sformat.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\sr.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\sr.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\ResizeArray.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\ResizeArray.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\HashMultiMap.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\HashMultiMap.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\EditDistance.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\EditDistance.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\TaggedCollections.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\TaggedCollections.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\illib.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\illib.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\FileSystem.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\FileSystem.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\ildiag.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\ildiag.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\zmap.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\zmap.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\zset.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\zset.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\XmlAdapters.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\XmlAdapters.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\InternalCollections.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\InternalCollections.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\QueueList.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\QueueList.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\lib.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\lib.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\ImmutableArray.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\ImmutableArray.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\rational.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\rational.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\PathMap.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\PathMap.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\RidHelpers.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\range.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Utilities\range.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\Logger.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\Logger.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\LanguageFeatures.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\LanguageFeatures.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\DiagnosticOptions.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\DiagnosticOptions.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\TextLayoutRender.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\TextLayoutRender.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\DiagnosticsLogger.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\DiagnosticsLogger.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\DiagnosticResolutionHints.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\DiagnosticResolutionHints.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\prim-lexing.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\prim-lexing.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\prim-parsing.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\prim-parsing.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\ReferenceResolver.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\ReferenceResolver.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\SimulatedMSBuildReferenceResolver.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\SimulatedMSBuildReferenceResolver.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\CompilerLocation.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\CompilerLocation.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\BuildGraph.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Facilities\BuildGraph.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\il.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\il.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilx.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilx.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilascii.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilascii.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\ilpars.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\illex.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilprint.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilprint.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilmorph.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilmorph.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilsign.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilsign.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilnativeres.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilnativeres.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilsupp.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilsupp.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilbinary.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilbinary.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilread.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilread.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilwritepdb.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilwritepdb.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilwrite.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilwrite.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilreflect.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\AbstractIL\ilreflect.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\PrettyNaming.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\PrettyNaming.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\UnicodeLexing.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\UnicodeLexing.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\XmlDoc.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\XmlDoc.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\SyntaxTrivia.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\SyntaxTrivia.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\SyntaxTree.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\SyntaxTree.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\SyntaxTreeOps.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\SyntaxTreeOps.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\ParseHelpers.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\ParseHelpers.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\pppars.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\pars.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\LexHelpers.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\LexHelpers.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\pplex.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\\lex.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\LexFilter.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\SyntaxTree\LexFilter.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\tainted.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\tainted.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypeProviders.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypeProviders.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\QuotationPickler.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\QuotationPickler.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\CompilerGlobalState.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\CompilerGlobalState.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypedTree.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypedTree.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypedTreeBasics.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypedTreeBasics.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TcGlobals.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypedTreeOps.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypedTreeOps.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypedTreePickle.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\TypedTree\TypedTreePickle.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\import.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\import.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\TypeHierarchy.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\TypeHierarchy.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\infos.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\infos.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\AccessibilityLogic.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\AccessibilityLogic.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\AttributeChecking.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\AttributeChecking.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\TypeRelations.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\TypeRelations.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\InfoReader.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\InfoReader.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\NicePrint.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\NicePrint.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\AugmentWithHashCompare.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\AugmentWithHashCompare.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\NameResolution.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\NameResolution.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\SignatureConformance.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\SignatureConformance.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\MethodOverrides.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\MethodOverrides.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\MethodCalls.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\MethodCalls.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\PatternMatchCompilation.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\PatternMatchCompilation.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\ConstraintSolver.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\ConstraintSolver.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckFormatStrings.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckFormatStrings.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\FindUnsolved.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\FindUnsolved.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\QuotationTranslator.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\QuotationTranslator.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\PostInferenceChecks.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\PostInferenceChecks.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckBasics.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckBasics.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckExpressions.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckExpressions.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckPatterns.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckPatterns.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckComputationExpressions.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckComputationExpressions.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckIncrementalClasses.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckIncrementalClasses.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckDeclarations.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Checking\CheckDeclarations.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\Optimizer.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\Optimizer.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\DetupleArgs.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\DetupleArgs.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\InnerLambdasToTopLevelFuncs.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\InnerLambdasToTopLevelFuncs.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerCalls.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerCalls.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerSequences.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerSequences.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerComputedCollections.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerComputedCollections.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerStateMachines.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerStateMachines.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerLocalMutables.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Optimize\LowerLocalMutables.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\CodeGen\EraseClosures.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\CodeGen\EraseClosures.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\CodeGen\EraseUnions.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\CodeGen\EraseUnions.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\CodeGen\IlxGen.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\CodeGen\IlxGen.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\FxResolver.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\FxResolver.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\DependencyManager/AssemblyResolveHandler.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\DependencyManager/AssemblyResolveHandler.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\DependencyManager/NativeDllResolveHandler.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\DependencyManager/NativeDllResolveHandler.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\DependencyManager/DependencyProvider.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\DependencyManager/DependencyProvider.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CompilerConfig.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CompilerConfig.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CompilerImports.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CompilerImports.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CompilerDiagnostics.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CompilerDiagnostics.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\ParseAndCheckInputs.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\ParseAndCheckInputs.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\ScriptClosure.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\ScriptClosure.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CompilerOptions.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CompilerOptions.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\OptimizeInputs.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\OptimizeInputs.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\XmlDocFileWriter.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\XmlDocFileWriter.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\BinaryResourceFormats.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\BinaryResourceFormats.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\StaticLinking.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\StaticLinking.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CreateILModule.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\CreateILModule.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\fsc.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Driver\fsc.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\FSharpDiagnostic.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\FSharpDiagnostic.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\SymbolHelpers.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\SymbolHelpers.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\Symbols.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\Symbols.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\Exprs.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\Exprs.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\SymbolPatterns.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Symbols\SymbolPatterns.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\SemanticClassification.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\SemanticClassification.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ItemKey.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ItemKey.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\SemanticClassificationKey.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\SemanticClassificationKey.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\FSharpSource.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\FSharpSource.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\IncrementalBuild.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\IncrementalBuild.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceCompilerDiagnostics.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceCompilerDiagnostics.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceConstants.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceDeclarationLists.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceDeclarationLists.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceLexing.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceLexing.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceParseTreeWalk.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceParseTreeWalk.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceNavigation.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceNavigation.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceParamInfoLocations.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceParamInfoLocations.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\FSharpParseFileResults.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\FSharpParseFileResults.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceParsedInputOps.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceParsedInputOps.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceAssemblyContent.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceAssemblyContent.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceXmlDocParser.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceXmlDocParser.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ExternalSymbol.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ExternalSymbol.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\QuickParse.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\QuickParse.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\FSharpCheckerResults.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\FSharpCheckerResults.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\service.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\service.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceInterfaceStubGenerator.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceInterfaceStubGenerator.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceStructure.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceStructure.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceAnalysis.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Service\ServiceAnalysis.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Interactive\ControlledExecution.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Interactive\fsi.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Interactive\fsi.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Legacy\LegacyMSBuildReferenceResolver.fsi"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Legacy\LegacyMSBuildReferenceResolver.fs"
+                    @"C:\Users\nojaf\Projects\main-fsharp\src\Compiler\Legacy\LegacyHostedCompilerForTesting.fs"
+                |]
+            OtherOptions =
+                [|
+                    @"-o:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.dll"
+                    @"-g"
+                    @"--debug:embedded"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSComp.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSIstrings.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\UtilsStrings.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\buildproperties.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.AssemblyInfo.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\illex.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\pplex.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\lex.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\ilpars.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\pppars.fs"
+                    @"--embed:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\pars.fs"
+                    @"--sourcelink:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.sourcelink.json"
+                    @"--noframework"
+                    @"--define:TRACE"
+                    @"--define:COMPILER"
+                    @"--define:FSHARPCORE_USE_PACKAGE"
+                    @"--define:DEBUG"
+                    @"--define:NETSTANDARD"
+                    @"--define:FX_NO_WINFORMS"
+                    @"--define:Debug"
+                    @"--define:NETSTANDARD"
+                    @"--define:NETSTANDARD2_0"
+                    @"--define:NETSTANDARD1_0_OR_GREATER"
+                    @"--define:NETSTANDARD1_1_OR_GREATER"
+                    @"--define:NETSTANDARD1_2_OR_GREATER"
+                    @"--define:NETSTANDARD1_3_OR_GREATER"
+                    @"--define:NETSTANDARD1_4_OR_GREATER"
+                    @"--define:NETSTANDARD1_5_OR_GREATER"
+                    @"--define:NETSTANDARD1_6_OR_GREATER"
+                    @"--define:NETSTANDARD2_0_OR_GREATER"
+                    @"--doc:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSharp.Compiler.Service.xml"
+                    @"--keyfile:C:\Users\nojaf\.nuget\packages\microsoft.dotnet.arcade.sdk\8.0.0-beta.22524.5\tools\snk/MSFT.snk"
+                    @"--publicsign+"
+                    @"--optimize-"
+                    @"--resource:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSComp.resources"
+                    @"--resource:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSIstrings.resources"
+                    @"--resource:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\UtilsStrings.resources"
+                    @"--resource:C:\Users\nojaf\Projects\main-fsharp\artifacts\obj\FSharp.Compiler.Service\Debug\netstandard2.0\FSStrings.resources"
+                    @"-r:C:\Users\nojaf\.nuget\packages\fsharp.core\6.0.6\lib\netstandard2.0\FSharp.Core.dll"
+                    @"-r:C:\Users\nojaf\Projects\main-fsharp\artifacts\bin\FSharp.DependencyManager.Nuget\Debug\netstandard2.0\FSharp.DependencyManager.Nuget.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\microsoft.build.framework\17.4.0-preview-22469-04\ref\netstandard2.0\Microsoft.Build.Framework.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\microsoft.build.tasks.core\17.4.0-preview-22469-04\ref\netstandard2.0\Microsoft.Build.Tasks.Core.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\microsoft.build.utilities.core\17.4.0-preview-22469-04\ref\netstandard2.0\Microsoft.Build.Utilities.Core.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\microsoft.net.stringtools\17.4.0-preview-22469-04\ref\netstandard2.0\Microsoft.NET.StringTools.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\Microsoft.Win32.Primitives.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\microsoft.win32.registry\5.0.0\ref\netstandard2.0\Microsoft.Win32.Registry.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\mscorlib.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\netstandard.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.AppContext.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.buffers\4.5.1\ref\netstandard2.0\System.Buffers.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.codedom\6.0.0\lib\netstandard2.0\System.CodeDom.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Collections.Concurrent.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Collections.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.collections.immutable\6.0.0\lib\netstandard2.0\System.Collections.Immutable.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Collections.NonGeneric.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Collections.Specialized.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.ComponentModel.Composition.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.ComponentModel.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.ComponentModel.EventBasedAsync.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.ComponentModel.Primitives.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.ComponentModel.TypeConverter.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.configuration.configurationmanager\6.0.0\lib\netstandard2.0\System.Configuration.ConfigurationManager.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Console.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Core.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Data.Common.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Data.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.Contracts.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.Debug.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.FileVersionInfo.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.Process.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.StackTrace.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.TextWriterTraceListener.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.Tools.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.TraceSource.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Diagnostics.Tracing.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Drawing.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Drawing.Primitives.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Dynamic.Runtime.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.formats.asn1\6.0.0\lib\netstandard2.0\System.Formats.Asn1.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Globalization.Calendars.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Globalization.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Globalization.Extensions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.Compression.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.Compression.FileSystem.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.Compression.ZipFile.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.FileSystem.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.FileSystem.DriveInfo.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.FileSystem.Primitives.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.FileSystem.Watcher.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.IsolatedStorage.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.MemoryMappedFiles.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.Pipes.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.IO.UnmanagedMemoryStream.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Linq.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Linq.Expressions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Linq.Parallel.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Linq.Queryable.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.memory\4.5.5\lib\netstandard2.0\System.Memory.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.Http.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.NameResolution.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.NetworkInformation.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.Ping.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.Primitives.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.Requests.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.Security.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.Sockets.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.WebHeaderCollection.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.WebSockets.Client.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Net.WebSockets.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Numerics.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.numerics.vectors\4.4.0\ref\netstandard2.0\System.Numerics.Vectors.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.ObjectModel.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Reflection.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.reflection.emit\4.7.0\ref\netstandard2.0\System.Reflection.Emit.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.reflection.emit.ilgeneration\4.7.0\ref\netstandard2.0\System.Reflection.Emit.ILGeneration.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Reflection.Extensions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.reflection.metadata\6.0.0\lib\netstandard2.0\System.Reflection.Metadata.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Reflection.Primitives.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.resources.extensions\6.0.0\lib\netstandard2.0\System.Resources.Extensions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Resources.Reader.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Resources.ResourceManager.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Resources.Writer.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.runtime.compilerservices.unsafe\6.0.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.CompilerServices.VisualC.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.Extensions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.Handles.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.InteropServices.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.InteropServices.RuntimeInformation.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.Numerics.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.Serialization.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.Serialization.Formatters.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.Serialization.Json.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.Serialization.Primitives.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Runtime.Serialization.Xml.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.security.accesscontrol\6.0.0\lib\netstandard2.0\System.Security.AccessControl.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Security.Claims.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Security.Cryptography.Algorithms.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.security.cryptography.cng\5.0.0\ref\netstandard2.0\System.Security.Cryptography.Cng.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Security.Cryptography.Csp.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Security.Cryptography.Encoding.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.security.cryptography.pkcs\6.0.1\lib\netstandard2.0\System.Security.Cryptography.Pkcs.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Security.Cryptography.Primitives.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.security.cryptography.protecteddata\6.0.0\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Security.Cryptography.X509Certificates.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.security.cryptography.xml\6.0.0\lib\netstandard2.0\System.Security.Cryptography.Xml.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.security.permissions\6.0.0\lib\netstandard2.0\System.Security.Permissions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Security.Principal.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.security.principal.windows\5.0.0\ref\netstandard2.0\System.Security.Principal.Windows.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Security.SecureString.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.ServiceModel.Web.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.text.encoding.codepages\6.0.0\lib\netstandard2.0\System.Text.Encoding.CodePages.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Text.Encoding.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Text.Encoding.Extensions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Text.RegularExpressions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Threading.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Threading.Overlapped.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\system.threading.tasks.dataflow\6.0.0\lib\netstandard2.0\System.Threading.Tasks.Dataflow.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Threading.Tasks.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Threading.Tasks.Parallel.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Threading.Thread.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Threading.ThreadPool.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Threading.Timer.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Transactions.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.ValueTuple.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Web.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Windows.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.Linq.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.ReaderWriter.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.Serialization.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.XDocument.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.XmlDocument.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.XmlSerializer.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.XPath.dll"
+                    @"-r:C:\Users\nojaf\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\System.Xml.XPath.XDocument.dll"
+                    @"--target:library"
+                    @"--nowarn:FS2003,44,57,75,1204,NU5125,NU5105,IL2121"
+                    @"--warn:3"
+                    @"--warnaserror:3239,1182,0025"
+                    @"--fullpaths"
+                    @"--flaterrors"
+                    @"--highentropyva+"
+                    @"--targetprofile:netstandard"
+                    @"--nocopyfsharpcore"
+                    @"--deterministic+"
+                    @"--simpleresolution"
+                    @"--nowarn:3384"
+                    @"--nowarn:75"
+                    @"--warnon:1182"
+                    @"--warnon:3218"
+                    @"--warnon:3390"
+                    @"--simpleresolution"
+                |]
+            ReferencedProjects = Array.empty
+            IsIncompleteTypeCheckEnvironment = false
+            UseScriptResolutionRules = false
+            LoadTime = DateTime.Now
+            UnresolvedReferences = None
+            OriginalLoadReferences = []
+            Stamp = None
+        }
+
+    let graph = graphFromTypedTree proj projectOptions
+
+    let json =
+        let cleanPath (path: string) = path.Replace("\\", "\\\\")
+
+        graph
+        |> Seq.map (fun (file, deps) ->
+            let deps =
+                if Seq.isEmpty deps then
+                    "[]"
+                else
+                    deps
+                    |> Seq.map (fun file -> $"        \"{cleanPath file}\"")
+                    |> String.concat ",\n"
+                    |> sprintf "[\n%s\n    ]"
+
+            $"    \"{cleanPath file}\": {deps}")
+        |> String.concat ",\n"
+        |> sprintf "{\n%s\n}"
+
+    File.WriteAllText(@"C:\Users\nojaf\Downloads\fcs-typedtree.json", json)

@@ -1464,7 +1464,25 @@ let CheckMultipleInputsInParallel
 
             FSharp.Compiler.Graph.DepResolving.AutomatedDependencyResolving.detectFileDependencies sourceFiles
 
-        do ()
+        // let json =
+        //     let cleanPath (path:string) = path.Replace("\\", "\\\\")
+        //     
+        //     graph.Graph
+        //     |> Seq.map (fun file ->
+        //         let deps =
+        //             if Seq.isEmpty file.Value then
+        //                 "[]"
+        //             else
+        //                 file.Value
+        //                 |> Seq.map (fun file -> $"        \"{cleanPath file.Name}\"")
+        //                 |> String.concat ",\n"
+        //                 |> sprintf "[\n%s\n    ]"
+        //
+        //         $"    \"{cleanPath file.Key.Name}\": {deps}")
+        //     |> String.concat ",\n"
+        //     |> sprintf "{\n%s\n}"
+        //
+        // File.WriteAllText(@"C:\Users\nojaf\Downloads\fcs-heuristic.json", json)
 
         let partialResults, tcState =
             let amap = tcImports.GetImportMap()
