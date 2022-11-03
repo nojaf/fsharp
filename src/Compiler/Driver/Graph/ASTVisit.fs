@@ -247,11 +247,6 @@ and visitType (x : SynType) : References =
         visitType innerType
     | SynType.LongIdent synLongIdent ->
         visitSynLongIdent synLongIdent
-    | SynType.MeasureDivide(synType, divisor, _) ->
-        seq {
-            yield! visitType synType
-            yield! visitType divisor
-        }
     | SynType.MeasurePower(baseMeasure, synRationalConst, _) ->
         seq {
             yield! visitType baseMeasure
