@@ -1406,7 +1406,7 @@ let CheckOneInputAux'
       tcState: TcState,
       inp: ParsedInput,
       _skipImplIfSigExists: bool): (unit -> bool) * TcConfig * TcImports * TcGlobals * LongIdent option * TcResultsSink * TcState * ParsedInput * bool)
-    : Cancellable<TcState -> PartialResult * TcState> =
+    : Cancellable<bool -> TcState -> PartialResult * TcState> =
 
     cancellable {
         try
@@ -1457,13 +1457,32 @@ let CheckOneInputAux'
 
                 // printfn $"Finished Processing Sig {file.FileName}"
                 return
-                    fun tcState ->
+                    fun isFinalFold tcState ->
                         // printfn $"Applying Sig {file.FileName}"
                         let fsiPartialResult, tcState =
                             let rootSigs = Zmap.add qualNameOfFile sigFileType tcState.tcsRootSigs
 
                             let tcSigEnv =
                                 AddLocalRootModuleOrNamespace TcResultsSink.NoSink tcGlobals amap m tcState.tcsTcSigEnv sigFileType
+
+                            // The idea is that a implementation file can depend only on the signature of a file.
+                            // This is sufficient for typechecking and actually works.
+                            // Example: A.fsi , A.fs, B.fs where B.fs depends on A.fsi
+                            // By only adding the link to A.fsi you can type check B.fs
+                            // When the contents of A.fsi is known in the TcEnv of implementation files.
+                            // The catch unfortunately is that this fails for IlxGen
+                            // KeyNotFoundException in `let StorageForVal m v eenv`
+                            let tcImplEnv =
+                                if isFinalFold then
+                                    tcState.tcsTcImplEnv
+                                else
+                                    AddLocalRootModuleOrNamespace TcResultsSink.NoSink tcGlobals amap m tcState.tcsTcImplEnv sigFileType
+
+                            let rootImpls =
+                                if isFinalFold then
+                                    tcState.tcsRootImpls
+                                else
+                                    Zset.add qualNameOfFile tcState.tcsRootImpls
 
                             // Add the signature to the signature env (unless it had an explicit signature)
                             let ccuSigForFile = CombineCcuContentFragments [ sigFileType; tcState.tcsCcuSig ]
@@ -1473,7 +1492,9 @@ let CheckOneInputAux'
                             let tcState =
                                 { tcState with
                                     tcsTcSigEnv = tcSigEnv
+                                    tcsTcImplEnv = tcImplEnv
                                     tcsRootSigs = rootSigs
+                                    tcsRootImpls = rootImpls
                                     tcsCreatesGeneratedProvidedTypes =
                                         tcState.tcsCreatesGeneratedProvidedTypes || createsGeneratedProvidedTypes
                                 }
@@ -1512,7 +1533,7 @@ let CheckOneInputAux'
 
                 // printfn $"Finished Processing Impl {file.FileName}"
                 return
-                    fun tcState ->
+                    fun _ tcState ->
                         // let backed = rootSigOpt.IsSome
                         // printfn $"Applying Impl Backed={backed} {file.FileName}"
 
@@ -1537,7 +1558,7 @@ let CheckOneInputAux'
 
         with e ->
             errorRecovery e range0
-            return fun tcState -> (tcState.TcEnvFromSignatures, EmptyTopAttrs, None, tcState.tcsCcuSig), tcState
+            return fun _ tcState -> (tcState.TcEnvFromSignatures, EmptyTopAttrs, None, tcState.tcsCcuSig), tcState
     }
 
 /// Typecheck a single file (or interactive entry into F# Interactive). If skipImplIfSigExists is set to true
@@ -1552,7 +1573,7 @@ let CheckOneInput'
       tcState: TcState,
       input: ParsedInput,
       skipImplIfSigExists: bool): (unit -> bool) * TcConfig * TcImports * TcGlobals * LongIdent option * TcResultsSink * TcState * ParsedInput * bool)
-    : Cancellable<TcState -> PartialResult * TcState> =
+    : Cancellable<bool -> TcState -> PartialResult * TcState> =
     CheckOneInputAux'(checkForErrors, tcConfig, tcImports, tcGlobals, prefixPathOpt, tcSink, tcState, input, skipImplIfSigExists)
 
 // Within a file, equip loggers to locally filter w.r.t. scope pragmas in each input
