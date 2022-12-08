@@ -7,7 +7,7 @@ open NUnit.Framework
 
 [<Test>]
 let ``DeclaredNamespace range should start at namespace keyword`` () =
-    let parseResults = 
+    let parseResults =
         getParseResults
             """namespace TypeEquality
 
@@ -16,13 +16,18 @@ type Teq<'a, 'b>
 """
 
     match parseResults with
-    | ParsedInput.ImplFile (ParsedImplFileInput (contents = [ SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r) ])) ->
-        assertRange (1, 0) (4, 8) r
+    | ParsedInput.ImplFile(
+        ParsedImplFileInput(contents =
+            [
+                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r)
+            ]
+        )
+      ) -> assertRange (1, 0) (4, 8) r
     | _ -> Assert.Fail "Could not get valid AST"
-    
+
 [<Test>]
 let ``Multiple DeclaredNamespaces should have a range that starts at the namespace keyword`` () =
-    let parseResults = 
+    let parseResults =
         getParseResults
             """namespace TypeEquality
 
@@ -35,16 +40,21 @@ let x = 42
 """
 
     match parseResults with
-    | ParsedInput.ImplFile (ParsedImplFileInput (contents = [
-        SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r1)
-        SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r2) ])) ->
+    | ParsedInput.ImplFile(
+        ParsedImplFileInput(contents =
+            [
+                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r1)
+                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r2)
+            ]
+        )
+      ) ->
         assertRange (1, 0) (4, 20) r1
         assertRange (6, 0) (8, 10) r2
     | _ -> Assert.Fail "Could not get valid AST"
 
 [<Test>]
 let ``GlobalNamespace should start at namespace keyword`` () =
-    let parseResults = 
+    let parseResults =
         getParseResults
             """// foo
 // bar
@@ -54,14 +64,18 @@ type X = int
 """
 
     match parseResults with
-    | ParsedInput.ImplFile (ParsedImplFileInput (contents = [
-        SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.GlobalNamespace; range = r) ])) ->
-        assertRange (3, 0) (5, 12) r
+    | ParsedInput.ImplFile(
+        ParsedImplFileInput(contents =
+            [
+                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.GlobalNamespace; range = r)
+            ]
+        )
+      ) -> assertRange (3, 0) (5, 12) r
     | _ -> Assert.Fail "Could not get valid AST"
 
 [<Test>]
 let ``Module range should start at first attribute`` () =
-    let parseResults = 
+    let parseResults =
         getParseResults
             """
 [<  Foo  >]
@@ -71,14 +85,18 @@ let s : string = "s"
 """
 
     match parseResults with
-    | ParsedInput.ImplFile (ParsedImplFileInput (contents = [
-        SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.NamedModule; range = r) ])) ->
-        assertRange (2, 0) (5, 20) r
+    | ParsedInput.ImplFile(
+        ParsedImplFileInput(contents =
+            [
+                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.NamedModule; range = r)
+            ]
+        )
+      ) -> assertRange (2, 0) (5, 20) r
     | _ -> Assert.Fail "Could not get valid AST"
 
 [<Test>]
 let ``Module should contain module keyword`` () =
-    let parseResults = 
+    let parseResults =
         getParseResults
             """
 /// this file contains patches to the F# Compiler Service that have not yet made it into
@@ -96,16 +114,24 @@ let a = 42
 """
 
     match parseResults with
-    | ParsedInput.ImplFile (ParsedImplFileInput (contents = [
-        SynModuleOrNamespace.SynModuleOrNamespace(
-            kind = SynModuleOrNamespaceKind.NamedModule
-            trivia = { LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Module mModule }) ])) ->
-        assertRange (5, 0) (5, 6) mModule
+    | ParsedInput.ImplFile(
+        ParsedImplFileInput(contents =
+            [
+                SynModuleOrNamespace.SynModuleOrNamespace(
+                    kind = SynModuleOrNamespaceKind.NamedModule
+                    trivia =
+                        {
+                            LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Module mModule
+                        }
+                )
+            ]
+        )
+      ) -> assertRange (5, 0) (5, 6) mModule
     | _ -> Assert.Fail "Could not get valid AST"
 
 [<Test>]
 let ``Namespace should contain namespace keyword`` () =
-    let parseResults = 
+    let parseResults =
         getParseResults
             """
 namespace Foo
@@ -114,16 +140,24 @@ let a = 42
 """
 
     match parseResults with
-    | ParsedInput.ImplFile (ParsedImplFileInput (contents = [
-        SynModuleOrNamespace.SynModuleOrNamespace(
-            kind = SynModuleOrNamespaceKind.DeclaredNamespace
-            trivia = { LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Namespace mNamespace }) ])) ->
-        assertRange (2, 0) (2, 9) mNamespace
+    | ParsedInput.ImplFile(
+        ParsedImplFileInput(contents =
+            [
+                SynModuleOrNamespace.SynModuleOrNamespace(
+                    kind = SynModuleOrNamespaceKind.DeclaredNamespace
+                    trivia =
+                        {
+                            LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Namespace mNamespace
+                        }
+                )
+            ]
+        )
+      ) -> assertRange (2, 0) (2, 9) mNamespace
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
 [<Test>]
 let ``global in open path should contain trivia`` () =
-    let parseResults = 
+    let parseResults =
         getParseResults
             """
 namespace Ionide.VSCode.FSharp
@@ -132,9 +166,23 @@ open global.Node
 """
 
     match parseResults with
-    | ParsedInput.ImplFile (ParsedImplFileInput (contents = [
-        SynModuleOrNamespace.SynModuleOrNamespace(decls = [
-            SynModuleDecl.Open(target = SynOpenDeclTarget.ModuleOrNamespace(longId = SynLongIdent(trivia = [ Some (IdentTrivia.OriginalNotation("global")); None ])))
-        ]) ])) ->
-        Assert.Pass()
+    | ParsedInput.ImplFile(
+        ParsedImplFileInput(contents =
+            [
+                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+                    [
+                        SynModuleDecl.Open(target =
+                            SynOpenDeclTarget.ModuleOrNamespace(longId =
+                                SynLongIdent(trivia =
+                                    [
+                                        Some(IdentTrivia.OriginalNotation("global")); None
+                                    ]
+                                )
+                            )
+                        )
+                    ]
+                )
+            ]
+        )
+      ) -> Assert.Pass()
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
