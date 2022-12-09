@@ -140,6 +140,10 @@ let findFunctionInvocations (functionName: string) (parameterCount: int) (expr: 
             Continuation.sequence continuations finalContinuation
         | SynExpr.Sequential(expr1 = expr1; expr2 = expr2) -> visit expr1 (fun r1 -> visit expr2 (fun r2 -> continuation (r1 @ r2)))
         | SynExpr.YieldOrReturnFrom((false, true), expr, _) -> visit expr continuation
+        | SynExpr.Tuple (exprs = exprs) ->
+            let continuations = List.map visit exprs
+            let finalContinuation xs = (List.collect id >> continuation) xs
+            Continuation.sequence continuations finalContinuation
         | _ -> continuation []
 
     visit expr id
@@ -343,6 +347,17 @@ let rec addOneInner (input : int list) (acc : int list) : int list =
     | [] -> acc
     | x :: xs -> ((((addOneInner)) xs ((x + 1) :: acc)))
 """
+        expectNonTailRecursive
+            "Function invocation in tuple"
+            (2, 1)
+            """
+let rec f (a:int) : int * int =
+    if a < 10 then
+        let v, _ = (f (a + 1)), ()
+        v
+    else
+        a
+"""
     ]
 
 [<TestCaseSource(nameof examples)>]
@@ -355,8 +370,3 @@ let ``Assert function is tail recursive`` (example: Example) =
     Assert.AreEqual(example.ReturnPathsCount, returnExprCount)
     Assert.AreEqual(example.FunctionInvocationCount, invocationCount)
     Assert.AreEqual(example.IsTailRecursive, isTailRecursive)
-
-let rec addOneInner (input: int list) (acc: int list) : int list =
-    match input with
-    | [] -> acc
-    | x :: xs -> ((addOneInner)) xs ((x + 1) :: acc)
