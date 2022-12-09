@@ -43,9 +43,14 @@ let (|ComputationExpr|_|) e =
     | SynExpr.App(argExpr = SynExpr.ComputationExpr(expr = expr)) -> Some expr
     | _ -> None
 
+let rec stripParen =
+    function
+    | SynExpr.Paren(expr = expr) -> stripParen expr
+    | e -> e
+
 let findReturnExpressions (expr: SynExpr) : range list =
     let rec visit (bodyIsComputationExpression: bool) (expr: SynExpr) (continuation: range list -> range list) =
-        match expr with
+        match stripParen expr with
         | SynExpr.Typed(expr = expr) -> visit bodyIsComputationExpression expr continuation
         | SynExpr.Match(clauses = clauses)
         | SynExpr.MatchLambda(matchClauses = clauses) ->
@@ -65,7 +70,7 @@ let findReturnExpressions (expr: SynExpr) : range list =
                 | Some elseExpr -> visit bodyIsComputationExpression elseExpr (fun elseRanges -> continuation (thenRanges @ elseRanges)))
         | ComputationExpr expr when bodyIsComputationExpression -> visit bodyIsComputationExpression expr continuation
         | SynExpr.YieldOrReturnFrom((false, true), expr, _) -> visit bodyIsComputationExpression expr continuation
-        | _ -> continuation [ expr.Range ]
+        | expr -> continuation [ expr.Range ]
 
     let bodyIsComputationExpression =
         match expr with
@@ -78,7 +83,7 @@ let findReturnExpressions (expr: SynExpr) : range list =
 /// Skip over partial applications
 let findFunctionInvocations (functionName: string) (parameterCount: int) (expr: SynExpr) : range list =
     let rec visit (expr: SynExpr) (continuation: range list -> range list) =
-        match expr with
+        match stripParen expr with
         | SynExpr.Match(clauses = clauses)
         | SynExpr.MatchLambda(matchClauses = clauses) ->
             let continuations =
@@ -99,7 +104,7 @@ let findFunctionInvocations (functionName: string) (parameterCount: int) (expr: 
             let finalContinuation xs =
                 let ranges = List.collect id xs
 
-                match funcExpr with
+                match stripParen funcExpr with
                 | SynExpr.Ident ident ->
                     if ident.idText = functionName && args.Length = parameterCount then
                         range :: ranges
@@ -329,6 +334,15 @@ let rec private receiveLoop (next: Ingest) (inSocket: UdpClient) =
     return! receiveLoop next inSocket
   }
 """
+        expectTailRecursive
+            "Parentheses around return expression, functionName and invocation"
+            (2, 1)
+            """
+let rec addOneInner (input : int list) (acc : int list) : int list = 
+    match input with
+    | [] -> acc
+    | x :: xs -> ((((addOneInner)) xs ((x + 1) :: acc)))
+"""
     ]
 
 [<TestCaseSource(nameof examples)>]
@@ -341,3 +355,8 @@ let ``Assert function is tail recursive`` (example: Example) =
     Assert.AreEqual(example.ReturnPathsCount, returnExprCount)
     Assert.AreEqual(example.FunctionInvocationCount, invocationCount)
     Assert.AreEqual(example.IsTailRecursive, isTailRecursive)
+
+let rec addOneInner (input: int list) (acc: int list) : int list =
+    match input with
+    | [] -> acc
+    | x :: xs -> ((addOneInner)) xs ((x + 1) :: acc)
