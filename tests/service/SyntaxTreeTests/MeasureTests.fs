@@ -15,24 +15,12 @@ let m = 7.000<cm>
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding.SynBinding(expr = SynExpr.Const(SynConst.Measure(constantRange = r1), _))
-                            ]
-                        )
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding.SynBinding(expr = SynExpr.Const(SynConst.Measure(constantRange = r2), _))
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [ SynBinding.SynBinding(expr = SynExpr.Const(SynConst.Measure(constantRange = r1), _)) ])
+                SynModuleDecl.Let(bindings = [ SynBinding.SynBinding(expr = SynExpr.Const(SynConst.Measure(constantRange = r2), _)) ])
+            ])
+        ])
       ) ->
         assertRange (2, 8) (2, 12) r1
         assertRange (3, 8) (3, 13) r2
@@ -48,41 +36,32 @@ let ``SynMeasure.Paren has correct range`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Const(
-                                SynConst.Measure(
-                                    SynConst.UInt32 _,
-                                    _,
-                                    SynMeasure.Divide(
-                                        SynMeasure.Seq([ SynMeasure.Named([ hrIdent ], _) ], _),
-                                        SynMeasure.Seq(
-                                            [
-                                                SynMeasure.Paren(
-                                                    SynMeasure.Seq(
-                                                        [
-                                                            SynMeasure.Named([ staffIdent ], _); SynMeasure.Named([ weeksIdent ], _)
-                                                        ],
-                                                        _
-                                                    ),
-                                                    mParen
-                                                )
-                                            ],
-                                            _
-                                        ),
-                                        _
-                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Const(
+                        SynConst.Measure(
+                            SynConst.UInt32 _,
+                            _,
+                            SynMeasure.Divide(
+                                SynMeasure.Seq([ SynMeasure.Named([ hrIdent ], _) ], _),
+                                SynMeasure.Seq(
+                                    [
+                                        SynMeasure.Paren(
+                                            SynMeasure.Seq([ SynMeasure.Named([ staffIdent ], _); SynMeasure.Named([ weeksIdent ], _) ], _),
+                                            mParen
+                                        )
+                                    ],
+                                    _
                                 ),
                                 _
                             )
-                        )
-                    ]
+                        ),
+                        _
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         Assert.AreEqual("hr", hrIdent.idText)
         Assert.AreEqual("staff", staffIdent.idText)
@@ -105,33 +84,27 @@ let ``SynType.Tuple in measure type with no slashes`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.TypeAbbrev(rhsType =
-                                            SynType.Tuple(
-                                                false,
-                                                [
-                                                    SynTupleTypeSegment.Type(TypeName "Y")
-                                                    SynTupleTypeSegment.Star mStar
-                                                    SynTupleTypeSegment.Type(TypeName "Z")
-                                                ],
-                                                mTuple
-                                            )
-                                        )
-                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.Simple(simpleRepr =
+                            SynTypeDefnSimpleRepr.TypeAbbrev(rhsType =
+                                SynType.Tuple(
+                                    false,
+                                    [
+                                        SynTupleTypeSegment.Type(TypeName "Y")
+                                        SynTupleTypeSegment.Star mStar
+                                        SynTupleTypeSegment.Type(TypeName "Z")
+                                    ],
+                                    mTuple
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 23) (2, 24) mStar
         assertRange (2, 21) (2, 26) mTuple
@@ -147,31 +120,21 @@ let ``SynType.Tuple in measure type with leading slash`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.TypeAbbrev(rhsType =
-                                            SynType.Tuple(
-                                                false,
-                                                [
-                                                    SynTupleTypeSegment.Slash mSlash; SynTupleTypeSegment.Type(TypeName "second")
-                                                ],
-                                                mTuple
-                                            )
-                                        )
-                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.Simple(simpleRepr =
+                            SynTypeDefnSimpleRepr.TypeAbbrev(rhsType =
+                                SynType.Tuple(
+                                    false, [ SynTupleTypeSegment.Slash mSlash; SynTupleTypeSegment.Type(TypeName "second") ], mTuple
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 21) (2, 22) mSlash
         assertRange (2, 21) (2, 29) mTuple
@@ -187,35 +150,29 @@ let ``SynType.Tuple in measure type with start and slash`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.TypeAbbrev(rhsType =
-                                            SynType.Tuple(
-                                                false,
-                                                [
-                                                    SynTupleTypeSegment.Type(TypeName "X")
-                                                    SynTupleTypeSegment.Star msStar
-                                                    SynTupleTypeSegment.Type(TypeName "Y")
-                                                    SynTupleTypeSegment.Slash msSlash
-                                                    SynTupleTypeSegment.Type(TypeName "Z")
-                                                ],
-                                                mTuple
-                                            )
-                                        )
-                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.Simple(simpleRepr =
+                            SynTypeDefnSimpleRepr.TypeAbbrev(rhsType =
+                                SynType.Tuple(
+                                    false,
+                                    [
+                                        SynTupleTypeSegment.Type(TypeName "X")
+                                        SynTupleTypeSegment.Star msStar
+                                        SynTupleTypeSegment.Type(TypeName "Y")
+                                        SynTupleTypeSegment.Slash msSlash
+                                        SynTupleTypeSegment.Type(TypeName "Z")
+                                    ],
+                                    mTuple
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 23) (2, 24) msStar
         assertRange (2, 21) (2, 30) mTuple

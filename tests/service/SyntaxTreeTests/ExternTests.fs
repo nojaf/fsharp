@@ -11,22 +11,10 @@ let ``extern keyword is present in trivia`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(trivia =
-                                    {
-                                        LeadingKeyword = SynLeadingKeyword.Extern mExtern
-                                    }
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [ SynBinding(trivia = { LeadingKeyword = SynLeadingKeyword.Extern mExtern }) ])
+            ])
+        ])
       ) -> assertRange (1, 0) (1, 6) mExtern
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"

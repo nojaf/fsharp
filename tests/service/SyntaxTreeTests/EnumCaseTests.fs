@@ -14,33 +14,22 @@ type Foo = | Bar = 1
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Enum(cases =
-                                            [
-                                                SynEnumCase.SynEnumCase(trivia =
-                                                    {
-                                                        BarRange = Some mBar
-                                                        EqualsRange = mEquals
-                                                    }
-                                                )
-                                            ]
-                                        )
-                                    )
-                                )
-                            ],
-                            _
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.Simple(simpleRepr =
+                                SynTypeDefnSimpleRepr.Enum(cases = [
+                                    SynEnumCase.SynEnumCase(trivia = { BarRange = Some mBar; EqualsRange = mEquals })
+                                ])
+                            )
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (2, 11) (2, 12) mBar
         assertRange (2, 17) (2, 18) mEquals
@@ -58,39 +47,23 @@ type Foo =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Enum(cases =
-                                            [
-                                                SynEnumCase.SynEnumCase(trivia =
-                                                    {
-                                                        BarRange = Some mBar1
-                                                        EqualsRange = mEquals1
-                                                    }
-                                                )
-                                                SynEnumCase.SynEnumCase(trivia =
-                                                    {
-                                                        BarRange = Some mBar2
-                                                        EqualsRange = mEquals2
-                                                    }
-                                                )
-                                            ]
-                                        )
-                                    )
-                                )
-                            ],
-                            _
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.Simple(simpleRepr =
+                                SynTypeDefnSimpleRepr.Enum(cases = [
+                                    SynEnumCase.SynEnumCase(trivia = { BarRange = Some mBar1; EqualsRange = mEquals1 })
+                                    SynEnumCase.SynEnumCase(trivia = { BarRange = Some mBar2; EqualsRange = mEquals2 })
+                                ])
+                            )
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (3, 4) (3, 5) mBar1
         assertRange (3, 10) (3, 11) mEquals1
@@ -108,32 +81,21 @@ type Foo = Bar = 1
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Enum(cases =
-                                            [
-                                                SynEnumCase.SynEnumCase(trivia =
-                                                    {
-                                                        BarRange = None
-                                                        EqualsRange = mEquals
-                                                    }
-                                                )
-                                            ]
-                                        )
-                                    )
-                                )
-                            ],
-                            _
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.Simple(simpleRepr =
+                                SynTypeDefnSimpleRepr.Enum(cases = [
+                                    SynEnumCase.SynEnumCase(trivia = { BarRange = None; EqualsRange = mEquals })
+                                ])
+                            )
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) -> assertRange (2, 15) (2, 16) mEquals
     | _ -> Assert.Fail "Could not get valid AST"

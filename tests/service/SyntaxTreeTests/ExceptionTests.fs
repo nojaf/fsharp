@@ -17,14 +17,8 @@ exception Foo with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Exception(exnDefn = SynExceptionDefn(withKeyword = Some mWithKeyword))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace(decls = [ SynModuleDecl.Exception(exnDefn = SynExceptionDefn(withKeyword = Some mWithKeyword)) ])
+        ])
       ) -> assertRange (4, 14) (4, 18) mWithKeyword
     | _ -> Assert.Fail "Could not get valid AST"

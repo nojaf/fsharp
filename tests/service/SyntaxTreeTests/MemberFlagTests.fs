@@ -23,66 +23,26 @@ type Y =
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Types(types =
-                            [
-                                SynTypeDefnSig(typeRepr =
-                                    SynTypeDefnSigRepr.ObjectModel(memberSigs =
-                                        [
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(trivia =
-                                                    {
-                                                        LeadingKeyword = SynLeadingKeyword.Abstract mAbstract1
-                                                    }
-                                                )
-                                            )
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(trivia =
-                                                    {
-                                                        LeadingKeyword = SynLeadingKeyword.AbstractMember(mAbstract2, mMember1)
-                                                    }
-                                                )
-                                            )
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(trivia =
-                                                    {
-                                                        LeadingKeyword = SynLeadingKeyword.StaticMember(mStatic3, mMember3)
-                                                    }
-                                                )
-                                            )
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(trivia =
-                                                    {
-                                                        LeadingKeyword = SynLeadingKeyword.Member mMember4
-                                                    }
-                                                )
-                                            )
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(trivia =
-                                                    {
-                                                        LeadingKeyword = SynLeadingKeyword.Override mOverride5
-                                                    }
-                                                )
-                                            )
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(trivia =
-                                                    {
-                                                        LeadingKeyword = SynLeadingKeyword.Default mDefault6
-                                                    }
-                                                )
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Types(types = [
+                    SynTypeDefnSig(typeRepr =
+                        SynTypeDefnSigRepr.ObjectModel(memberSigs = [
+                            SynMemberSig.Member(memberSig = SynValSig(trivia = { LeadingKeyword = SynLeadingKeyword.Abstract mAbstract1 }))
+                            SynMemberSig.Member(memberSig =
+                                SynValSig(trivia = { LeadingKeyword = SynLeadingKeyword.AbstractMember(mAbstract2, mMember1) })
+                            )
+                            SynMemberSig.Member(memberSig =
+                                SynValSig(trivia = { LeadingKeyword = SynLeadingKeyword.StaticMember(mStatic3, mMember3) })
+                            )
+                            SynMemberSig.Member(memberSig = SynValSig(trivia = { LeadingKeyword = SynLeadingKeyword.Member mMember4 }))
+                            SynMemberSig.Member(memberSig = SynValSig(trivia = { LeadingKeyword = SynLeadingKeyword.Override mOverride5 }))
+                            SynMemberSig.Member(memberSig = SynValSig(trivia = { LeadingKeyword = SynLeadingKeyword.Default mDefault6 }))
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (5, 4) (5, 12) mAbstract1
         assertRange (6, 4) (6, 12) mAbstract2
@@ -106,39 +66,25 @@ type Foo =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.AbstractSlot(slotSig =
-                                                SynValSig(trivia =
-                                                    {
-                                                        LeadingKeyword = SynLeadingKeyword.Abstract mAbstract1
-                                                    }
-                                                )
-                                            )
-                                            SynMemberDefn.AbstractSlot(slotSig =
-                                                SynValSig(trivia =
-                                                    {
-                                                        LeadingKeyword = SynLeadingKeyword.AbstractMember(mAbstract2, mMember2)
-                                                    }
-                                                )
-                                            )
-                                        ]
-                                    )
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.ObjectModel(members = [
+                                SynMemberDefn.AbstractSlot(slotSig =
+                                    SynValSig(trivia = { LeadingKeyword = SynLeadingKeyword.Abstract mAbstract1 })
                                 )
-                            ],
-                            _
+                                SynMemberDefn.AbstractSlot(slotSig =
+                                    SynValSig(trivia = { LeadingKeyword = SynLeadingKeyword.AbstractMember(mAbstract2, mMember2) })
+                                )
+                            ])
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (3, 4) (3, 12) mAbstract1
         assertRange (4, 4) (4, 12) mAbstract2
@@ -164,29 +110,23 @@ type Foo =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            LeadingKeyword(SynLeadingKeyword.StaticMemberVal(mStatic1, mMember1, mVal1))
-                                            LeadingKeyword(SynLeadingKeyword.MemberVal(mMember2, mVal2))
-                                            LeadingKeyword(SynLeadingKeyword.OverrideVal(mOverride3, mVal3))
-                                            LeadingKeyword(SynLeadingKeyword.DefaultVal(mDefault4, mVal4))
-                                        ]
-                                    )
-                                )
-                            ],
-                            _
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.ObjectModel(members = [
+                                LeadingKeyword(SynLeadingKeyword.StaticMemberVal(mStatic1, mMember1, mVal1))
+                                LeadingKeyword(SynLeadingKeyword.MemberVal(mMember2, mVal2))
+                                LeadingKeyword(SynLeadingKeyword.OverrideVal(mOverride3, mVal3))
+                                LeadingKeyword(SynLeadingKeyword.DefaultVal(mDefault4, mVal4))
+                            ])
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (3, 4) (3, 10) mStatic1
         assertRange (3, 11) (3, 17) mMember1
@@ -221,29 +161,23 @@ type Foo =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            LeadingKeyword(SynLeadingKeyword.StaticMember(mStatic1, mMember1))
-                                            LeadingKeyword(SynLeadingKeyword.Member(mMember2))
-                                            LeadingKeyword(SynLeadingKeyword.Override(mOverride3))
-                                            LeadingKeyword(SynLeadingKeyword.Default mDefaultRange4)
-                                        ]
-                                    )
-                                )
-                            ],
-                            _
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.ObjectModel(members = [
+                                LeadingKeyword(SynLeadingKeyword.StaticMember(mStatic1, mMember1))
+                                LeadingKeyword(SynLeadingKeyword.Member(mMember2))
+                                LeadingKeyword(SynLeadingKeyword.Override(mOverride3))
+                                LeadingKeyword(SynLeadingKeyword.Default mDefaultRange4)
+                            ])
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (3, 4) (3, 10) mStatic1
         assertRange (3, 11) (3, 17) mMember1
@@ -267,53 +201,33 @@ let meh =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(expr =
-                                    SynExpr.ObjExpr(
-                                        members =
-                                            [
-                                                SynMemberDefn.Member(memberDefn =
-                                                    SynBinding(trivia =
-                                                        {
-                                                            LeadingKeyword = SynLeadingKeyword.Override mOverride1
-                                                        }
-                                                    )
-                                                )
-                                                SynMemberDefn.Member(memberDefn =
-                                                    SynBinding(trivia =
-                                                        {
-                                                            LeadingKeyword = SynLeadingKeyword.Member mMember2
-                                                        }
-                                                    )
-                                                )
-                                            ]
-                                        extraImpls =
-                                            [
-                                                SynInterfaceImpl(members =
-                                                    [
-                                                        SynMemberDefn.Member(memberDefn =
-                                                            SynBinding(trivia =
-                                                                {
-                                                                    LeadingKeyword = SynLeadingKeyword.Member mMember3
-                                                                }
-                                                            )
-                                                        )
-                                                    ]
-                                                )
-                                            ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(expr =
+                        SynExpr.ObjExpr(
+                            members =
+                                [
+                                    SynMemberDefn.Member(memberDefn =
+                                        SynBinding(trivia = { LeadingKeyword = SynLeadingKeyword.Override mOverride1 })
                                     )
-                                )
-                            ]
+                                    SynMemberDefn.Member(memberDefn =
+                                        SynBinding(trivia = { LeadingKeyword = SynLeadingKeyword.Member mMember2 })
+                                    )
+                                ]
+                            extraImpls =
+                                [
+                                    SynInterfaceImpl(members = [
+                                        SynMemberDefn.Member(memberDefn =
+                                            SynBinding(trivia = { LeadingKeyword = SynLeadingKeyword.Member mMember3 })
+                                        )
+                                    ])
+                                ]
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (4, 8) (4, 16) mOverride1
         assertRange (5, 8) (5, 14) mMember2

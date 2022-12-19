@@ -17,11 +17,9 @@ type Teq<'a, 'b>
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r)
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r)
+        ])
       ) -> assertRange (1, 0) (4, 8) r
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -41,12 +39,10 @@ let x = 42
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r1)
-                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r2)
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r1)
+            SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.DeclaredNamespace; range = r2)
+        ])
       ) ->
         assertRange (1, 0) (4, 20) r1
         assertRange (6, 0) (8, 10) r2
@@ -65,11 +61,9 @@ type X = int
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.GlobalNamespace; range = r)
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.GlobalNamespace; range = r)
+        ])
       ) -> assertRange (3, 0) (5, 12) r
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -86,11 +80,7 @@ let s : string = "s"
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.NamedModule; range = r)
-            ]
-        )
+        ParsedImplFileInput(contents = [ SynModuleOrNamespace.SynModuleOrNamespace(kind = SynModuleOrNamespaceKind.NamedModule; range = r) ])
       ) -> assertRange (2, 0) (5, 20) r
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -115,17 +105,12 @@ let a = 42
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(
-                    kind = SynModuleOrNamespaceKind.NamedModule
-                    trivia =
-                        {
-                            LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Module mModule
-                        }
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(
+                kind = SynModuleOrNamespaceKind.NamedModule
+                trivia = { LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Module mModule }
+            )
+        ])
       ) -> assertRange (5, 0) (5, 6) mModule
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -141,17 +126,12 @@ let a = 42
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(
-                    kind = SynModuleOrNamespaceKind.DeclaredNamespace
-                    trivia =
-                        {
-                            LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Namespace mNamespace
-                        }
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(
+                kind = SynModuleOrNamespaceKind.DeclaredNamespace
+                trivia = { LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Namespace mNamespace }
+            )
+        ])
       ) -> assertRange (2, 0) (2, 9) mNamespace
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -167,22 +147,14 @@ open global.Node
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Open(target =
-                            SynOpenDeclTarget.ModuleOrNamespace(longId =
-                                SynLongIdent(trivia =
-                                    [
-                                        Some(IdentTrivia.OriginalNotation("global")); None
-                                    ]
-                                )
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Open(target =
+                    SynOpenDeclTarget.ModuleOrNamespace(longId =
+                        SynLongIdent(trivia = [ Some(IdentTrivia.OriginalNotation("global")); None ])
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) -> Assert.Pass()
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"

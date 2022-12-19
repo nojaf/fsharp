@@ -31,9 +31,7 @@ let v =
 """
 
     match trivia with
-    | [
-        ConditionalDirectiveTrivia.If(expr, mIf); ConditionalDirectiveTrivia.EndIf mEndif
-      ] ->
+    | [ ConditionalDirectiveTrivia.If(expr, mIf); ConditionalDirectiveTrivia.EndIf mEndif ] ->
         assertRange (3, 4) (3, 13) mIf
         assertRange (5, 4) (5, 10) mEndif
 
@@ -57,9 +55,7 @@ let v =
 """
 
     match trivia with
-    | [
-        ConditionalDirectiveTrivia.If(expr, mIf); ConditionalDirectiveTrivia.Else mElse; ConditionalDirectiveTrivia.EndIf mEndif
-      ] ->
+    | [ ConditionalDirectiveTrivia.If(expr, mIf); ConditionalDirectiveTrivia.Else mElse; ConditionalDirectiveTrivia.EndIf mEndif ] ->
         assertRange (3, 4) (3, 13) mIf
         assertRange (5, 4) (5, 9) mElse
         assertRange (7, 4) (7, 10) mEndif
@@ -210,9 +206,7 @@ val v: int =
 """
 
     match trivia with
-    | [
-        ConditionalDirectiveTrivia.If(expr, mIf); ConditionalDirectiveTrivia.EndIf mEndif
-      ] ->
+    | [ ConditionalDirectiveTrivia.If(expr, mIf); ConditionalDirectiveTrivia.EndIf mEndif ] ->
         assertRange (5, 4) (5, 13) mIf
         assertRange (7, 4) (7, 10) mEndif
 
@@ -238,9 +232,7 @@ val v : int =
 """
 
     match trivia with
-    | [
-        ConditionalDirectiveTrivia.If(expr, mIf); ConditionalDirectiveTrivia.Else mElse; ConditionalDirectiveTrivia.EndIf mEndif
-      ] ->
+    | [ ConditionalDirectiveTrivia.If(expr, mIf); ConditionalDirectiveTrivia.Else mElse; ConditionalDirectiveTrivia.EndIf mEndif ] ->
         assertRange (5, 4) (5, 13) mIf
         assertRange (7, 4) (7, 9) mElse
         assertRange (9, 4) (9, 10) mEndif

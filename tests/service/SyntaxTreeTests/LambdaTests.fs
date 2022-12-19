@@ -10,15 +10,11 @@ let ``Lambda with two parameters gives correct body`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Lambda(parsedData = Some([ SynPat.Named _; SynPat.Named _ ], SynExpr.Ident ident)))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Lambda(parsedData = Some([ SynPat.Named _; SynPat.Named _ ], SynExpr.Ident ident)))
+            ])
+        ])
       ) -> Assert.AreEqual("x", ident.idText)
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -28,24 +24,13 @@ let ``Lambda with wild card parameter gives correct body`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Lambda(parsedData =
-                                Some(
-                                    [
-                                        SynPat.Named _; SynPat.Wild _; SynPat.Named _
-                                    ],
-                                    SynExpr.Ident ident
-                                )
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Lambda(parsedData = Some([ SynPat.Named _; SynPat.Wild _; SynPat.Named _ ], SynExpr.Ident ident))
                 )
-            ]
-        )
+            ])
+        ])
       ) -> Assert.AreEqual("x", ident.idText)
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -55,24 +40,15 @@ let ``Lambda with tuple parameter with wild card gives correct body`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Lambda(parsedData =
-                                Some(
-                                    [
-                                        SynPat.Named _; SynPat.Paren(SynPat.Tuple _, _); SynPat.Named _
-                                    ],
-                                    SynExpr.Ident ident
-                                )
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Lambda(parsedData =
+                        Some([ SynPat.Named _; SynPat.Paren(SynPat.Tuple _, _); SynPat.Named _ ], SynExpr.Ident ident)
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) -> Assert.AreEqual("x", ident.idText)
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -82,19 +58,15 @@ let ``Lambda with wild card that returns a lambda gives correct body`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Lambda(parsedData =
-                                Some([ SynPat.Wild _ ], SynExpr.Lambda(parsedData = Some([ SynPat.Wild _ ], SynExpr.Ident ident)))
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Lambda(parsedData =
+                        Some([ SynPat.Wild _ ], SynExpr.Lambda(parsedData = Some([ SynPat.Wild _ ], SynExpr.Ident ident)))
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) -> Assert.AreEqual("x", ident.idText)
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -104,15 +76,11 @@ let ``Simple lambda has arrow range`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
+            ])
+        ])
       ) -> assertRange (1, 6) (1, 8) mArrow
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -126,15 +94,11 @@ let ``Multiline lambda has arrow range`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
+            ])
+        ])
       ) -> assertRange (2, 28) (2, 30) mArrow
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -144,15 +108,11 @@ let ``Destructed lambda has arrow range`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
+            ])
+        ])
       ) -> assertRange (1, 14) (1, 16) mArrow
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -162,15 +122,11 @@ let ``Tuple in lambda has arrow range`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
+            ])
+        ])
       ) -> assertRange (1, 11) (1, 13) mArrow
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -186,14 +142,10 @@ let ``Complex arguments lambda has arrow range`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Lambda(trivia = { ArrowRange = Some mArrow }))
+            ])
+        ])
       ) -> assertRange (4, 4) (4, 6) mArrow
     | _ -> Assert.Fail "Could not get valid AST"

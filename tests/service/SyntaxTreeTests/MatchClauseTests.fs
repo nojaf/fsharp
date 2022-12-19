@@ -18,21 +18,11 @@ with ex ->
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.TryWith(withCases =
-                                [
-                                    SynMatchClause(range = range) as clause
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.TryWith(withCases = [ SynMatchClause(range = range) as clause ]))
+            ])
+        ])
       ) ->
         assertRange (5, 5) (7, 8) range
         assertRange (5, 5) (7, 8) clause.Range
@@ -55,21 +45,13 @@ with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.TryWith(withCases =
-                                [
-                                    SynMatchClause(range = r1) as clause1; SynMatchClause(range = r2) as clause2
-                                ]
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.TryWith(withCases = [ SynMatchClause(range = r1) as clause1; SynMatchClause(range = r2) as clause2 ])
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (6, 2) (8, 8) r1
         assertRange (6, 2) (8, 8) clause1.Range
@@ -93,21 +75,11 @@ with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.TryWith(withCases =
-                                [
-                                    SynMatchClause(range = range) as clause
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.TryWith(withCases = [ SynMatchClause(range = range) as clause ]))
+            ])
+        ])
       ) ->
         assertRange (6, 2) (7, 6) range
         assertRange (6, 2) (7, 6) clause.Range
@@ -126,21 +98,11 @@ with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.TryWith(withCases =
-                                [
-                                    SynMatchClause(range = range) as clause
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.TryWith(withCases = [ SynMatchClause(range = range) as clause ]))
+            ])
+        ])
       ) ->
         assertRange (6, 2) (6, 4) range
         assertRange (6, 2) (6, 4) clause.Range
@@ -159,21 +121,11 @@ with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.TryWith(withCases =
-                                [
-                                    SynMatchClause(range = range) as clause
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.TryWith(withCases = [ SynMatchClause(range = range) as clause ]))
+            ])
+        ])
       ) ->
         assertRange (6, 2) (6, 21) range
         assertRange (6, 2) (6, 21) clause.Range
@@ -189,21 +141,11 @@ match foo with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(trivia = { ArrowRange = Some mArrow })
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Match(clauses = [ SynMatchClause(trivia = { ArrowRange = Some mArrow }) ]))
+            ])
+        ])
       ) -> assertRange (3, 10) (3, 12) mArrow
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -217,21 +159,11 @@ match foo with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(trivia = { ArrowRange = Some mArrow })
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Match(clauses = [ SynMatchClause(trivia = { ArrowRange = Some mArrow }) ]))
+            ])
+        ])
       ) -> assertRange (3, 31) (3, 33) mArrow
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -245,21 +177,11 @@ match foo with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(trivia = { BarRange = Some mBar })
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Match(clauses = [ SynMatchClause(trivia = { BarRange = Some mBar }) ]))
+            ])
+        ])
       ) -> assertRange (3, 0) (3, 1) mBar
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -274,21 +196,16 @@ match foo with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(trivia = { BarRange = Some mBar1 }); SynMatchClause(trivia = { BarRange = Some mBar2 })
-                                ]
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Match(clauses = [
+                        SynMatchClause(trivia = { BarRange = Some mBar1 })
+                        SynMatchClause(trivia = { BarRange = Some mBar2 })
+                    ])
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (3, 0) (3, 1) mBar1
         assertRange (4, 0) (4, 1) mBar2
@@ -306,21 +223,11 @@ with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.TryWith(withCases =
-                                [
-                                    SynMatchClause(trivia = { BarRange = Some mBar })
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.TryWith(withCases = [ SynMatchClause(trivia = { BarRange = Some mBar }) ]))
+            ])
+        ])
       ) -> assertRange (5, 0) (5, 1) mBar
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -337,21 +244,11 @@ with exn ->
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.TryWith(withCases =
-                                [
-                                    SynMatchClause(trivia = { BarRange = None })
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.TryWith(withCases = [ SynMatchClause(trivia = { BarRange = None }) ]))
+            ])
+        ])
       ) -> Assert.Pass()
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -370,21 +267,16 @@ with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.TryWith(withCases =
-                                [
-                                    SynMatchClause(trivia = { BarRange = Some mBar1 }); SynMatchClause(trivia = { BarRange = Some mBar2 })
-                                ]
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.TryWith(withCases = [
+                        SynMatchClause(trivia = { BarRange = Some mBar1 })
+                        SynMatchClause(trivia = { BarRange = Some mBar2 })
+                    ])
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (5, 0) (5, 1) mBar1
         assertRange (8, 0) (8, 1) mBar2

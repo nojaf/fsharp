@@ -21,33 +21,27 @@ type Foo =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Union(unionCases =
-                                            [
-                                                SynUnionCase.SynUnionCase(caseType =
-                                                    SynUnionCaseKind.Fields [
-                                                                                SynField.SynField(xmlDoc = firstXml)
-                                                                                SynField.SynField(xmlDoc = anonXml)
-                                                                            ]
-                                                )
-                                            ]
-                                        )
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.Simple(simpleRepr =
+                                SynTypeDefnSimpleRepr.Union(unionCases = [
+                                    SynUnionCase.SynUnionCase(caseType =
+                                        SynUnionCaseKind.Fields [
+                                                                    SynField.SynField(xmlDoc = firstXml)
+                                                                    SynField.SynField(xmlDoc = anonXml)
+                                                                ]
                                     )
-                                )
-                            ],
-                            _
+                                ])
+                            )
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         let firstDocs = firstXml.ToXmlDoc(false, None).GetXmlText()
         let anonDocs = anonXml.ToXmlDoc(false, None).GetXmlText()
@@ -69,28 +63,20 @@ type Foo = | Bar of string
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Union(unionCases =
-                                            [
-                                                SynUnionCase.SynUnionCase(trivia = { BarRange = Some mBar })
-                                            ]
-                                        )
-                                    )
-                                )
-                            ],
-                            _
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.Simple(simpleRepr =
+                                SynTypeDefnSimpleRepr.Union(unionCases = [ SynUnionCase.SynUnionCase(trivia = { BarRange = Some mBar }) ])
+                            )
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) -> assertRange (2, 11) (2, 12) mBar
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -106,29 +92,23 @@ type Foo =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Union(unionCases =
-                                            [
-                                                SynUnionCase.SynUnionCase(trivia = { BarRange = Some mBar1 })
-                                                SynUnionCase.SynUnionCase(trivia = { BarRange = Some mBar2 })
-                                            ]
-                                        )
-                                    )
-                                )
-                            ],
-                            _
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.Simple(simpleRepr =
+                                SynTypeDefnSimpleRepr.Union(unionCases = [
+                                    SynUnionCase.SynUnionCase(trivia = { BarRange = Some mBar1 })
+                                    SynUnionCase.SynUnionCase(trivia = { BarRange = Some mBar2 })
+                                ])
+                            )
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (3, 4) (3, 5) mBar1
         assertRange (4, 4) (4, 5) mBar2
@@ -144,28 +124,20 @@ type Foo = Bar of string
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Union(unionCases =
-                                            [
-                                                SynUnionCase.SynUnionCase(trivia = { BarRange = None })
-                                            ]
-                                        )
-                                    )
-                                )
-                            ],
-                            _
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.Simple(simpleRepr =
+                                SynTypeDefnSimpleRepr.Union(unionCases = [ SynUnionCase.SynUnionCase(trivia = { BarRange = None }) ])
+                            )
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) -> Assert.Pass()
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -186,26 +158,23 @@ type Currency =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(
                     [
-                        SynModuleDecl.Types(
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Union(
-                                            accessibility = Some(SynAccess.Private mPrivate); unionCases = [ SynUnionCase.SynUnionCase _ ]
-                                        )
-                                    )
+                        SynTypeDefn.SynTypeDefn(typeRepr =
+                            SynTypeDefnRepr.Simple(simpleRepr =
+                                SynTypeDefnSimpleRepr.Union(
+                                    accessibility = Some(SynAccess.Private mPrivate)
+                                    unionCases = [ SynUnionCase.SynUnionCase _ ]
                                 )
-                            ],
-                            _
+                            )
                         )
-                    ]
+                    ],
+                    _
                 )
-            ]
-        )
+            ])
+        ])
       ) -> assertRange (7, 4) (7, 11) mPrivate
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -220,36 +189,26 @@ type X =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.Simple(simpleRepr =
-                                        SynTypeDefnSimpleRepr.Union(unionCases =
-                                            [
-                                                SynUnionCase(caseType =
-                                                    SynUnionCaseKind.FullType(fullType =
-                                                        SynType.Tuple(path =
-                                                            [
-                                                                SynTupleTypeSegment.Type(SynType.LongIdent _)
-                                                                SynTupleTypeSegment.Star _
-                                                                SynTupleTypeSegment.Type(SynType.SignatureParameter(id = Some z))
-                                                            ]
-                                                        )
-                                                    )
-                                                )
-                                            ]
-                                        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.Simple(simpleRepr =
+                            SynTypeDefnSimpleRepr.Union(unionCases = [
+                                SynUnionCase(caseType =
+                                    SynUnionCaseKind.FullType(fullType =
+                                        SynType.Tuple(path = [
+                                            SynTupleTypeSegment.Type(SynType.LongIdent _)
+                                            SynTupleTypeSegment.Star _
+                                            SynTupleTypeSegment.Type(SynType.SignatureParameter(id = Some z))
+                                        ])
                                     )
                                 )
-                            ]
+                            ])
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) -> Assert.AreEqual("z", z.idText)
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"

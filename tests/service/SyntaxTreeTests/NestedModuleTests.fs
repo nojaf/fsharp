@@ -18,15 +18,7 @@ module Nested =
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.NestedModule _ as nm
-                    ]
-                ) as sigModule
-            ]
-        )
+        ParsedSigFileInput(contents = [ SynModuleOrNamespaceSig(decls = [ SynModuleSigDecl.NestedModule _ as nm ]) as sigModule ])
       ) ->
         assertRange (4, 0) (6, 15) nm.Range
         assertRange (2, 0) (6, 15) sigModule.Range
@@ -45,11 +37,7 @@ module Nested =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls = [ SynModuleDecl.NestedModule _ as nm ])
-            ]
-        )
+        ParsedImplFileInput(contents = [ SynModuleOrNamespace.SynModuleOrNamespace(decls = [ SynModuleDecl.NestedModule _ as nm ]) ])
       ) -> assertRange (4, 0) (6, 6) nm.Range
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -64,20 +52,11 @@ module X =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.NestedModule(trivia =
-                            {
-                                ModuleKeyword = Some mModule
-                                EqualsRange = Some mEquals
-                            }
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.NestedModule(trivia = { ModuleKeyword = Some mModule; EqualsRange = Some mEquals })
+            ])
+        ])
       ) ->
         assertRange (2, 0) (2, 6) mModule
         assertRange (2, 9) (2, 10) mEquals
@@ -96,20 +75,11 @@ val bar : int
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.NestedModule(trivia =
-                            {
-                                ModuleKeyword = Some mModule
-                                EqualsRange = Some mEquals
-                            }
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.NestedModule(trivia = { ModuleKeyword = Some mModule; EqualsRange = Some mEquals })
+            ])
+        ])
       ) ->
         assertRange (4, 0) (4, 6) mModule
         assertRange (4, 9) (4, 10) mEquals
@@ -183,48 +153,36 @@ module Operators =
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Open _
-                        SynModuleSigDecl.Open _
-                        SynModuleSigDecl.Open _
-                        SynModuleSigDecl.Open _
-                        SynModuleSigDecl.Open _
-                        SynModuleSigDecl.NestedModule(
-                            range = mTupleModule
-                            moduleDecls =
-                                [
-                                    SynModuleSigDecl.Types(
-                                        [
-                                            SynTypeDefnSig(
-                                                typeRepr = SynTypeDefnSigRepr.ObjectModel(range = mTupleObjectModel); range = mTupleType
-                                            )
-                                        ],
-                                        mTupleTypes
-                                    )
-                                ]
-                        )
-                        SynModuleSigDecl.NestedModule(range = mChoiceModule)
-                        SynModuleSigDecl.NestedModule(
-                            range = mOperatorsModule
-                            moduleDecls =
-                                [
-                                    SynModuleSigDecl.Types(
-                                        [
-                                            SynTypeDefnSig(
-                                                typeRepr = SynTypeDefnSigRepr.Simple(range = mAugmentationSimple); range = mAugmentation
-                                            )
-                                        ],
-                                        mOperatorsTypes
-                                    )
-                                ]
-                        )
-                    ]
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Open _
+                SynModuleSigDecl.Open _
+                SynModuleSigDecl.Open _
+                SynModuleSigDecl.Open _
+                SynModuleSigDecl.Open _
+                SynModuleSigDecl.NestedModule(
+                    range = mTupleModule
+                    moduleDecls =
+                        [
+                            SynModuleSigDecl.Types(
+                                [ SynTypeDefnSig(typeRepr = SynTypeDefnSigRepr.ObjectModel(range = mTupleObjectModel); range = mTupleType) ],
+                                mTupleTypes
+                            )
+                        ]
                 )
-            ]
-        )
+                SynModuleSigDecl.NestedModule(range = mChoiceModule)
+                SynModuleSigDecl.NestedModule(
+                    range = mOperatorsModule
+                    moduleDecls =
+                        [
+                            SynModuleSigDecl.Types(
+                                [ SynTypeDefnSig(typeRepr = SynTypeDefnSigRepr.Simple(range = mAugmentationSimple); range = mAugmentation) ],
+                                mOperatorsTypes
+                            )
+                        ]
+                )
+            ])
+        ])
       ) ->
         assertRange (10, 0) (20, 35) mTupleModule
         assertRange (12, 4) (20, 35) mTupleTypes

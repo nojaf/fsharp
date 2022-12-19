@@ -15,27 +15,17 @@ type T =
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Types(types =
-                            [
-                                SynTypeDefnSig(typeRepr =
-                                    SynTypeDefnSigRepr.ObjectModel(memberSigs =
-                                        [
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(synType = SynType.Fun(argType = SynType.Tuple(_, _, mTuple)))
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Types(types = [
+                    SynTypeDefnSig(typeRepr =
+                        SynTypeDefnSigRepr.ObjectModel(memberSigs = [
+                            SynMemberSig.Member(memberSig = SynValSig(synType = SynType.Fun(argType = SynType.Tuple(_, _, mTuple))))
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (3, 14) (3, 27) mTuple
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -50,27 +40,17 @@ type T =
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Types(types =
-                            [
-                                SynTypeDefnSig(typeRepr =
-                                    SynTypeDefnSigRepr.ObjectModel(memberSigs =
-                                        [
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(synType = SynType.Fun(argType = SynType.Tuple(_, _, mTuple)))
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Types(types = [
+                    SynTypeDefnSig(typeRepr =
+                        SynTypeDefnSigRepr.ObjectModel(memberSigs = [
+                            SynMemberSig.Member(memberSig = SynValSig(synType = SynType.Fun(argType = SynType.Tuple(_, _, mTuple))))
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (3, 14) (3, 56) mTuple
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -84,35 +64,24 @@ let inline (!!) (x: ^a) : ^b = ((^a or ^b): (static member op_Implicit: ^a -> ^b
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(expr =
-                                    SynExpr.Typed(expr =
-                                        SynExpr.Paren(expr =
-                                            SynExpr.TraitCall(supportTys =
-                                                SynType.Paren(
-                                                    SynType.Or(
-                                                        SynType.Var(range = mVar1),
-                                                        SynType.Var(range = mVar2),
-                                                        mOrType,
-                                                        { OrKeyword = mOrWord }
-                                                    ),
-                                                    mParen
-                                                )
-                                            )
-                                        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(expr =
+                        SynExpr.Typed(expr =
+                            SynExpr.Paren(expr =
+                                SynExpr.TraitCall(supportTys =
+                                    SynType.Paren(
+                                        SynType.Or(SynType.Var(range = mVar1), SynType.Var(range = mVar2), mOrType, { OrKeyword = mOrWord }),
+                                        mParen
                                     )
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 33) (2, 35) mVar1
         assertRange (2, 36) (2, 38) mOrWord
@@ -132,43 +101,35 @@ let inline f_StaticMethod<'T1, 'T2 when ('T1 or 'T2) : (static member StaticMeth
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(headPat =
-                                    SynPat.LongIdent(typarDecls =
-                                        Some(
-                                            SynValTyparDecls(typars =
-                                                Some(
-                                                    SynTyparDecls.PostfixList(constraints =
-                                                        [
-                                                            SynTypeConstraint.WhereTyparSupportsMember(typars =
-                                                                SynType.Paren(
-                                                                    SynType.Or(
-                                                                        SynType.Var(range = mVar1),
-                                                                        SynType.Var(range = mVar2),
-                                                                        mOrType,
-                                                                        { OrKeyword = mOrWord }
-                                                                    ),
-                                                                    mParen
-                                                                )
-                                                            )
-                                                        ]
-                                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(headPat =
+                        SynPat.LongIdent(typarDecls =
+                            Some(
+                                SynValTyparDecls(typars =
+                                    Some(
+                                        SynTyparDecls.PostfixList(constraints = [
+                                            SynTypeConstraint.WhereTyparSupportsMember(typars =
+                                                SynType.Paren(
+                                                    SynType.Or(
+                                                        SynType.Var(range = mVar1),
+                                                        SynType.Var(range = mVar2),
+                                                        mOrType,
+                                                        { OrKeyword = mOrWord }
+                                                    ),
+                                                    mParen
                                                 )
                                             )
-                                        )
+                                        ])
                                     )
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 41) (2, 44) mVar1
         assertRange (2, 45) (2, 47) mOrWord
@@ -187,40 +148,31 @@ let inline (!!) (x: ^a * ^b) : ^c = ((^a or ^b or ^c): (static member op_Implici
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(expr =
-                                    SynExpr.Typed(expr =
-                                        SynExpr.Paren(expr =
-                                            SynExpr.TraitCall(supportTys =
-                                                SynType.Paren(
-                                                    SynType.Or(
-                                                        SynType.Or(
-                                                            SynType.Var(range = mVarA),
-                                                            SynType.Var(range = mVarB),
-                                                            mOrType1,
-                                                            { OrKeyword = mOrWord1 }
-                                                        ),
-                                                        SynType.Var(range = mVarC),
-                                                        mOrType2,
-                                                        { OrKeyword = mOrWord2 }
-                                                    ),
-                                                    mParen
-                                                )
-                                            )
-                                        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(expr =
+                        SynExpr.Typed(expr =
+                            SynExpr.Paren(expr =
+                                SynExpr.TraitCall(supportTys =
+                                    SynType.Paren(
+                                        SynType.Or(
+                                            SynType.Or(
+                                                SynType.Var(range = mVarA), SynType.Var(range = mVarB), mOrType1, { OrKeyword = mOrWord1 }
+                                            ),
+                                            SynType.Var(range = mVarC),
+                                            mOrType2,
+                                            { OrKeyword = mOrWord2 }
+                                        ),
+                                        mParen
                                     )
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 38) (2, 40) mVarA
         assertRange (2, 41) (2, 43) mOrWord1
@@ -244,29 +196,19 @@ type X =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.Member(memberDefn =
-                                                SynBinding(expr =
-                                                    SynExpr.Paren(expr = SynExpr.TraitCall(supportTys = SynType.Var(range = mVar)))
-                                                )
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.Member(memberDefn =
+                                SynBinding(expr = SynExpr.Paren(expr = SynExpr.TraitCall(supportTys = SynType.Var(range = mVar))))
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (4, 9) (4, 11) mVar
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -280,33 +222,24 @@ let inline f (x: 'T) = ((^T or int) : (static member A: int) ())
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(expr =
-                                    SynExpr.Paren(expr =
-                                        SynExpr.TraitCall(supportTys =
-                                            SynType.Paren(
-                                                SynType.Or(
-                                                    SynType.Var(range = mVar),
-                                                    (SynType.LongIdent _ as appType),
-                                                    mOrType,
-                                                    { OrKeyword = mOrWord }
-                                                ),
-                                                mParen
-                                            )
-                                        )
-                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(expr =
+                        SynExpr.Paren(expr =
+                            SynExpr.TraitCall(supportTys =
+                                SynType.Paren(
+                                    SynType.Or(
+                                        SynType.Var(range = mVar), (SynType.LongIdent _ as appType), mOrType, { OrKeyword = mOrWord }
+                                    ),
+                                    mParen
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 25) (2, 27) mVar
         assertRange (2, 28) (2, 30) mOrWord

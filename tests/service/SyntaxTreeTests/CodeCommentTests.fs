@@ -141,9 +141,7 @@ let x =
 """
 
     match trivia with
-    | [
-        CommentTrivia.LineComment m1; CommentTrivia.LineComment m2; CommentTrivia.LineComment m3
-      ] ->
+    | [ CommentTrivia.LineComment m1; CommentTrivia.LineComment m2; CommentTrivia.LineComment m3 ] ->
         assertRange (4, 4) (4, 40) m1
         assertRange (6, 4) (6, 36) m2
         assertRange (7, 4) (7, 27) m3

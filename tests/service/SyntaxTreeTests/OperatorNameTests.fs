@@ -15,29 +15,19 @@ let ``operator as function`` () =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(funcExpr =
-                                SynExpr.App(funcExpr =
-                                    SynExpr.LongIdent(longDotId =
-                                        SynLongIdent(
-                                            [ ident ],
-                                            _,
-                                            [
-                                                Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr))
-                                            ]
-                                        )
-                                    )
-                                )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(funcExpr =
+                        SynExpr.App(funcExpr =
+                            SynExpr.LongIdent(longDotId =
+                                SynLongIdent([ ident ], _, [ Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr)) ])
                             )
                         )
-                    ]
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (2, 0) (2, 1) lpr
         Assert.AreEqual("op_Addition", ident.idText)
@@ -54,30 +44,15 @@ let ``active pattern as function `` () =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(funcExpr =
-                                SynExpr.LongIdent(
-                                    false,
-                                    SynLongIdent(
-                                        [ ident ],
-                                        _,
-                                        [
-                                            Some(IdentTrivia.HasParenthesis(lpr, rpr))
-                                        ]
-                                    ),
-                                    None,
-                                    pr
-                                )
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(funcExpr =
+                        SynExpr.LongIdent(false, SynLongIdent([ ident ], _, [ Some(IdentTrivia.HasParenthesis(lpr, rpr)) ]), None, pr)
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (2, 0) (2, 1) lpr
         Assert.AreEqual("|Odd|Even|", ident.idText)
@@ -95,30 +70,15 @@ let ``partial active pattern as function `` () =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(funcExpr =
-                                SynExpr.LongIdent(
-                                    false,
-                                    SynLongIdent(
-                                        [ ident ],
-                                        _,
-                                        [
-                                            Some(IdentTrivia.HasParenthesis(lpr, rpr))
-                                        ]
-                                    ),
-                                    None,
-                                    pr
-                                )
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(funcExpr =
+                        SynExpr.LongIdent(false, SynLongIdent([ ident ], _, [ Some(IdentTrivia.HasParenthesis(lpr, rpr)) ]), None, pr)
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (2, 0) (2, 1) lpr
         Assert.AreEqual("|Odd|_|", ident.idText)
@@ -136,29 +96,17 @@ let (+) a b = a + b
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(headPat =
-                                    SynPat.LongIdent(longDotId =
-                                        SynLongIdent(
-                                            [ ident ],
-                                            _,
-                                            [
-                                                Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr))
-                                            ]
-                                        )
-                                    )
-                                )
-                            ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(headPat =
+                        SynPat.LongIdent(longDotId =
+                            SynLongIdent([ ident ], _, [ Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr)) ])
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 4) (2, 5) lpr
         Assert.AreEqual("op_Addition", ident.idText)
@@ -175,29 +123,15 @@ let (|Odd|Even|) (a: int) = if a % 2 = 0 then Even else Odd
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(headPat =
-                                    SynPat.LongIdent(longDotId =
-                                        SynLongIdent(
-                                            [ ident ],
-                                            _,
-                                            [
-                                                Some(IdentTrivia.HasParenthesis(lpr, rpr))
-                                            ]
-                                        )
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(headPat =
+                        SynPat.LongIdent(longDotId = SynLongIdent([ ident ], _, [ Some(IdentTrivia.HasParenthesis(lpr, rpr)) ]))
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 4) (2, 5) lpr
         Assert.AreEqual("|Odd|Even|", ident.idText)
@@ -214,29 +148,15 @@ let (|Int32Const|_|) (a: SynConst) = match a with SynConst.Int32 _ -> Some a | _
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(headPat =
-                                    SynPat.LongIdent(longDotId =
-                                        SynLongIdent(
-                                            [ ident ],
-                                            _,
-                                            [
-                                                Some(IdentTrivia.HasParenthesis(lpr, rpr))
-                                            ]
-                                        )
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(headPat =
+                        SynPat.LongIdent(longDotId = SynLongIdent([ ident ], _, [ Some(IdentTrivia.HasParenthesis(lpr, rpr)) ]))
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 4) (2, 5) lpr
         Assert.AreEqual("|Int32Const|_|", ident.idText)
@@ -253,19 +173,13 @@ let (|Boolean|_|) = Boolean.parse
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(headPat = SynPat.Named(ident = SynIdent(ident, Some(IdentTrivia.HasParenthesis(lpr, rpr)))))
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(headPat = SynPat.Named(ident = SynIdent(ident, Some(IdentTrivia.HasParenthesis(lpr, rpr)))))
+                ])
+            ])
+        ])
       ) ->
         assertRange (2, 4) (2, 5) lpr
         Assert.AreEqual("|Boolean|_|", ident.idText)
@@ -283,17 +197,11 @@ val (&): e1: bool -> e2: bool -> bool
 
     match ast with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Val(valSig =
-                            SynValSig(ident = SynIdent(ident, Some(IdentTrivia.OriginalNotationWithParen(lpr, "&", rpr))))
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Val(valSig = SynValSig(ident = SynIdent(ident, Some(IdentTrivia.OriginalNotationWithParen(lpr, "&", rpr)))))
+            ])
+        ])
       ) ->
         assertRange (3, 4) (3, 5) lpr
         Assert.AreEqual("op_Amp", ident.idText)
@@ -320,30 +228,22 @@ let ``operator name in val constraint`` () =
 
     match ast with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Val(valSig =
-                            SynValSig(synType =
-                                SynType.WithGlobalConstraints(constraints =
-                                    [
-                                        SynTypeConstraint.WhereTyparSupportsMember(memberSig =
-                                            SynMemberSig.Member(memberSig =
-                                                SynValSig(ident =
-                                                    SynIdent(ident, Some(IdentTrivia.OriginalNotationWithParen(lpr, "~-", rpr)))
-                                                )
-                                            )
-                                        )
-                                        SynTypeConstraint.WhereTyparDefaultsToType _
-                                    ]
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Val(valSig =
+                    SynValSig(synType =
+                        SynType.WithGlobalConstraints(constraints = [
+                            SynTypeConstraint.WhereTyparSupportsMember(memberSig =
+                                SynMemberSig.Member(memberSig =
+                                    SynValSig(ident = SynIdent(ident, Some(IdentTrivia.OriginalNotationWithParen(lpr, "~-", rpr))))
                                 )
                             )
-                        )
-                    ]
+                            SynTypeConstraint.WhereTyparDefaultsToType _
+                        ])
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         assertRange (12, 57) (12, 58) lpr
         Assert.AreEqual("op_UnaryNegation", ident.idText)
@@ -360,33 +260,21 @@ f(x=4)
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(argExpr =
-                                SynExpr.Paren(expr =
-                                    SynExpr.App(funcExpr =
-                                        SynExpr.App(funcExpr =
-                                            SynExpr.LongIdent(longDotId =
-                                                SynLongIdent(
-                                                    [ ident ],
-                                                    _,
-                                                    [
-                                                        Some(IdentTrivia.OriginalNotation "=")
-                                                    ]
-                                                )
-                                            )
-                                        )
-                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(argExpr =
+                        SynExpr.Paren(expr =
+                            SynExpr.App(funcExpr =
+                                SynExpr.App(funcExpr =
+                                    SynExpr.LongIdent(longDotId = SynLongIdent([ ident ], _, [ Some(IdentTrivia.OriginalNotation "=") ]))
                                 )
                             )
                         )
-                    ]
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         Assert.AreEqual("op_Equality", ident.idText)
         assertRange (2, 3) (2, 4) ident.idRange
@@ -402,34 +290,22 @@ let ``infix operation`` () =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(
+                        funcExpr =
                             SynExpr.App(
+                                isInfix = true
                                 funcExpr =
-                                    SynExpr.App(
-                                        isInfix = true
-                                        funcExpr =
-                                            SynExpr.LongIdent(longDotId =
-                                                SynLongIdent(
-                                                    [ ident ],
-                                                    _,
-                                                    [
-                                                        Some(IdentTrivia.OriginalNotation "+")
-                                                    ]
-                                                )
-                                            )
-                                        argExpr = SynExpr.Const(SynConst.Int32(1), _)
-                                    )
+                                    SynExpr.LongIdent(longDotId = SynLongIdent([ ident ], _, [ Some(IdentTrivia.OriginalNotation "+") ]))
                                 argExpr = SynExpr.Const(SynConst.Int32(1), _)
                             )
-                        )
-                    ]
+                        argExpr = SynExpr.Const(SynConst.Int32(1), _)
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         Assert.AreEqual("op_Addition", ident.idText)
         assertRange (2, 2) (2, 3) ident.idRange
@@ -445,30 +321,17 @@ let ``prefix operation`` () =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(
-                                isInfix = false
-                                funcExpr =
-                                    SynExpr.LongIdent(longDotId =
-                                        SynLongIdent(
-                                            [ ident ],
-                                            _,
-                                            [
-                                                Some(IdentTrivia.OriginalNotation "+")
-                                            ]
-                                        )
-                                    )
-                                argExpr = SynExpr.Const(SynConst.Int32(-86), _)
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(
+                        isInfix = false
+                        funcExpr = SynExpr.LongIdent(longDotId = SynLongIdent([ ident ], _, [ Some(IdentTrivia.OriginalNotation "+") ]))
+                        argExpr = SynExpr.Const(SynConst.Int32(-86), _)
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         Assert.AreEqual("op_UnaryPlus", ident.idText)
         assertRange (2, 0) (2, 1) ident.idRange
@@ -484,30 +347,17 @@ let ``prefix operation with two characters`` () =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(
-                                isInfix = false
-                                funcExpr =
-                                    SynExpr.LongIdent(longDotId =
-                                        SynLongIdent(
-                                            [ ident ],
-                                            _,
-                                            [
-                                                Some(IdentTrivia.OriginalNotation "%%")
-                                            ]
-                                        )
-                                    )
-                                argExpr = SynExpr.Ident argIdent
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(
+                        isInfix = false
+                        funcExpr = SynExpr.LongIdent(longDotId = SynLongIdent([ ident ], _, [ Some(IdentTrivia.OriginalNotation "%%") ]))
+                        argExpr = SynExpr.Ident argIdent
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         Assert.AreEqual("op_SpliceUntyped", ident.idText)
         assertRange (2, 0) (2, 2) ident.idRange
@@ -525,40 +375,30 @@ op_Addition a b
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(
+                        funcExpr =
                             SynExpr.App(
+                                isInfix = false
                                 funcExpr =
-                                    SynExpr.App(
-                                        isInfix = false
-                                        funcExpr =
-                                            SynExpr.LongIdent(longDotId =
-                                                SynLongIdent(
-                                                    [ ident ],
-                                                    _,
-                                                    [
-                                                        Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr))
-                                                    ]
-                                                )
-                                            )
-                                        argExpr = SynExpr.Ident a1
+                                    SynExpr.LongIdent(longDotId =
+                                        SynLongIdent([ ident ], _, [ Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr)) ])
                                     )
-                                argExpr = SynExpr.Ident b1
+                                argExpr = SynExpr.Ident a1
                             )
-                        )
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(
-                                funcExpr = SynExpr.App(isInfix = false; funcExpr = SynExpr.Ident op_Addition; argExpr = SynExpr.Ident a2)
-                                argExpr = SynExpr.Ident b2
-                            )
-                        )
-                    ]
+                        argExpr = SynExpr.Ident b1
+                    )
                 )
-            ]
-        )
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(
+                        funcExpr = SynExpr.App(isInfix = false; funcExpr = SynExpr.Ident op_Addition; argExpr = SynExpr.Ident a2)
+                        argExpr = SynExpr.Ident b2
+                    )
+                )
+            ])
+        ])
       ) ->
         assertRange (2, 0) (2, 1) lpr
         Assert.AreEqual("op_Addition", ident.idText)
@@ -582,35 +422,23 @@ type X with
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(members =
-                                    [
-                                        SynMemberDefn.Member(memberDefn =
-                                            SynBinding(headPat =
-                                                SynPat.LongIdent(longDotId =
-                                                    SynLongIdent(
-                                                        [ _; operatorIdent ],
-                                                        [ mDot ],
-                                                        [
-                                                            None; Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr))
-                                                        ]
-                                                    ) as lid
-                                                )
-                                            )
-                                        )
-                                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(members = [
+                        SynMemberDefn.Member(memberDefn =
+                            SynBinding(headPat =
+                                SynPat.LongIdent(longDotId =
+                                    SynLongIdent(
+                                        [ _; operatorIdent ], [ mDot ], [ None; Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr)) ]
+                                    ) as lid
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    ])
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 12) (3, 13) mDot
         assertRange (3, 13) (3, 14) lpr
@@ -629,30 +457,20 @@ nameof(+)
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(
-                                isInfix = false
-                                funcExpr = SynExpr.Ident nameofIdent
-                                argExpr =
-                                    SynExpr.LongIdent(longDotId =
-                                        SynLongIdent(
-                                            [ operatorIdent ],
-                                            _,
-                                            [
-                                                Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr))
-                                            ]
-                                        )
-                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(
+                        isInfix = false
+                        funcExpr = SynExpr.Ident nameofIdent
+                        argExpr =
+                            SynExpr.LongIdent(longDotId =
+                                SynLongIdent([ operatorIdent ], _, [ Some(IdentTrivia.OriginalNotationWithParen(lpr, "+", rpr)) ])
                             )
-                        )
-                    ]
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         Assert.AreEqual("nameof", nameofIdent.idText)
         assertRange (2, 6) (2, 7) lpr
@@ -670,44 +488,34 @@ f(?x = 7)
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.App(
-                                isInfix = false
-                                funcExpr = SynExpr.Ident f
-                                argExpr =
-                                    SynExpr.Paren(
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.App(
+                        isInfix = false
+                        funcExpr = SynExpr.Ident f
+                        argExpr =
+                            SynExpr.Paren(
+                                SynExpr.App(
+                                    funcExpr =
                                         SynExpr.App(
+                                            isInfix = true
                                             funcExpr =
-                                                SynExpr.App(
-                                                    isInfix = true
-                                                    funcExpr =
-                                                        SynExpr.LongIdent(longDotId =
-                                                            SynLongIdent(
-                                                                [ eqIdent ],
-                                                                _,
-                                                                [
-                                                                    Some(IdentTrivia.OriginalNotation "=")
-                                                                ]
-                                                            )
-                                                        )
-                                                    argExpr = SynExpr.LongIdent(true, SynLongIdent([ x ], [], [ None ]), _, mOptional)
+                                                SynExpr.LongIdent(longDotId =
+                                                    SynLongIdent([ eqIdent ], _, [ Some(IdentTrivia.OriginalNotation "=") ])
                                                 )
-                                            argExpr = SynExpr.Const(SynConst.Int32 7, _)
-                                        ),
-                                        lpr,
-                                        Some rpr,
-                                        pr
-                                    )
+                                            argExpr = SynExpr.LongIdent(true, SynLongIdent([ x ], [], [ None ]), _, mOptional)
+                                        )
+                                    argExpr = SynExpr.Const(SynConst.Int32 7, _)
+                                ),
+                                lpr,
+                                Some rpr,
+                                pr
                             )
-                        )
-                    ]
+                    )
                 )
-            ]
-        )
+            ])
+        ])
       ) ->
         Assert.AreEqual("f", f.idText)
         assertRange (2, 1) (2, 2) lpr
@@ -730,43 +538,24 @@ type X() =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn.SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.ImplicitCtor _
-                                            SynMemberDefn.LetBindings _
-                                            SynMemberDefn.GetSetMember(
-                                                Some(
-                                                    SynBinding(headPat =
-                                                        SynPat.LongIdent(longDotId = SynLongIdent(id = [ _; allowIntoPatternGet ]))
-                                                    )
-                                                ),
-                                                Some(
-                                                    SynBinding(headPat =
-                                                        SynPat.LongIdent(longDotId = SynLongIdent(id = [ _; allowIntoPatternSet ]))
-                                                    )
-                                                ),
-                                                _,
-                                                {
-                                                    WithKeyword = mWith
-                                                    AndKeyword = Some mAnd
-                                                }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn.SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.ImplicitCtor _
+                            SynMemberDefn.LetBindings _
+                            SynMemberDefn.GetSetMember(
+                                Some(SynBinding(headPat = SynPat.LongIdent(longDotId = SynLongIdent(id = [ _; allowIntoPatternGet ])))),
+                                Some(SynBinding(headPat = SynPat.LongIdent(longDotId = SynLongIdent(id = [ _; allowIntoPatternSet ])))),
+                                _,
+                                { WithKeyword = mWith; AndKeyword = Some mAnd }
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         Assert.AreEqual("AllowIntoPattern", allowIntoPatternGet.idText)
         assertRange (4, 30) (4, 34) mWith
@@ -784,31 +573,23 @@ let PowByte (x:byte) n = Checked.( * ) x
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(expr =
-                                    SynExpr.App(funcExpr =
-                                        SynExpr.LongIdent(longDotId =
-                                            SynLongIdent(
-                                                [ checkedIdent; operatorIdent ],
-                                                [ mDot ],
-                                                [
-                                                    None; Some(IdentTrivia.OriginalNotationWithParen(lpr, "*", rpr))
-                                                ]
-                                            )
-                                        )
-                                    )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(expr =
+                        SynExpr.App(funcExpr =
+                            SynExpr.LongIdent(longDotId =
+                                SynLongIdent(
+                                    [ checkedIdent; operatorIdent ],
+                                    [ mDot ],
+                                    [ None; Some(IdentTrivia.OriginalNotationWithParen(lpr, "*", rpr)) ]
                                 )
-                            ]
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) ->
         Assert.AreEqual("Checked", checkedIdent.idText)
         assertRange (2, 32) (2, 33) mDot
@@ -832,38 +613,26 @@ type A() =
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.ImplicitCtor _
-                                            SynMemberDefn.Member(memberDefn =
-                                                SynBinding(headPat =
-                                                    SynPat.LongIdent(longDotId =
-                                                        SynLongIdent(
-                                                            [ underscoreIdent; aQuoteIdent ],
-                                                            [ _ ],
-                                                            [
-                                                                None; Some(IdentTrivia.HasParenthesis(lpr, rpr))
-                                                            ]
-                                                        )
-                                                    )
-                                                )
-                                            )
-                                        ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.ImplicitCtor _
+                            SynMemberDefn.Member(memberDefn =
+                                SynBinding(headPat =
+                                    SynPat.LongIdent(longDotId =
+                                        SynLongIdent(
+                                            [ underscoreIdent; aQuoteIdent ], [ _ ], [ None; Some(IdentTrivia.HasParenthesis(lpr, rpr)) ]
+                                        )
                                     )
                                 )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         ()
         Assert.AreEqual("_", underscoreIdent.idText)

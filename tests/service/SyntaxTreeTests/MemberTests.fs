@@ -18,25 +18,15 @@ type Person(name : string, age : int) =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _; SynMemberDefn.AutoProperty(trivia = { EqualsRange = Some mEquals })
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [ _; SynMemberDefn.AutoProperty(trivia = { EqualsRange = Some mEquals }) ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (5, 20) (5, 21) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -52,32 +42,21 @@ type Foo() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _
-                                            SynMemberDefn.AutoProperty(trivia =
-                                                {
-                                                    WithKeyword = Some mWith
-                                                    GetSetKeywords = Some(GetSetKeywords.GetSet(mGet, mSet))
-                                                }
-                                            )
-                                            SynMemberDefn.AutoProperty(trivia = { WithKeyword = None })
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.AutoProperty(trivia = {
+                                WithKeyword = Some mWith
+                                GetSetKeywords = Some(GetSetKeywords.GetSet(mGet, mSet)) })
+                            SynMemberDefn.AutoProperty(trivia = { WithKeyword = None })
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 39) (3, 43) mWith
         assertRange (3, 44) (3, 47) mGet
@@ -95,32 +74,21 @@ type Foo() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _
-                                            SynMemberDefn.AbstractSlot(
-                                                slotSig = SynValSig(trivia = { WithKeyword = Some mWith })
-                                                trivia =
-                                                    {
-                                                        GetSetKeywords = Some(GetSetKeywords.GetSet(mGet, mSet))
-                                                    }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.AbstractSlot(
+                                slotSig = SynValSig(trivia = { WithKeyword = Some mWith })
+                                trivia = { GetSetKeywords = Some(GetSetKeywords.GetSet(mGet, mSet)) }
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 30) (3, 34) mWith
         assertRange (3, 35) (3, 38) mGet
@@ -139,25 +107,18 @@ type Foo() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _; SynMemberDefn.GetSetMember(Some(SynBinding _), None, _, { WithKeyword = mWith })
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.GetSetMember(Some(SynBinding _), None, _, { WithKeyword = mWith })
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (4, 31) (4, 35) mWith
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -173,25 +134,18 @@ type Foo() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _; SynMemberDefn.GetSetMember(None, Some(SynBinding _), _, { WithKeyword = mWith })
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.GetSetMember(None, Some(SynBinding _), _, { WithKeyword = mWith })
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (4, 36) (4, 40) mWith
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -209,34 +163,18 @@ type Foo() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _
-                                            SynMemberDefn.GetSetMember(
-                                                Some _,
-                                                Some _,
-                                                _,
-                                                {
-                                                    WithKeyword = mWith
-                                                    AndKeyword = Some mAnd
-                                                }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.GetSetMember(Some _, Some _, _, { WithKeyword = mWith; AndKeyword = Some mAnd })
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (5, 8) (5, 12) mWith
         assertRange (6, 8) (6, 11) mAnd
@@ -255,35 +193,22 @@ type Foo =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.GetSetMember(
-                                                Some _,
-                                                Some _,
-                                                m,
-                                                {
-                                                    WithKeyword = mWith
-                                                    GetKeyword = Some mGet
-                                                    AndKeyword = Some mAnd
-                                                    SetKeyword = Some mSet
-                                                }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.GetSetMember(
+                                Some _,
+                                Some _,
+                                m,
+                                { WithKeyword = mWith; GetKeyword = Some mGet; AndKeyword = Some mAnd; SetKeyword = Some mSet }
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (4, 8) (4, 12) mWith
         assertRange (4, 13) (4, 16) mSet
@@ -303,36 +228,23 @@ type A() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.ImplicitCtor _
-                                            SynMemberDefn.GetSetMember(
-                                                Some(SynBinding(headPat = SynPat.LongIdent(extraId = Some getIdent))),
-                                                Some(SynBinding(headPat = SynPat.LongIdent(extraId = Some setIdent))),
-                                                m,
-                                                {
-                                                    WithKeyword = mWith
-                                                    GetKeyword = Some mGet
-                                                    AndKeyword = Some mAnd
-                                                    SetKeyword = Some mSet
-                                                }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.ImplicitCtor _
+                            SynMemberDefn.GetSetMember(
+                                Some(SynBinding(headPat = SynPat.LongIdent(extraId = Some getIdent))),
+                                Some(SynBinding(headPat = SynPat.LongIdent(extraId = Some setIdent))),
+                                m,
+                                { WithKeyword = mWith; GetKeyword = Some mGet; AndKeyword = Some mAnd; SetKeyword = Some mSet }
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         Assert.AreEqual("get", getIdent.idText)
         Assert.AreEqual("set", setIdent.idText)
@@ -357,25 +269,17 @@ type A =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.GetSetMember(Some(SynBinding(xmlDoc = preXmlDoc)), None, _, _)
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.GetSetMember(Some(SynBinding(xmlDoc = preXmlDoc)), None, _, _)
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         Assert.False preXmlDoc.IsEmpty
         let comment = preXmlDoc.ToXmlDoc(false, None).GetXmlText()
@@ -398,31 +302,20 @@ type X =
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Types(types =
-                            [
-                                SynTypeDefnSig(typeRepr =
-                                    SynTypeDefnSigRepr.ObjectModel(memberSigs =
-                                        [
-                                            SynMemberSig.Member(
-                                                memberSig = SynValSig(trivia = { WithKeyword = Some mWith })
-                                                trivia =
-                                                    {
-                                                        GetSetKeywords = Some(GetSetKeywords.GetSet(mGet, mSet))
-                                                    }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Types(types = [
+                    SynTypeDefnSig(typeRepr =
+                        SynTypeDefnSigRepr.ObjectModel(memberSigs = [
+                            SynMemberSig.Member(
+                                memberSig = SynValSig(trivia = { WithKeyword = Some mWith })
+                                trivia = { GetSetKeywords = Some(GetSetKeywords.GetSet(mGet, mSet)) }
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (7, 20) (7, 24) mWith
         assertRange (8, 28) (8, 31) mSet
@@ -445,31 +338,20 @@ type X =
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Types(types =
-                            [
-                                SynTypeDefnSig(typeRepr =
-                                    SynTypeDefnSigRepr.ObjectModel(memberSigs =
-                                        [
-                                            SynMemberSig.Member(
-                                                memberSig = SynValSig(trivia = { WithKeyword = Some mWith })
-                                                trivia =
-                                                    {
-                                                        GetSetKeywords = Some(GetSetKeywords.Set(mSet))
-                                                    }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Types(types = [
+                    SynTypeDefnSig(typeRepr =
+                        SynTypeDefnSigRepr.ObjectModel(memberSigs = [
+                            SynMemberSig.Member(
+                                memberSig = SynValSig(trivia = { WithKeyword = Some mWith })
+                                trivia = { GetSetKeywords = Some(GetSetKeywords.Set(mSet)) }
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (7, 20) (7, 24) mWith
         assertRange (8, 28) (8, 31) mSet
@@ -491,31 +373,20 @@ type X =
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(decls =
-                    [
-                        SynModuleSigDecl.Types(types =
-                            [
-                                SynTypeDefnSig(typeRepr =
-                                    SynTypeDefnSigRepr.ObjectModel(memberSigs =
-                                        [
-                                            SynMemberSig.Member(
-                                                memberSig = SynValSig(trivia = { WithKeyword = Some mWith })
-                                                trivia =
-                                                    {
-                                                        GetSetKeywords = Some(GetSetKeywords.Get(mGet))
-                                                    }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(decls = [
+                SynModuleSigDecl.Types(types = [
+                    SynTypeDefnSig(typeRepr =
+                        SynTypeDefnSigRepr.ObjectModel(memberSigs = [
+                            SynMemberSig.Member(
+                                memberSig = SynValSig(trivia = { WithKeyword = Some mWith })
+                                trivia = { GetSetKeywords = Some(GetSetKeywords.Get(mGet)) }
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (7, 20) (7, 24) mWith
         assertRange (8, 32) (8, 35) mGet

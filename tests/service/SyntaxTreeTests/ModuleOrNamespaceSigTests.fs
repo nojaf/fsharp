@@ -17,11 +17,7 @@ type Bar = | Bar of string * int
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(kind = SynModuleOrNamespaceKind.DeclaredNamespace) as singleModule
-            ]
-        )
+        ParsedSigFileInput(contents = [ SynModuleOrNamespaceSig(kind = SynModuleOrNamespaceKind.DeclaredNamespace) as singleModule ])
       ) -> assertRange (2, 0) (4, 32) singleModule.Range
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -38,11 +34,7 @@ type Bar = | Bar of string * int
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(kind = SynModuleOrNamespaceKind.GlobalNamespace; range = r)
-            ]
-        )
+        ParsedSigFileInput(contents = [ SynModuleOrNamespaceSig(kind = SynModuleOrNamespaceKind.GlobalNamespace; range = r) ])
       ) -> assertRange (3, 0) (5, 32) r
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -59,11 +51,9 @@ val s : string
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig.SynModuleOrNamespaceSig(kind = SynModuleOrNamespaceKind.NamedModule; range = r)
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig.SynModuleOrNamespaceSig(kind = SynModuleOrNamespaceKind.NamedModule; range = r)
+        ])
       ) -> assertRange (2, 1) (5, 14) r
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -79,17 +69,12 @@ val a: int
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(
-                    kind = SynModuleOrNamespaceKind.NamedModule
-                    trivia =
-                        {
-                            LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Module mModule
-                        }
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(
+                kind = SynModuleOrNamespaceKind.NamedModule
+                trivia = { LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Module mModule }
+            )
+        ])
       ) -> assertRange (2, 0) (2, 6) mModule
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -105,16 +90,11 @@ val a: int
 
     match parseResults with
     | ParsedInput.SigFile(
-        ParsedSigFileInput(contents =
-            [
-                SynModuleOrNamespaceSig(
-                    kind = SynModuleOrNamespaceKind.DeclaredNamespace
-                    trivia =
-                        {
-                            LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Namespace mNamespace
-                        }
-                )
-            ]
-        )
+        ParsedSigFileInput(contents = [
+            SynModuleOrNamespaceSig(
+                kind = SynModuleOrNamespaceKind.DeclaredNamespace
+                trivia = { LeadingKeyword = SynModuleOrNamespaceLeadingKeyword.Namespace mNamespace }
+            )
+        ])
       ) -> assertRange (2, 0) (2, 9) mNamespace
     | _ -> Assert.Fail "Could not get valid AST"

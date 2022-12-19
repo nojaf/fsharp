@@ -13,15 +13,11 @@ __LINE__"""
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Const(SynConst.SourceIdentifier("__LINE__", "2", range), _))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Const(SynConst.SourceIdentifier("__LINE__", "2", range), _))
+            ])
+        ])
       ) -> assertRange (2, 0) (2, 8) range
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -34,15 +30,11 @@ __SOURCE_DIRECTORY__"""
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Const(SynConst.SourceIdentifier("__SOURCE_DIRECTORY__", _, range), _))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Const(SynConst.SourceIdentifier("__SOURCE_DIRECTORY__", _, range), _))
+            ])
+        ])
       ) -> assertRange (2, 0) (2, 20) range
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -55,14 +47,10 @@ __SOURCE_FILE__"""
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr = SynExpr.Const(SynConst.SourceIdentifier("__SOURCE_FILE__", _, range), _))
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Const(SynConst.SourceIdentifier("__SOURCE_FILE__", _, range), _))
+            ])
+        ])
       ) -> assertRange (2, 0) (2, 15) range
     | _ -> Assert.Fail "Could not get valid AST"

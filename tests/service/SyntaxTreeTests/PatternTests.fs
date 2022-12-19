@@ -17,21 +17,13 @@ match x with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(pat = SynPat.Record(fieldPats = [ (_, mEquals, _) ])); _
-                                ]
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Match(clauses = [ SynMatchClause(pat = SynPat.Record(fieldPats = [ (_, mEquals, _) ])); _ ])
                 )
-            ]
-        )
+            ])
+        ])
       ) -> assertRange (3, 8) (3, 9) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -46,21 +38,15 @@ match x with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(pat = SynPat.LongIdent(argPats = SynArgPats.NamePatPairs(pats = [ _, mEquals, _ ])))
-                                ]
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Match(clauses = [
+                        SynMatchClause(pat = SynPat.LongIdent(argPats = SynArgPats.NamePatPairs(pats = [ _, mEquals, _ ])))
+                    ])
                 )
-            ]
-        )
+            ])
+        ])
       ) -> assertRange (3, 7) (3, 8) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -77,21 +63,11 @@ match x with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(pat = SynPat.Or(trivia = { BarRange = mBar })); _
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Match(clauses = [ SynMatchClause(pat = SynPat.Or(trivia = { BarRange = mBar })); _ ]))
+            ])
+        ])
       ) -> assertRange (4, 0) (4, 1) mBar
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -105,19 +81,11 @@ let (head::tail) =  [ 1;2;4]
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(headPat = SynPat.Paren(pat = SynPat.ListCons(trivia = trivia)))
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [ SynBinding(headPat = SynPat.Paren(pat = SynPat.ListCons(trivia = trivia))) ])
+            ])
+        ])
       ) -> assertRange (2, 9) (2, 11) trivia.ColonColonRange
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -132,21 +100,11 @@ match x with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(pat = SynPat.ListCons(trivia = trivia))
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.Match(clauses = [ SynMatchClause(pat = SynPat.ListCons(trivia = trivia)) ]))
+            ])
+        ])
       ) -> assertRange (3, 9) (3, 11) trivia.ColonColonRange
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -164,21 +122,16 @@ match data with
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Match(clauses =
-                                [
-                                    SynMatchClause(pat = SynPat.LongIdent(argPats = SynArgPats.NamePatPairs(trivia = trivia))); _
-                                ]
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Match(clauses = [
+                        SynMatchClause(pat = SynPat.LongIdent(argPats = SynArgPats.NamePatPairs(trivia = trivia)))
+                        _
+                    ])
                 )
-            ]
-        )
+            ])
+        ])
       ) -> assertRange (3, 13) (5, 13) trivia.ParenRange
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -192,18 +145,8 @@ let 1 :: _ = [ 4; 5; 6 ]
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(headPat = SynPat.ListCons(trivia = trivia))
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace(decls = [ SynModuleDecl.Let(bindings = [ SynBinding(headPat = SynPat.ListCons(trivia = trivia)) ]) ])
+        ])
       ) -> assertRange (2, 6) (2, 8) trivia.ColonColonRange
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"

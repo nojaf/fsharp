@@ -15,22 +15,12 @@ do ()
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Attributes(attributes =
-                            [
-                                {
-                                    Attributes = [ { Range = mAttribute } ]
-                                }
-                            ]
-                        )
-                        SynModuleDecl.Expr _
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Attributes(attributes = [ { Attributes = [ { Range = mAttribute } ] } ])
+                SynModuleDecl.Expr _
+            ])
+        ])
       ) -> assertRange (2, 2) (2, 25) mAttribute
     | _ -> Assert.Fail $"Could not get valid AST, got {ast}"
 
@@ -45,22 +35,12 @@ do ()
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Attributes(attributes =
-                            [
-                                {
-                                    Attributes = [ { Range = mAttribute } ]
-                                }
-                            ]
-                        )
-                        SynModuleDecl.Expr _
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Attributes(attributes = [ { Attributes = [ { Range = mAttribute } ] } ])
+                SynModuleDecl.Expr _
+            ])
+        ])
       ) -> assertRange (2, 2) (2, 32) mAttribute
     | _ -> Assert.Fail $"Could not get valid AST, got {ast}"
 
@@ -75,21 +55,11 @@ do ()
 
     match ast with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Attributes(attributes =
-                            [
-                                {
-                                    Attributes = [ { Range = mAttribute } ]
-                                }
-                            ]
-                        )
-                        SynModuleDecl.Expr _
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Attributes(attributes = [ { Attributes = [ { Range = mAttribute } ] } ])
+                SynModuleDecl.Expr _
+            ])
+        ])
       ) -> assertRange (2, 2) (2, 35) mAttribute
     | _ -> Assert.Fail $"Could not get valid AST, got {ast}"

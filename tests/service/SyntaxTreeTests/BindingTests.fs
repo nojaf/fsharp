@@ -15,15 +15,9 @@ let a = 0"""
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings = [ SynBinding(range = mb) ]) as lt
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [ SynModuleDecl.Let(bindings = [ SynBinding(range = mb) ]) as lt ])
+        ])
       ) ->
         assertRange (2, 0) (3, 5) mb
         assertRange (2, 0) (3, 9) lt.Range
@@ -38,15 +32,9 @@ let [<Literal>] (A x) = 1"""
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings = [ SynBinding(range = mb) ]) as lt
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [ SynModuleDecl.Let(bindings = [ SynBinding(range = mb) ]) as lt ])
+        ])
       ) ->
         assertRange (2, 4) (2, 21) mb
         assertRange (2, 0) (2, 25) lt.Range
@@ -63,25 +51,15 @@ type Bar =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.LetBindings(bindings = [ SynBinding(range = mb) ]) as m
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [ SynMemberDefn.LetBindings(bindings = [ SynBinding(range = mb) ]) as m ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 4) (4, 9) mb
         assertRange (3, 4) (4, 13) m.Range
@@ -98,25 +76,15 @@ type Bar =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb)) as m
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [ SynMemberDefn.Member(memberDefn = SynBinding(range = mb)) as m ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 4) (4, 28) mb
         assertRange (3, 4) (4, 33) m.Range
@@ -133,21 +101,11 @@ let ``Range of attribute should be included in binding of SynExpr.ObjExpr`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.ObjExpr(members =
-                                [
-                                    SynMemberDefn.Member(memberDefn = SynBinding(range = mb))
-                                ]
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr = SynExpr.ObjExpr(members = [ SynMemberDefn.Member(memberDefn = SynBinding(range = mb)) ]))
+            ])
+        ])
       ) -> assertRange (3, 4) (4, 23) mb
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -162,25 +120,15 @@ type Tiger =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb)) as m
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [ SynMemberDefn.Member(memberDefn = SynBinding(range = mb)) as m ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 4) (4, 10) mb
         assertRange (3, 4) (4, 15) m.Range
@@ -197,25 +145,15 @@ type Tiger =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb)) as m
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [ SynMemberDefn.Member(memberDefn = SynBinding(range = mb)) as m ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 4) (4, 18) mb
         assertRange (3, 4) (4, 23) m.Range
@@ -239,28 +177,20 @@ type T() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.ImplicitCtor _
-                                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb1)) as m1
-                                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb2)) as m2
-                                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb3)) as m3
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.ImplicitCtor _
+                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb1)) as m1
+                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb2)) as m2
+                            SynMemberDefn.Member(memberDefn = SynBinding(range = mb3)) as m3
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 4) (3, 10) mb1
         assertRange (3, 4) (4, 12) m1.Range
@@ -281,25 +211,17 @@ type Crane =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.GetSetMember(memberDefnForSet = Some(SynBinding(range = mb))) as m
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.GetSetMember(memberDefnForSet = Some(SynBinding(range = mb))) as m
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 4) (4, 52) mb
         assertRange (3, 4) (4, 79) m.Range
@@ -318,25 +240,17 @@ type Bird =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.GetSetMember(Some(SynBinding(range = mb1)), Some(SynBinding(range = mb2)), m, _)
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.GetSetMember(Some(SynBinding(range = mb1)), Some(SynBinding(range = mb2)), m, _)
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 4) (5, 19) mb1
         assertRange (3, 4) (6, 23) mb2
@@ -349,19 +263,11 @@ let ``Range of equal sign should be present in SynModuleDecl.Let binding`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(trivia = { EqualsRange = Some mEquals })
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [ SynBinding(trivia = { EqualsRange = Some mEquals }) ])
+            ])
+        ])
       ) -> assertRange (1, 6) (1, 7) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -371,19 +277,11 @@ let ``Range of equal sign should be present in SynModuleDecl.Let binding, typed`
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(trivia = { EqualsRange = Some mEquals })
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [ SynBinding(trivia = { EqualsRange = Some mEquals }) ])
+            ])
+        ])
       ) -> assertRange (1, 12) (1, 13) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -399,23 +297,13 @@ do
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Do(expr =
-                                SynExpr.LetOrUse(bindings =
-                                    [
-                                        SynBinding(trivia = { EqualsRange = Some mEquals })
-                                    ]
-                                )
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Do(expr = SynExpr.LetOrUse(bindings = [ SynBinding(trivia = { EqualsRange = Some mEquals }) ]))
                 )
-            ]
-        )
+            ])
+        ])
       ) -> assertRange (3, 10) (3, 11) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -431,23 +319,13 @@ do
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Expr(expr =
-                            SynExpr.Do(expr =
-                                SynExpr.LetOrUse(bindings =
-                                    [
-                                        SynBinding(trivia = { EqualsRange = Some mEquals })
-                                    ]
-                                )
-                            )
-                        )
-                    ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Expr(expr =
+                    SynExpr.Do(expr = SynExpr.LetOrUse(bindings = [ SynBinding(trivia = { EqualsRange = Some mEquals }) ]))
                 )
-            ]
-        )
+            ])
+        ])
       ) -> assertRange (3, 15) (3, 16) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -462,25 +340,18 @@ type X() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _; SynMemberDefn.Member(memberDefn = SynBinding(trivia = { EqualsRange = Some mEquals }))
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.Member(memberDefn = SynBinding(trivia = { EqualsRange = Some mEquals }))
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (3, 18) (3, 19) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -495,25 +366,18 @@ type X() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _; SynMemberDefn.Member(memberDefn = SynBinding(trivia = { EqualsRange = Some mEquals }))
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.Member(memberDefn = SynBinding(trivia = { EqualsRange = Some mEquals }))
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (3, 21) (3, 22) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -528,25 +392,18 @@ type X() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _; SynMemberDefn.Member(memberDefn = SynBinding(trivia = { EqualsRange = Some mEquals }))
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.Member(memberDefn = SynBinding(trivia = { EqualsRange = Some mEquals }))
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) -> assertRange (3, 30) (3, 31) mEquals
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -563,31 +420,23 @@ type Y() =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            _
-                                            SynMemberDefn.GetSetMember(
-                                                Some(SynBinding(trivia = { EqualsRange = Some eqGetM })),
-                                                Some(SynBinding(trivia = { EqualsRange = Some eqSetM })),
-                                                _,
-                                                _
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            _
+                            SynMemberDefn.GetSetMember(
+                                Some(SynBinding(trivia = { EqualsRange = Some eqGetM })),
+                                Some(SynBinding(trivia = { EqualsRange = Some eqSetM })),
+                                _,
+                                _
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (4, 20) (4, 21) eqGetM
         assertRange (5, 24) (5, 25) eqSetM
@@ -599,23 +448,11 @@ let ``Range of let keyword should be present in SynModuleDecl.Let binding`` () =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(trivia =
-                                    {
-                                        LeadingKeyword = SynLeadingKeyword.Let mLet
-                                    }
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [ SynBinding(trivia = { LeadingKeyword = SynLeadingKeyword.Let mLet }) ])
+            ])
+        ])
       ) -> assertRange (1, 0) (1, 3) mLet
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -632,23 +469,11 @@ let v = 12
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(trivia =
-                                    {
-                                        LeadingKeyword = SynLeadingKeyword.Let mLet
-                                    }
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [ SynBinding(trivia = { LeadingKeyword = SynLeadingKeyword.Let mLet }) ])
+            ])
+        ])
       ) -> assertRange (5, 0) (5, 3) mLet
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -664,29 +489,13 @@ let a =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(expr =
-                                    SynExpr.LetOrUse(bindings =
-                                        [
-                                            SynBinding(trivia =
-                                                {
-                                                    LeadingKeyword = SynLeadingKeyword.Let mLet
-                                                }
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(expr = SynExpr.LetOrUse(bindings = [ SynBinding(trivia = { LeadingKeyword = SynLeadingKeyword.Let mLet }) ]))
+                ])
+            ])
+        ])
       ) -> assertRange (3, 4) (3, 7) mLet
     | _ -> Assert.Fail "Could not get valid AST"
 
@@ -701,48 +510,34 @@ let b : int * string * bool = 1, "", false
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(returnInfo =
-                                    Some(
-                                        SynBindingReturnInfo(typeName =
-                                            SynType.Tuple(path =
-                                                [
-                                                    SynTupleTypeSegment.Type _; SynTupleTypeSegment.Star _; SynTupleTypeSegment.Type _
-                                                ]
-                                            )
-                                        )
-                                    )
-                                )
-                            ]
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(returnInfo =
+                        Some(
+                            SynBindingReturnInfo(typeName =
+                                SynType.Tuple(path = [ SynTupleTypeSegment.Type _; SynTupleTypeSegment.Star _; SynTupleTypeSegment.Type _ ])
+                            )
                         )
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(returnInfo =
-                                    Some(
-                                        SynBindingReturnInfo(typeName =
-                                            SynType.Tuple(path =
-                                                [
-                                                    SynTupleTypeSegment.Type _
-                                                    SynTupleTypeSegment.Star _
-                                                    SynTupleTypeSegment.Type _
-                                                    SynTupleTypeSegment.Star _
-                                                    SynTupleTypeSegment.Type _
-                                                ]
-                                            )
-                                        )
-                                    )
-                                )
-                            ]
+                    )
+                ])
+                SynModuleDecl.Let(bindings = [
+                    SynBinding(returnInfo =
+                        Some(
+                            SynBindingReturnInfo(typeName =
+                                SynType.Tuple(path = [
+                                    SynTupleTypeSegment.Type _
+                                    SynTupleTypeSegment.Star _
+                                    SynTupleTypeSegment.Type _
+                                    SynTupleTypeSegment.Star _
+                                    SynTupleTypeSegment.Type _
+                                ])
+                            )
                         )
-                    ]
-                )
-            ]
-        )
+                    )
+                ])
+            ])
+        ])
       ) -> Assert.Pass()
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -756,19 +551,11 @@ let x y : int = failwith "todo"
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Let(bindings =
-                            [
-                                SynBinding(returnInfo = Some(SynBindingReturnInfo(trivia = { ColonRange = Some mColon })))
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Let(bindings = [ SynBinding(returnInfo = Some(SynBindingReturnInfo(trivia = { ColonRange = Some mColon }))) ])
+            ])
+        ])
       ) -> assertRange (2, 8) (2, 9) mColon
     | _ -> Assert.Fail $"Could not get valid AST, got {parseResults}"
 
@@ -783,38 +570,22 @@ type X =
 
     match parseResults with
     | ParsedInput.ImplFile(
-        ParsedImplFileInput(contents =
-            [
-                SynModuleOrNamespace.SynModuleOrNamespace(decls =
-                    [
-                        SynModuleDecl.Types(typeDefns =
-                            [
-                                SynTypeDefn(typeRepr =
-                                    SynTypeDefnRepr.ObjectModel(members =
-                                        [
-                                            SynMemberDefn.GetSetMember(
-                                                memberDefnForGet =
-                                                    Some(
-                                                        SynBinding(returnInfo =
-                                                            Some(SynBindingReturnInfo(trivia = { ColonRange = Some mColon1 }))
-                                                        )
-                                                    )
-                                                memberDefnForSet =
-                                                    Some(
-                                                        SynBinding(returnInfo =
-                                                            Some(SynBindingReturnInfo(trivia = { ColonRange = Some mColon2 }))
-                                                        )
-                                                    )
-                                            )
-                                        ]
-                                    )
-                                )
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
+        ParsedImplFileInput(contents = [
+            SynModuleOrNamespace.SynModuleOrNamespace(decls = [
+                SynModuleDecl.Types(typeDefns = [
+                    SynTypeDefn(typeRepr =
+                        SynTypeDefnRepr.ObjectModel(members = [
+                            SynMemberDefn.GetSetMember(
+                                memberDefnForGet =
+                                    Some(SynBinding(returnInfo = Some(SynBindingReturnInfo(trivia = { ColonRange = Some mColon1 }))))
+                                memberDefnForSet =
+                                    Some(SynBinding(returnInfo = Some(SynBindingReturnInfo(trivia = { ColonRange = Some mColon2 }))))
+                            )
+                        ])
+                    )
+                ])
+            ])
+        ])
       ) ->
         assertRange (3, 28) (3, 29) mColon1
         assertRange (3, 52) (3, 53) mColon2
