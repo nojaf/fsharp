@@ -178,6 +178,7 @@
     <Compile Include="Language\CodeQuotationTests.fs" />
     <Compile Include="Language\InterpolatedStringsTests.fs" />
     <Compile Include="Language\ComputationExpressionTests.fs" />
+    <Compile Include="Language\StateMachineTests.fs" />
     <Compile Include="Language\DynamicAssignmentOperatorTests.fs" />
     <Compile Include="Language\CastingTests.fs" />
     <Compile Include="Language\NameofTests.fs" />
@@ -185,7 +186,8 @@
     <Compile Include="Language\SequenceExpressionTests.fs" />
     <Compile Include="Language\StaticClassTests.fs" />
     <Compile Include="Language\PrintfFormatTests.fs" />
-    <Compile Include="Language\InterfaceTests.fs" />
+	<Compile Include="Language\InterfaceTests.fs" />
+	<Compile Include="Language\CopyAndUpdateTests.fs" />
     <Compile Include="ConstraintSolver\PrimitiveConstraints.fs" />
     <Compile Include="ConstraintSolver\MemberConstraints.fs" />
     <Compile Include="Interop\DeeplyNestedCSharpClasses.fs" />

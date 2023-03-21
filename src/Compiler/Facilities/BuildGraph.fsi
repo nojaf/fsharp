@@ -95,12 +95,11 @@ module internal GraphNode =
 [<Sealed>]
 type internal GraphNode<'T> =
 
-    /// - retryCompute - When set to 'true', subsequent requesters will retry the computation if the first-in request cancels. Retrying computations will have better callstacks.
     /// - computation - The computation code to run.
-    new: retryCompute: bool * computation: NodeCode<'T> -> GraphNode<'T>
-
-    /// By default, 'retryCompute' is 'true'.
     new: computation: NodeCode<'T> -> GraphNode<'T>
+
+    /// Creates a GraphNode with given result already cached.
+    static member FromResult: 'T -> GraphNode<'T>
 
     /// Return NodeCode which, when executed, will get the value of the computation if already computed, or
     /// await an existing in-progress computation for the node if one exists, or else will synchronously
