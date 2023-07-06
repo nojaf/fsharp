@@ -2214,7 +2214,16 @@ let TcSequenceExpressionEntry (cenv: cenv) env (overallTy: OverallTy) tpenv (has
         ()
 
     if not hasBuilder && not cenv.g.compilingFSharpCore then
-        CallExprHasTypeSink cenv.tcSink (m, env.NameEnv, overallTy.Commit, env.eAccessRights)
+        match comp with
+        | SynExpr.LongIdent(longDotId = SynLongIdent(id = [ potentialRecordType ; _potentialFieldName ])) ->
+            let ty =
+                env.NameEnv.eTyconsByAccessNames.TryFind potentialRecordType.idText
+                |> Option.bind List.tryExactlyOne
+                |> Option.bind (fun tyconRef -> if not tyconRef.IsRecordTycon then None else Some (generalizedTyconRef cenv.g tyconRef))
+                |> Option.defaultValue overallTy.Commit
+
+            CallExprHasTypeSink cenv.tcSink (m, env.NameEnv, ty, env.eAccessRights)
+        | _ -> CallExprHasTypeSink cenv.tcSink (m, env.NameEnv, overallTy.Commit, env.eAccessRights)
         error(Error(FSComp.SR.tcInvalidSequenceExpressionSyntaxForm(), m))
         
     TcSequenceExpression cenv env tpenv comp overallTy m
