@@ -2215,15 +2215,27 @@ let TcSequenceExpressionEntry (cenv: cenv) env (overallTy: OverallTy) tpenv (has
 
     if not hasBuilder && not cenv.g.compilingFSharpCore then
         match comp with
-        | SynExpr.LongIdent(longDotId = SynLongIdent(id = [ potentialRecordType ; _potentialFieldName ])) ->
-            let ty =
-                env.NameEnv.eTyconsByAccessNames.TryFind potentialRecordType.idText
-                |> Option.bind List.tryExactlyOne
-                |> Option.bind (fun tyconRef -> if not tyconRef.IsRecordTycon then None else Some (generalizedTyconRef cenv.g tyconRef))
-                |> Option.defaultValue overallTy.Commit
+        | SynExpr.LongIdent(longDotId = SynLongIdent(id = lid)) when lid.Length > 1 ->
+            let potentialRecordTypeIdentifier = List.take (lid.Length - 1) lid
+            let result =
+                ResolveTypeLongIdent
+                    cenv.tcSink 
+                    cenv.nameResolver 
+                    ItemOccurence.UseInType 
+                    OpenQualified
+                    env.NameEnv
+                    env.AccessRights 
+                    potentialRecordTypeIdentifier
+                    TypeNameResolutionStaticArgsInfo.DefiniteEmpty
+                    PermitDirectReferenceToGeneratedType.Yes
 
-            CallExprHasTypeSink cenv.tcSink (m, env.NameEnv, ty, env.eAccessRights)
+            match result with
+            | Result (_, tyconRef) when tyconRef.IsRecordTycon ->
+                let ty = generalizedTyconRef cenv.g tyconRef
+                CallExprHasTypeSink cenv.tcSink (m, env.NameEnv, ty, env.eAccessRights)
+            | _ -> CallExprHasTypeSink cenv.tcSink (m, env.NameEnv, overallTy.Commit, env.eAccessRights)
         | _ -> CallExprHasTypeSink cenv.tcSink (m, env.NameEnv, overallTy.Commit, env.eAccessRights)
+
         error(Error(FSComp.SR.tcInvalidSequenceExpressionSyntaxForm(), m))
         
     TcSequenceExpression cenv env tpenv comp overallTy m
