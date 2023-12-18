@@ -17,6 +17,7 @@ module CompilationFromCmdlineArgsTests =
             @"C:\Projects\FsAutoComplete\src\FsAutoComplete\FsAutoComplete.args.txt"
             @"C:\Projects\fsharp\src\Compiler\FSharp.Compiler.Service.args.txt"
             @"C:\Projects\fsharp\tests\FSharp.Compiler.ComponentTests\FSharp.Compiler.ComponentTests.args.txt"
+            @"C:\Users\nojaf\Projects\FsHttp\src\FsHttp\FsHttp-incremental.rsp"
         ]
 
     let checker = FSharpChecker.Create()

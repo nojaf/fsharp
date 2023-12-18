@@ -1755,9 +1755,32 @@ let CheckMultipleInputsUsingGraphMode
     : FinalFileResult list * TcState =
     use cts = new CancellationTokenSource()
 
+    let inputs: ParsedInput array =
+        let fileNames = inputs |> List.map (fun (file: ParsedInput) -> file.FileName) |> set
+
+        inputs
+        |> List.map (fun file ->
+            match file with
+            | ParsedInput.SigFile _ -> async { return List.singleton file }
+            | ParsedInput.ImplFile implFile ->
+                let signatureFile = Path.ChangeExtension(file.FileName, ".fsi")
+
+                if fileNames.Contains(signatureFile) then
+                    async { return List.singleton file }
+                else
+                    async {
+                        return [
+                            FSharp.Compiler.Service.Driver.ExtractSignatureFromUntypedTree.extractSignatureFromImplementation implFile
+                            file
+                        ]
+                    }
+        )
+        |> Async.Parallel
+        |> Async.RunSynchronously
+        |> Array.collect Array.ofList
+
     let sourceFiles: FileInProject array =
         inputs
-        |> List.toArray
         |> Array.mapi (fun idx (input: ParsedInput) ->
             {
                 Idx = idx
@@ -1878,7 +1901,7 @@ let CheckMultipleInputsUsingGraphMode
                 partialResult, state)
         )
 
-    UseMultipleDiagnosticLoggers (inputs, diagnosticsLogger, Some eagerFormat) (fun inputsWithLoggers ->
+    UseMultipleDiagnosticLoggers (Array.toList inputs, diagnosticsLogger, Some eagerFormat) (fun inputsWithLoggers ->
         // Equip loggers to locally filter w.r.t. scope pragmas in each input
         let inputsWithLoggers =
             inputsWithLoggers
