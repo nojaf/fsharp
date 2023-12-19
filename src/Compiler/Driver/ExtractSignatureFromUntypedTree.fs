@@ -187,7 +187,7 @@ and extractVal
                     isInline,
                     isMutable,
                     xmlDoc,
-                    vis,
+                    headPatVis,
                     None,
                     m,
                     trivia
@@ -312,12 +312,15 @@ and extractVals (bindings: SynBinding list) : SynModuleSigDecl list =
         bindings
 
 and extractException
-    (SynExceptionDefn(SynExceptionDefnRepr(accessibility = vis; caseName = SynUnionCase(ident = SynIdent(ident,_))) as repr, withKeyword, members, m))
+    (SynExceptionDefn(SynExceptionDefnRepr(accessibility = vis; caseName = SynUnionCase(ident = SynIdent(ident, _))) as repr,
+                      withKeyword,
+                      members,
+                      m))
     : SynModuleSigDecl seq =
     if isPrivate vis then
         Seq.empty
     else
-        let typeName = mkTypeName [ident] None
+        let typeName = mkTypeName [ ident ] None
         let members = List.choose (extractSynMemberSig typeName) members
 
         [|
