@@ -156,7 +156,7 @@ and mkSynTypeLongIdent (longId: LongIdent) =
     SynType.LongIdent(SynLongIdent(longId, dots, trivia))
 
 and extractVal
-    (SynBinding(vis, _kind, isInline, isMutable, attributes, xmlDoc, valData, headPat, returnInfo, _expr, m, _debugPoint, trivia))
+    (SynBinding(vis, _kind, isInline, isMutable, attributes, xmlDoc, valData, headPat, returnInfo, expr, m, _debugPoint, trivia))
     : SynValSig option =
     let headPatVis =
         match headPat with
@@ -168,7 +168,7 @@ and extractVal
         None
     else
         match headPat, returnInfo with
-        | SynPat.Named(ident, _, _, _), Some(SynBindingReturnInfo(typeName, _, _, _)) ->
+        | SynPat.Named(ident = ident), Some(SynBindingReturnInfo(typeName = typeName)) ->
             let trivia: SynValSigTrivia =
                 {
                     LeadingKeyword = SynLeadingKeyword.Val trivia.LeadingKeyword.Range
@@ -176,6 +176,20 @@ and extractVal
                     WithKeyword = None
                     EqualsRange = None
                 }
+
+            let optExpr =
+                let hasLiteralAttribute =
+                    attributes
+                    |> List.exists (fun al ->
+                        al.Attributes
+                        |> List.exists (fun a ->
+                            match a.TypeName.LongIdent with
+                            | [ literalIdent ] -> literalIdent.idText = "Literal"
+                            | _ -> false))
+
+                match expr with
+                | SynExpr.Typed(expr = SynExpr.Const _) when hasLiteralAttribute -> Some expr
+                | _ -> None
 
             let valSig =
                 SynValSig(
@@ -188,13 +202,13 @@ and extractVal
                     isMutable,
                     xmlDoc,
                     headPatVis,
-                    None,
+                    optExpr,
                     m,
                     trivia
                 )
 
             Some valSig
-        | SynPat.LongIdent(longDotId, _extraId, typarDecls, SynArgPats.Pats ps, vis, m), Some(SynBindingReturnInfo(returnType, _, _, _)) ->
+        | SynPat.LongIdent(longDotId, _extraId, typarDecls, SynArgPats.Pats ps, vis, m), Some(SynBindingReturnInfo(typeName = returnType)) ->
             let typarDecls: SynValTyparDecls =
                 Option.defaultValue (SynValTyparDecls(None, true)) typarDecls
 
@@ -254,15 +268,29 @@ and extractVal
                             EqualsRange = None
                         }
 
-                    let fullType, valInfo = mkReturnTypeAndValInfo parameterTypes returnType
+                    let fullType, valInfo = mkReturnTypeAndValInfo parameterTypes returnType (Some expr)
+
+                    let optExpr =
+                        let hasLiteralAttribute =
+                            attributes
+                            |> List.exists (fun al ->
+                                al.Attributes
+                                |> List.exists (fun a ->
+                                    match a.TypeName.LongIdent with
+                                    | [ literalIdent ] -> literalIdent.idText = "Literal"
+                                    | _ -> false))
+
+                        match expr with
+                        | SynExpr.Typed(expr = SynExpr.Const _) when hasLiteralAttribute -> Some expr
+                        | _ -> None
 
                     let valSig =
-                        SynValSig(attributes, ident, typarDecls, fullType, valInfo, isInline, isMutable, xmlDoc, vis, None, m, trivia)
+                        SynValSig(attributes, ident, typarDecls, fullType, valInfo, isInline, isMutable, xmlDoc, vis, optExpr, m, trivia)
 
                     Some valSig
         | _ -> None
 
-and mkReturnTypeAndValInfo (parameterTypes: SynType list) (returnType: SynType) =
+and mkReturnTypeAndValInfo (parameterTypes: SynType list) (returnType: SynType) (bodyExpr: SynExpr option) =
     let fullType =
         let mkFunType left right =
             SynType.Fun(left, right, Range.Zero, { ArrowRange = Range.Zero })
@@ -274,7 +302,10 @@ and mkReturnTypeAndValInfo (parameterTypes: SynType list) (returnType: SynType) 
             | h :: rest -> mkFunType h (visit rest)
 
         match parameterTypes with
-        | [] -> returnType
+        | [] ->
+            match bodyExpr with
+            | Some(SynExpr.Typed(expr = SynExpr.MatchLambda _)) -> returnType
+            | _ -> SynType.Paren(returnType, Range.Zero)
         | _ ->
             let returnType =
                 match returnType with
@@ -284,23 +315,37 @@ and mkReturnTypeAndValInfo (parameterTypes: SynType list) (returnType: SynType) 
             visit [ yield! parameterTypes; yield returnType ]
 
     let valInfo =
-        let mapTypeToArgInfo t =
+        let mapTypeToArgInfo (t: SynType) : SynArgInfo =
             match t with
             | SynType.SignatureParameter(attributes, optional, id, _, _) -> SynArgInfo(attributes, optional, id)
             | _ -> SynArgInfo([], false, None)
 
-        match parameterTypes with
-        | [] -> SynInfo.emptySynValData.SynValInfo
-        | ts ->
-            let argInfos =
-                ts
-                |> List.map (function
-                    | SynType.Tuple(path = segments) -> getTypeFromTuplePath segments |> List.map mapTypeToArgInfo
-                    | t -> [ mapTypeToArgInfo t ])
+        let mapTypeToArgInfoList: SynType -> SynArgInfo list =
+            function
+            | SynType.Tuple(path = segments) -> getTypeFromTuplePath segments |> List.map mapTypeToArgInfo
+            | t -> [ mapTypeToArgInfo t ]
 
-            let returnTypeInfo = mapTypeToArgInfo returnType
+        match fullType with
+        | SynType.Fun _ when parameterTypes.IsEmpty ->
+            match bodyExpr with
+            | Some(SynExpr.Typed(expr = SynExpr.MatchLambda _)) ->
+                let rec visit (t: SynType) (continuation: SynArgInfo list list -> SynArgInfo list list) : SynValInfo =
+                    match t with
+                    | SynType.Fun(argType, returnType, _, _) ->
+                        visit returnType (fun argLists ->
+                            let head = mapTypeToArgInfoList argType
+                            head :: argLists |> continuation)
+                    | returnType -> SynValInfo(continuation [], mapTypeToArgInfo returnType)
 
-            SynValInfo(argInfos, returnTypeInfo)
+                visit fullType id
+            | _ -> SynInfo.emptySynValData.SynValInfo
+        | _ ->
+            match parameterTypes with
+            | [] -> SynInfo.emptySynValData.SynValInfo
+            | ts ->
+                let argInfos = List.map mapTypeToArgInfoList ts
+                let returnTypeInfo = mapTypeToArgInfo returnType
+                SynValInfo(argInfos, returnTypeInfo)
 
     fullType, valInfo
 
@@ -330,10 +375,14 @@ and extractException
 // TODO: complete the list
 and extractSynMemberSig (typeName: SynType) (md: SynMemberDefn) : SynMemberSig option =
     match md with
+    | SynMemberDefn.Open _
+    | SynMemberDefn.LetBindings _
+    | SynMemberDefn.NestedType _ -> None
     | SynMemberDefn.ValField(fieldInfo, m) -> Some(SynMemberSig.ValField(fieldInfo, m))
-    | SynMemberDefn.Member(SynBinding(valData = SynValData(memberFlags = Some mf)) as binding, _range) ->
+    | SynMemberDefn.Member(SynBinding(valData = SynValData(memberFlags = mf)) as binding, _range) ->
         extractVal binding
-        |> Option.map (fun valSig ->
+        |> Option.bind (fun valSig -> mf |> Option.map (fun mf -> valSig, mf))
+        |> Option.map (fun (valSig, mf) ->
             let mf =
                 match valSig.SynInfo.CurriedArgInfos, mf.MemberKind with
                 | [], SynMemberKind.Member ->
@@ -343,7 +392,6 @@ and extractSynMemberSig (typeName: SynType) (md: SynMemberDefn) : SynMemberSig o
                 | _ -> mf
 
             SynMemberSig.Member(valSig, mf, Range.Zero, SynMemberSigMemberTrivia.Zero))
-
     | SynMemberDefn.AbstractSlot(slotSig = synValSig; flags = synMemberFlags) ->
         Some(SynMemberSig.Member(synValSig, synMemberFlags, Range.Zero, SynMemberSigMemberTrivia.Zero))
 
@@ -388,7 +436,7 @@ and extractSynMemberSig (typeName: SynType) (md: SynMemberDefn) : SynMemberSig o
         if not allParametersAreTyped then
             None
         else
-            let fullType, valInfo = mkReturnTypeAndValInfo [ parameterTypes ] typeName
+            let fullType, valInfo = mkReturnTypeAndValInfo [ parameterTypes ] typeName None
 
             let valSig =
                 SynValSig(
@@ -422,7 +470,39 @@ and extractSynMemberSig (typeName: SynType) (md: SynMemberDefn) : SynMemberSig o
                 )
             )
     | SynMemberDefn.ImplicitInherit(inheritType, _inheritArgs, _inheritAlias, _range) -> Some(SynMemberSig.Inherit(inheritType, Range.Zero))
-    | _ -> None
+    | SynMemberDefn.AutoProperty(
+        attributes = attributes; ident = ident; memberFlags = memberFlags; typeOpt = typeOpt; xmlDoc = xmlDoc; accessibility = vis) ->
+        typeOpt
+        |> Option.map (fun t ->
+            let synMemberFlags: SynMemberFlags =
+                { memberFlags with
+                    MemberKind = SynMemberKind.PropertyGet
+                }
+
+            let arity =
+                SynValInfo.SynValInfo(
+                    curriedArgInfos = [],
+                    returnInfo = SynArgInfo.SynArgInfo(attributes = [], optional = false, ident = None)
+                )
+
+            let synValSig =
+                SynValSig(
+                    attributes,
+                    SynIdent(ident, None),
+                    SynValTyparDecls(None, true),
+                    t,
+                    arity,
+                    false,
+                    false,
+                    xmlDoc,
+                    vis,
+                    None,
+                    Range.Zero,
+                    SynValSigTrivia.Zero
+                )
+
+            SynMemberSig.Member(synValSig, synMemberFlags, Range.Zero, SynMemberSigMemberTrivia.Zero))
+    | SynMemberDefn.GetSetMember _ -> failwithf $"SynMemberDefn.GetSetMember at %A{md.Range} %s{md.Range.FileName}"
 
 and extractSynMemberSigs (typeName: SynType) (members: SynMemberDefn list) : SynMemberSig list =
     List.choose (extractSynMemberSig typeName) members
