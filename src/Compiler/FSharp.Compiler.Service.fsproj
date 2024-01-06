@@ -424,6 +424,12 @@
     <Compile Include="Driver\GraphChecking\GraphProcessing.fsi" />
     <Compile Include="Driver\GraphChecking\GraphProcessing.fs" />
     <Content Include="Driver\GraphChecking\Docs.md" />
+    <Compile Include="Driver\PrintSignature\FormatConfig.fs" />
+    <Compile Include="Driver\PrintSignature\SyntaxOak.fs" />
+    <Compile Include="Driver\PrintSignature\ASTTransformer.fs" />
+    <Compile Include="Driver\PrintSignature\Queue.fs" />
+    <Compile Include="Driver\PrintSignature\Context.fs" />
+    <Compile Include="Driver\PrintSignature\CodePrinter.fs" />
     <Compile Include="Driver\ExtractSignatureFromUntypedTree.fs" />
     <Compile Include="Driver\ParseAndCheckInputs.fsi" />
     <Compile Include="Driver\ParseAndCheckInputs.fs" />
