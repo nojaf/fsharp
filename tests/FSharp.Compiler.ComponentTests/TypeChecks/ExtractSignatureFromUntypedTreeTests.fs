@@ -4,8 +4,13 @@ open Xunit
 open FSharp.Test.Compiler
 open FSharp.Test
 
+let private addMarker source = sprintf "#if TOPLEVELTYPED\n#endif\n%s" source
+
 let private typeCheckWithInMemorySignature source =
-    FSharp source
+
+    source
+    |> addMarker
+    |> FSharp
     |> withOptions [ "--test:GraphBasedChecking" ]
     |> compile
     |> shouldSucceed
@@ -17,11 +22,11 @@ let private typeCheckWithInMemorySignatureWithMultiple (sources: string list) =
         | []
         | [ _ ] -> failwith "Expected multiple sources"
         | head :: tail ->
-            (FSharp head, List.indexed tail)
+            (FSharp (addMarker head), List.indexed tail)
             ||> List.fold (fun acc (idx, source) ->
                 acc
                 |> withAdditionalSourceFile (
-                    SourceCodeFileKind.Fs({ FileName = $"%i{idx}.fs"; SourceText = Some source })
+                    SourceCodeFileKind.Fs({ FileName = $"%i{idx}.fs"; SourceText = Some (addMarker source) })
                 )
             )
 
@@ -117,4 +122,122 @@ let ``Function return type with lambda body`` () =
 module M
 
 let c : int -> int -> char = fun _ _ -> 'c'
+"""
+
+[<Fact>]
+let ``Marker on top of file`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+"""
+
+[<Fact>]
+let ``Inline member`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+open System.Threading.Tasks
+
+type ConstantVal<'a>(value: Task<'a>) =
+    inherit obj()
+
+    new(x:int, value: Task<'a>) = ConstantVal<'a>(value)
+
+[<Sealed>]
+type T =
+    member inline x.BindReturn(v: int, [<InlineIfLambda>] mapping: int -> int) : int =
+        ignore (ConstantVal<string>(Task.FromResult ""))
+        1
+"""
+
+[<Fact>]
+let ``Leading keyword for constructor`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+type Bar() = class end
+"""
+
+[<Fact>]
+let ``Type extension`` () =
+    typeCheckWithInMemorySignature """
+module Telplin
+
+open System
+open System.Threading.Tasks
+open System.Threading
+
+type CancellationTokenSource with
+    /// Communicates a request for cancellation. Ignores ObjectDisposedException
+    member cts.TryCancel() : unit =
+        try
+            cts.Cancel()
+        with :? ObjectDisposedException ->
+            ()
+"""
+
+[<Fact>]
+let ``Inline type extension`` () =
+        typeCheckWithInMemorySignature """
+module Foo
+
+type System.Int32 with
+    member inline x.Source (a:int) : int = x - a
+"""
+
+[<Fact>]
+let ``Override member`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+[<AbstractClass>]
+type NodeBase() =
+    abstract member Children: int array
+
+type StringNode(content: string) =
+    inherit NodeBase()
+    member val Content = content
+    override val Children = Array.empty
+"""
+
+[<Fact>]
+let ``Lambda parameter in constructor`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+open System
+open System.Threading.Tasks
+open System.Threading
+
+module F =
+    type Bar(a:int, b: Task<int> -> Task<int>) =
+        do ()
+"""
+
+[<Fact>]
+let ``Invoke secondary constructor`` () =
+    typeCheckWithInMemorySignatureWithMultiple [
+        """
+module F
+
+type A(a:int) =
+    new (b:string) = A(0)
+"""
+        """
+module C
+
+open F
+
+let c () = A("")
+""" ]
+
+[<Fact>]
+let ``Getter and setter`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+type Bar() =
+    let mutable disableInMemoryProjectReferences : bool = false
+    member __.DisableInMemoryProjectReferences
+       with get () : bool = disableInMemoryProjectReferences
+       and set (value : bool):unit = disableInMemoryProjectReferences <- value
 """

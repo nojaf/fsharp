@@ -1768,13 +1768,23 @@ let CheckMultipleInputsUsingGraphMode
                 if fileNames.Contains(signatureFile) then
                     async { return List.singleton file }
                 else
+                    let isMarkedFile =
+                        implFile.Trivia.ConditionalDirectives
+                        |> List.tryHead
+                        |> function
+                            | Some(ConditionalDirectiveTrivia.If(expr = IfDirectiveExpression.Ident "TOPLEVELTYPED")) -> true
+                            | Some _
+                            | None -> false
+
                     async {
-                        return [
-                            FSharp.Compiler.Service.Driver.ExtractSignatureFromUntypedTree.extractSignatureFromImplementation implFile
-                            file
-                        ]
-                    }
-        )
+                        return
+                            [
+                                if isMarkedFile then
+                                    FSharp.Compiler.Service.Driver.ExtractSignatureFromUntypedTree.extractSignatureFromImplementation
+                                        implFile
+                                file
+                            ]
+                    })
         |> Async.Parallel
         |> Async.RunSynchronously
         |> Array.collect Array.ofList

@@ -4,16 +4,52 @@ open FSharp.Compiler.Text
 open FSharp.Compiler.Syntax
 open FSharp.Compiler.SyntaxTrivia
 open FSharp.Compiler.SyntaxTreeOps
+open FSharp.Compiler.Xml
+open PrintSignature
 
 let isPrivate (vis: SynAccess option) =
     match vis with
     | Some(SynAccess.Private _) -> true
     | _ -> false
 
+let private wrapFunTypeInParens t =
+    match t with
+    | SynType.Fun _ -> SynType.Paren(t, Range.Zero)
+    | _ -> t
+
 let rec (|RemoveParens|) pat =
     match pat with
     | SynPat.Paren(pat, _) -> (|RemoveParens|) pat
     | pat -> pat
+
+let private (|NewPattern|_|) (pat: SynPat) =
+    match pat with
+    | SynPat.LongIdent(longDotId = SynLongIdent(id = [ newIdent ]); argPats = SynArgPats.Pats pats) when newIdent.idText = "new" ->
+        Some pats
+    | _ -> None
+
+let private unitType =
+    SynType.LongIdent(SynLongIdent([ Ident("unit", Range.Zero) ], [], [ None ]))
+
+let private mkTupleType (originalPatternCount: int) (ts: SynType list) : SynType * bool =
+    match ts with
+    | [] -> unitType, true
+    | [ t ] -> t, originalPatternCount = 1
+    | first :: rest ->
+        let path =
+            [
+                yield SynTupleTypeSegment.Type(first)
+                yield!
+                    (List.collect
+                        (fun t ->
+                            [
+                                yield SynTupleTypeSegment.Star(Range.Zero)
+                                yield SynTupleTypeSegment.Type(t)
+                            ])
+                        rest)
+            ]
+
+        SynType.Tuple(false, path, Range.Zero), ts.Length = originalPatternCount
 
 let typeFromPat t pat =
     let t =
@@ -28,6 +64,41 @@ let typeFromPat t pat =
 
         SynType.App(optionType, None, [ t ], [], None, true, Range.Zero)
     | _ -> t
+
+let private parameterNameFromPattern (pat: SynPat) =
+    match pat with
+    | SynPat.Named(ident = SynIdent(ident, _)) -> Some ident
+    | _ -> None
+
+let rec extractTypeFromPattern (isTopLevel: bool) (pat: SynPat) : SynType option =
+    match pat with
+    | RemoveParens(SynPat.Const(SynConst.Unit, _)) -> Some unitType
+    | RemoveParens(SynPat.Attrib(SynPat.Typed(pat, t, _), attributes, _)) ->
+        let t = typeFromPat t pat
+        Some(SynType.SignatureParameter(attributes, false, parameterNameFromPattern pat, t, Range.Zero))
+    | RemoveParens(SynPat.Typed(pat, t, _)) ->
+        let t = typeFromPat t pat
+        Some(SynType.SignatureParameter([], false, parameterNameFromPattern pat, t, Range.Zero))
+    | RemoveParens(SynPat.Tuple(elementPats = pats)) when isTopLevel ->
+        let ts = List.choose (extractTypeFromPattern false) pats
+
+        match ts with
+        | [] -> None
+        | head :: tail ->
+            if ts.Length <> pats.Length then
+                None
+            else
+                let path =
+                    [
+                        yield SynTupleTypeSegment.Type head
+                        yield! (List.collect (fun t -> [ SynTupleTypeSegment.Star(Range.Zero); SynTupleTypeSegment.Type t ]) tail)
+                    ]
+
+                Some(SynType.Tuple(false, path, Range.Zero))
+    | _ -> None
+
+and extractTypeFromPatterns (ps: SynPat list) =
+    List.choose (extractTypeFromPattern true) ps
 
 let rec extractSynModuleSigDecl (decl: SynModuleDecl) : SynModuleSigDecl seq =
     match decl with
@@ -82,7 +153,8 @@ and extractSynTypeDefn (SynTypeDefn(typeInfo, typeRepr, members, implicitConstru
             // The parser does not create this construct, `SynTypeDefnRepr.Exception`.
             // It is the extracted version of SynModuleDecl.Exception, used later in during type checking.
             None
-        | SynTypeDefnRepr.ObjectModel(SynTypeDefnKind.Augmentation _, _synMemberDefns, _range) ->
+        | SynTypeDefnRepr.ObjectModel(SynTypeDefnKind.Augmentation mWith, _synMemberDefns, _range) ->
+            let trivia = { trivia with WithKeyword = Some mWith }
             Some(SynTypeDefnSig(typeInfo, SynTypeDefnSigRepr.Simple(SynTypeDefnSimpleRepr.None Range.Zero, Range.Zero), members, m, trivia))
         | SynTypeDefnRepr.Simple(simpleRepr, _) ->
             Some(SynTypeDefnSig(typeInfo, SynTypeDefnSigRepr.Simple(simpleRepr, Range.Zero), members, m, trivia))
@@ -156,7 +228,19 @@ and mkSynTypeLongIdent (longId: LongIdent) =
     SynType.LongIdent(SynLongIdent(longId, dots, trivia))
 
 and extractVal
-    (SynBinding(vis, _kind, isInline, isMutable, attributes, xmlDoc, valData, headPat, returnInfo, expr, m, _debugPoint, trivia))
+    (SynBinding(vis,
+                _kind,
+                isInline,
+                isMutable,
+                attributes,
+                xmlDoc,
+                (SynValData(memberFlags = memberFlagsOpt) as valData),
+                headPat,
+                returnInfo,
+                expr,
+                m,
+                _debugPoint,
+                trivia))
     : SynValSig option =
     let headPatVis =
         match headPat with
@@ -167,16 +251,23 @@ and extractVal
     if isPrivate vis || isPrivate headPatVis || Option.isNone returnInfo then
         None
     else
+        let trivia: SynValSigTrivia =
+            let leadingKeyword =
+                match memberFlagsOpt with
+                | None -> SynLeadingKeyword.Val Range.Zero
+                | Some mf ->
+                    ignore mf
+                    trivia.LeadingKeyword
+
+            {
+                LeadingKeyword = leadingKeyword
+                InlineKeyword = trivia.InlineKeyword
+                WithKeyword = None
+                EqualsRange = None
+            }
+
         match headPat, returnInfo with
         | SynPat.Named(ident = ident), Some(SynBindingReturnInfo(typeName = typeName)) ->
-            let trivia: SynValSigTrivia =
-                {
-                    LeadingKeyword = SynLeadingKeyword.Val trivia.LeadingKeyword.Range
-                    InlineKeyword = None
-                    WithKeyword = None
-                    EqualsRange = None
-                }
-
             let optExpr =
                 let hasLiteralAttribute =
                     attributes
@@ -213,46 +304,7 @@ and extractVal
                 Option.defaultValue (SynValTyparDecls(None, true)) typarDecls
 
             let functionName = List.tryLast longDotId.IdentsWithTrivia
-
-            let parameterName pat =
-                match pat with
-                | SynPat.Named(ident = SynIdent(ident, _)) -> Some ident
-                | _ -> None
-
-            let parameterTypes =
-                let rec visit (isTopLevel: bool) (pat: SynPat) : SynType option =
-                    match pat with
-                    | RemoveParens(SynPat.Const(SynConst.Unit, _)) ->
-                        Some(SynType.LongIdent(SynLongIdent([ Ident("unit", Range.Zero) ], [], [ None ])))
-                    | RemoveParens(SynPat.Attrib(SynPat.Typed(pat, t, _), attributes, _)) ->
-                        let t = typeFromPat t pat
-                        Some(SynType.SignatureParameter(attributes, false, parameterName pat, t, Range.Zero))
-                    | RemoveParens(SynPat.Typed(pat, t, _)) ->
-                        let t = typeFromPat t pat
-                        Some(SynType.SignatureParameter(attributes, false, parameterName pat, t, Range.Zero))
-                    | RemoveParens(SynPat.Tuple(elementPats = pats)) when isTopLevel ->
-                        let ts = List.choose (visit false) pats
-
-                        match ts with
-                        | [] -> None
-                        | head :: tail ->
-                            if ts.Length <> pats.Length then
-                                None
-                            else
-                                let path =
-                                    [
-                                        yield SynTupleTypeSegment.Type head
-                                        yield!
-                                            (List.collect
-                                                (fun t -> [ SynTupleTypeSegment.Star(Range.Zero); SynTupleTypeSegment.Type t ])
-                                                tail)
-                                    ]
-
-                                Some(SynType.Tuple(false, path, Range.Zero))
-
-                    | _ -> None
-
-                List.choose (visit true) ps
+            let parameterTypes = extractTypeFromPatterns ps
 
             if parameterTypes.Length <> ps.Length then
                 None
@@ -260,14 +312,6 @@ and extractVal
                 match functionName with
                 | None -> None
                 | Some ident ->
-                    let trivia: SynValSigTrivia =
-                        {
-                            LeadingKeyword = SynLeadingKeyword.Val trivia.LeadingKeyword.Range
-                            InlineKeyword = None
-                            WithKeyword = None
-                            EqualsRange = None
-                        }
-
                     let fullType, valInfo = mkReturnTypeAndValInfo parameterTypes returnType (Some expr)
 
                     let optExpr =
@@ -372,6 +416,50 @@ and extractException
             SynModuleSigDecl.Exception(SynExceptionSig(repr, withKeyword, members, m), m)
         |]
 
+/// Extract a `new: a:int -> TypeName`
+and extractConstructorVal
+    (synAttributeLists: SynAttributes)
+    (preXmlDoc: PreXmlDoc)
+    (vis: SynAccess option)
+    (parameterTypes: SynType)
+    (typeName: SynType)
+    =
+    let fullType, valInfo = mkReturnTypeAndValInfo [ parameterTypes ] typeName None
+
+    let valSig =
+        SynValSig(
+            synAttributeLists,
+            SynIdent(Ident("new", Range.Zero), None),
+            SynValTyparDecls(None, false),
+            fullType,
+            valInfo,
+            false,
+            false,
+            preXmlDoc,
+            vis,
+            None,
+            Range.Zero,
+            { SynValSigTrivia.Zero with
+                LeadingKeyword = SynLeadingKeyword.New Range.Zero
+            }
+        )
+
+    Some(
+        SynMemberSig.Member(
+            valSig,
+            {
+                IsInstance = false
+                IsDispatchSlot = false
+                IsOverrideOrExplicitImpl = false
+                IsFinal = false
+                GetterOrSetterIsCompilerGenerated = false
+                MemberKind = SynMemberKind.Constructor
+            },
+            Range.Zero,
+            SynMemberSigMemberTrivia.Zero
+        )
+    )
+
 // TODO: complete the list
 and extractSynMemberSig (typeName: SynType) (md: SynMemberDefn) : SynMemberSig option =
     match md with
@@ -379,6 +467,15 @@ and extractSynMemberSig (typeName: SynType) (md: SynMemberDefn) : SynMemberSig o
     | SynMemberDefn.LetBindings _
     | SynMemberDefn.NestedType _ -> None
     | SynMemberDefn.ValField(fieldInfo, m) -> Some(SynMemberSig.ValField(fieldInfo, m))
+    | SynMemberDefn.Member(
+        memberDefn = SynBinding(headPat = NewPattern parameters; attributes = synAttributeLists; xmlDoc = preXmlDoc; accessibility = vis)) ->
+        let ts = extractTypeFromPatterns parameters
+        let parameterTypes, isFullyTyped = mkTupleType parameters.Length ts
+
+        if not isFullyTyped then
+            None
+        else
+            extractConstructorVal synAttributeLists preXmlDoc vis parameterTypes typeName
     | SynMemberDefn.Member(SynBinding(valData = SynValData(memberFlags = mf)) as binding, _range) ->
         extractVal binding
         |> Option.bind (fun valSig -> mf |> Option.map (fun mf -> valSig, mf))
@@ -409,66 +506,18 @@ and extractSynMemberSig (typeName: SynType) (md: SynMemberDefn) : SynMemberSig o
                     |> List.choose (function
                         | SynSimplePat.Attrib(SynSimplePat.Typed(SynSimplePat.Id(ident = ident; isOptional = isOptional), t, _),
                                               attributes,
-                                              m) -> Some(SynType.SignatureParameter(attributes, isOptional, Some ident, t, m))
+                                              m) ->
+                            Some(SynType.SignatureParameter(attributes, isOptional, Some ident, wrapFunTypeInParens t, m))
                         | SynSimplePat.Typed(SynSimplePat.Id(ident = ident; isOptional = isOptional), t, m) ->
-                            Some(SynType.SignatureParameter([], isOptional, Some ident, t, m))
+                            Some(SynType.SignatureParameter([], isOptional, Some ident, wrapFunTypeInParens t, m))
                         | _ -> None)
 
-                match ts with
-                | [] -> SynType.LongIdent(SynLongIdent([ Ident("unit", Range.Zero) ], [], [ None ])), true
-                | [ t ] -> t, pats.Length = 1
-                | first :: rest ->
-                    let path =
-                        [
-                            yield SynTupleTypeSegment.Type(first)
-                            yield!
-                                (List.collect
-                                    (fun t ->
-                                        [
-                                            yield SynTupleTypeSegment.Star(Range.Zero)
-                                            yield SynTupleTypeSegment.Type(t)
-                                        ])
-                                    rest)
-                        ]
-
-                    SynType.Tuple(false, path, Range.Zero), ts.Length = pats.Length
+                mkTupleType pats.Length ts
 
         if not allParametersAreTyped then
             None
         else
-            let fullType, valInfo = mkReturnTypeAndValInfo [ parameterTypes ] typeName None
-
-            let valSig =
-                SynValSig(
-                    synAttributeLists,
-                    SynIdent(Ident("new", Range.Zero), None),
-                    SynValTyparDecls(None, false),
-                    fullType,
-                    valInfo,
-                    false,
-                    false,
-                    preXmlDoc,
-                    vis,
-                    None,
-                    Range.Zero,
-                    SynValSigTrivia.Zero
-                )
-
-            Some(
-                SynMemberSig.Member(
-                    valSig,
-                    {
-                        IsInstance = false
-                        IsDispatchSlot = false
-                        IsOverrideOrExplicitImpl = false
-                        IsFinal = false
-                        GetterOrSetterIsCompilerGenerated = false
-                        MemberKind = SynMemberKind.Constructor
-                    },
-                    Range.Zero,
-                    SynMemberSigMemberTrivia.Zero
-                )
-            )
+            extractConstructorVal synAttributeLists preXmlDoc vis parameterTypes typeName
     | SynMemberDefn.ImplicitInherit(inheritType, _inheritArgs, _inheritAlias, _range) -> Some(SynMemberSig.Inherit(inheritType, Range.Zero))
     | SynMemberDefn.AutoProperty(
         attributes = attributes; ident = ident; memberFlags = memberFlags; typeOpt = typeOpt; xmlDoc = xmlDoc; accessibility = vis) ->
@@ -498,11 +547,64 @@ and extractSynMemberSig (typeName: SynType) (md: SynMemberDefn) : SynMemberSig o
                     vis,
                     None,
                     Range.Zero,
-                    SynValSigTrivia.Zero
+                    { SynValSigTrivia.Zero with
+                        LeadingKeyword = SynLeadingKeyword.Val Range.Zero
+                    }
                 )
 
             SynMemberSig.Member(synValSig, synMemberFlags, Range.Zero, SynMemberSigMemberTrivia.Zero))
-    | SynMemberDefn.GetSetMember _ -> failwithf $"SynMemberDefn.GetSetMember at %A{md.Range} %s{md.Range.FileName}"
+    // TODO: support for DisableInMemoryProjectReferences
+    | SynMemberDefn.GetSetMember(memberDefnForGet, memberDefnForSet, _, _synMemberGetSetTrivia) ->
+        match memberDefnForGet, memberDefnForSet with
+        | Some(SynBinding(
+            attributes = attributes
+            xmlDoc = xmlDoc
+            headPat = SynPat.LongIdent(argPats = SynArgPats.Pats(pats = [ _ ]); longDotId = lid; accessibility = vis)
+            returnInfo = Some getReturnInfo)),
+          // TODO: check for typed setter parameter?
+          Some(SynBinding(headPat = SynPat.LongIdent(argPats = SynArgPats.Pats(pats = [ _ ])); returnInfo = Some _)) ->
+            let ident = lid.LongIdent |> List.last
+
+            let synMemberFlags: SynMemberFlags =
+                {
+                    IsInstance = true
+                    IsDispatchSlot = false
+                    IsOverrideOrExplicitImpl = false
+                    IsFinal = false
+                    GetterOrSetterIsCompilerGenerated = false
+                    MemberKind = SynMemberKind.PropertyGetSet
+                }
+
+            let arity =
+                SynValInfo.SynValInfo(
+                    curriedArgInfos = [],
+                    returnInfo = SynArgInfo.SynArgInfo(attributes = [], optional = false, ident = None)
+                )
+
+            let t =
+                match getReturnInfo with
+                | SynBindingReturnInfo(typeName = t) -> t
+
+            let synValSig =
+                SynValSig(
+                    attributes,
+                    SynIdent(ident, None),
+                    SynValTyparDecls(None, true),
+                    t,
+                    arity,
+                    false,
+                    false,
+                    xmlDoc,
+                    vis,
+                    None,
+                    Range.Zero,
+                    { SynValSigTrivia.Zero with
+                        LeadingKeyword = SynLeadingKeyword.Member Range.Zero
+                    }
+                )
+
+            Some(SynMemberSig.Member(synValSig, synMemberFlags, Range.Zero, SynMemberSigMemberTrivia.Zero))
+        | _ -> failwithf $"SynMemberDefn.GetSetMember at %A{md.Range} %s{md.Range.FileName}"
 
 and extractSynMemberSigs (typeName: SynType) (members: SynMemberDefn list) : SynMemberSig list =
     List.choose (extractSynMemberSig typeName) members
@@ -537,4 +639,15 @@ let extractSignatureFromImplementation (file: ParsedImplFileInput) : ParsedInput
             CodeComments = file.Trivia.CodeComments
         }
 
-    ParsedInput.SigFile(ParsedSigFileInput(fileName, qualifiedName, file.ScopedPragmas, file.HashDirectives, content, trivia, Set.empty))
+    let sigFileInput =
+        ParsedSigFileInput(fileName, qualifiedName, file.ScopedPragmas, file.HashDirectives, content, trivia, Set.empty)
+
+    let signatureText =
+        let oak = ASTTransformer.mkOak sigFileInput
+        let ctx = CodePrinter.genFile oak Context.Context.Default
+        Context.dump false ctx
+
+    let sigFile = file.FileName + "i"
+    System.IO.File.WriteAllText(sigFile, signatureText)
+
+    ParsedInput.SigFile sigFileInput
