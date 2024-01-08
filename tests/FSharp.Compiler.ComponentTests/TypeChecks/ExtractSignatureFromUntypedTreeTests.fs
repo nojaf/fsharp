@@ -241,3 +241,92 @@ type Bar() =
        with get () : bool = disableInMemoryProjectReferences
        and set (value : bool):unit = disableInMemoryProjectReferences <- value
 """
+
+[<Fact>]
+let ``Extension member`` () =
+    typeCheckWithInMemorySignature """
+module Telplin
+
+open System
+open System.Runtime.CompilerServices
+
+[<Extension>]
+type ReadOnlySpanExtensions =
+  /// Note: empty string -> 1 line
+  [<Extension>]
+  static member CountLines(text: ReadOnlySpan<char>) : int =
+    let mutable count = 0
+
+    for _ in text.EnumerateLines() do
+      count <- count + 1
+
+    count
+"""
+
+[<Fact>]
+let ``Literal in nested module`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+module Tracing =
+  module SemanticConventions =
+    module FCS =
+      [<Literal>]
+      let fileName : string = "fileName"
+"""
+
+[<Fact>]
+let ``AbstractClass attribute should remain`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+[<AbstractClass>]
+  type AbstractVal<'a>() =
+    abstract Compute : unit -> unit
+"""
+
+[<Fact>]
+let ``Val with get,set`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+open System
+
+type Debounce<'a>(timeout: int, fn: 'a -> Async<unit>) as x =
+
+  let mailbox =
+    MailboxProcessor<'a>.Start(fun agent ->
+      let rec loop ida idb arg =
+        async {
+          let! r = agent.TryReceive(x.Timeout)
+
+          match r with
+          | Some arg -> return! loop ida (idb + 1) (Some arg)
+          | None when ida <> idb ->
+            do! fn arg.Value
+            return! loop 0 0 None
+          | None -> return! loop 0 0 arg
+        }
+
+      loop 0 0 None)
+
+  /// Calls the function, after debouncing has been applied.
+  member _.Bounce<'a>(arg: 'a) : unit = mailbox.Post(arg)
+
+  /// Timeout in ms
+  member val Timeout : int = timeout with get, set
+"""
+
+[<Fact>]
+let ``Optional parameter in tuple member`` () =
+    typeCheckWithInMemorySignature """
+namespace Foo
+
+[<Class>]
+type Foo =
+    /// <summary>Good stuff</summary>
+    /// <param name="v">Description about v</param>
+    /// <param name="x"Optional x</param>
+    /// <returns>A char</returns>
+    static member Blah(v:int, ?x: string) : char = 'c'
+"""
