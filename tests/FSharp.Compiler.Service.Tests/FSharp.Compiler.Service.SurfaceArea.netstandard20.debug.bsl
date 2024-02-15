@@ -2009,11 +2009,14 @@ FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: FSharp.Compiler.Symbols.FSh
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: FSharp.Compiler.Symbols.FSharpOpenDeclaration[] get_OpenDeclarations()
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: FSharp.Compiler.Text.Range[] GetFormatSpecifierLocations()
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.FSharpSymbolUse] GetSymbolUsesAtLocation(Int32, Int32, System.String, Microsoft.FSharp.Collections.FSharpList`1[System.String])
-FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Collections.FSharpList`1[Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.FSharpSymbolUse]] GetDeclarationListSymbols(Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.CodeAnalysis.FSharpParseFileResults], Int32, System.String, FSharp.Compiler.EditorServices.PartialLongName, Microsoft.FSharp.Core.FSharpOption`1[Microsoft.FSharp.Core.FSharpFunc`2[Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.EditorServices.AssemblySymbol]]])
+FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems] GetDeclarationListSymbols(Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.CodeAnalysis.FSharpParseFileResults], Int32, System.String, FSharp.Compiler.EditorServices.PartialLongName, Boolean, Microsoft.FSharp.Core.FSharpOption`1[Microsoft.FSharp.Core.FSharpFunc`2[Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.EditorServices.AssemblySymbol]]])
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.CodeAnalysis.FSharpSymbolUse] GetSymbolUseAtLocation(Int32, Int32, System.String, Microsoft.FSharp.Collections.FSharpList`1[System.String])
+FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.CodeAnalysis.FSharpSymbolUse] ResolveNamesAtLocation(FSharp.Compiler.Text.Position, Microsoft.FSharp.Collections.FSharpList`1[System.String])
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpDisplayContext] GetDisplayContextForPos(FSharp.Compiler.Text.Position)
+FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpDisplayContext] GetExpressionDisplayContext(FSharp.Compiler.Text.Range)
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpImplementationFileContents] ImplementationFile
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpImplementationFileContents] get_ImplementationFile()
+FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpType] GetTypeOfExpression(FSharp.Compiler.Text.Range)
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Text.ISourceText] GenerateSignature(Microsoft.FSharp.Core.FSharpOption`1[System.Int32])
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.FSharpSymbolUse]] GetMethodsAsSymbols(Int32, Int32, System.String, Microsoft.FSharp.Collections.FSharpList`1[System.String])
 FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults: Microsoft.FSharp.Core.FSharpOption`1[System.String] GetF1Keyword(Int32, Int32, System.String, Microsoft.FSharp.Collections.FSharpList`1[System.String])
@@ -2076,6 +2079,7 @@ FSharp.Compiler.CodeAnalysis.FSharpChecker: Microsoft.FSharp.Control.IEvent`2[Mi
 FSharp.Compiler.CodeAnalysis.FSharpChecker: Microsoft.FSharp.Control.IEvent`2[Microsoft.FSharp.Control.FSharpHandler`1[System.Tuple`2[System.String,FSharp.Compiler.CodeAnalysis.FSharpProjectOptions]],System.Tuple`2[System.String,FSharp.Compiler.CodeAnalysis.FSharpProjectOptions]] get_BeforeBackgroundFileCheck()
 FSharp.Compiler.CodeAnalysis.FSharpChecker: Microsoft.FSharp.Control.IEvent`2[Microsoft.FSharp.Control.FSharpHandler`1[System.Tuple`2[System.String,FSharp.Compiler.CodeAnalysis.FSharpProjectOptions]],System.Tuple`2[System.String,FSharp.Compiler.CodeAnalysis.FSharpProjectOptions]] get_FileChecked()
 FSharp.Compiler.CodeAnalysis.FSharpChecker: Microsoft.FSharp.Control.IEvent`2[Microsoft.FSharp.Control.FSharpHandler`1[System.Tuple`2[System.String,FSharp.Compiler.CodeAnalysis.FSharpProjectOptions]],System.Tuple`2[System.String,FSharp.Compiler.CodeAnalysis.FSharpProjectOptions]] get_FileParsed()
+FSharp.Compiler.CodeAnalysis.FSharpChecker: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.CodeAnalysis.FSharpProjectOptions] GetCachedScriptOptions(System.String)
 FSharp.Compiler.CodeAnalysis.FSharpChecker: Microsoft.FSharp.Core.FSharpOption`1[System.Tuple`3[FSharp.Compiler.CodeAnalysis.FSharpParseFileResults,FSharp.Compiler.CodeAnalysis.FSharpCheckFileResults,System.Int64]] TryGetRecentCheckResultsForFile(System.String, FSharp.Compiler.CodeAnalysis.FSharpProjectOptions, Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Text.ISourceText], Microsoft.FSharp.Core.FSharpOption`1[System.String])
 FSharp.Compiler.CodeAnalysis.FSharpChecker: System.Tuple`2[FSharp.Compiler.CodeAnalysis.FSharpParsingOptions,Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.Diagnostics.FSharpDiagnostic]] GetParsingOptionsFromCommandLineArgs(Microsoft.FSharp.Collections.FSharpList`1[System.String], Microsoft.FSharp.Collections.FSharpList`1[System.String], Microsoft.FSharp.Core.FSharpOption`1[System.Boolean], Microsoft.FSharp.Core.FSharpOption`1[System.Boolean])
 FSharp.Compiler.CodeAnalysis.FSharpChecker: System.Tuple`2[FSharp.Compiler.CodeAnalysis.FSharpParsingOptions,Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.Diagnostics.FSharpDiagnostic]] GetParsingOptionsFromCommandLineArgs(Microsoft.FSharp.Collections.FSharpList`1[System.String], Microsoft.FSharp.Core.FSharpOption`1[System.Boolean], Microsoft.FSharp.Core.FSharpOption`1[System.Boolean])
@@ -2329,15 +2333,39 @@ FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectIdentifier: System.Str
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectIdentifier: System.String get_projectFileName()
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectIdentifier: System.String outputFileName
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectIdentifier: System.String projectFileName
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Boolean IsIncompleteTypeCheckEnvironment
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Boolean UseScriptResolutionRules
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Boolean get_IsIncompleteTypeCheckEnvironment()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Boolean get_UseScriptResolutionRules()
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: FSharpProjectIdentifier Identifier
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: FSharpProjectIdentifier get_Identifier()
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: FSharpProjectSnapshot Create(System.String, Microsoft.FSharp.Core.FSharpOption`1[System.String], Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpFileSnapshot], Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+ReferenceOnDisk], Microsoft.FSharp.Collections.FSharpList`1[System.String], Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpReferencedProjectSnapshot], Boolean, Boolean, System.DateTime, Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.CodeAnalysis.FSharpUnresolvedReferencesSet], Microsoft.FSharp.Collections.FSharpList`1[System.Tuple`3[FSharp.Compiler.Text.Range,System.String,System.String]], Microsoft.FSharp.Core.FSharpOption`1[System.Int64])
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: FSharpProjectSnapshot Replace(Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpFileSnapshot])
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpFileSnapshot] SourceFiles
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpFileSnapshot] get_SourceFiles()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpReferencedProjectSnapshot] ReferencedProjects
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpReferencedProjectSnapshot] get_ReferencedProjects()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+ReferenceOnDisk] ReferencesOnDisk
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+ReferenceOnDisk] get_ReferencesOnDisk()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[System.String] OtherOptions
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[System.String] get_OtherOptions()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[System.Tuple`3[FSharp.Compiler.Text.Range,System.String,System.String]] OriginalLoadReferences
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Collections.FSharpList`1[System.Tuple`3[FSharp.Compiler.Text.Range,System.String,System.String]] get_OriginalLoadReferences()
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Control.FSharpAsync`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot] FromOptions(FSharp.Compiler.CodeAnalysis.FSharpProjectOptions)
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Control.FSharpAsync`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot] FromOptions(FSharp.Compiler.CodeAnalysis.FSharpProjectOptions, Microsoft.FSharp.Core.FSharpFunc`2[FSharp.Compiler.CodeAnalysis.FSharpProjectOptions,Microsoft.FSharp.Core.FSharpFunc`2[System.String,Microsoft.FSharp.Control.FSharpAsync`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpFileSnapshot]]], Microsoft.FSharp.Core.FSharpOption`1[System.Collections.Generic.Dictionary`2[FSharp.Compiler.CodeAnalysis.FSharpProjectOptions,FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot]])
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Control.FSharpAsync`1[FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot] FromOptions(FSharp.Compiler.CodeAnalysis.FSharpProjectOptions, System.String, Int32, FSharp.Compiler.Text.ISourceText)
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.CodeAnalysis.FSharpUnresolvedReferencesSet] UnresolvedReferences
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.CodeAnalysis.FSharpUnresolvedReferencesSet] get_UnresolvedReferences()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Core.FSharpOption`1[System.Int64] Stamp
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Core.FSharpOption`1[System.Int64] get_Stamp()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Core.FSharpOption`1[System.String] ProjectId
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: Microsoft.FSharp.Core.FSharpOption`1[System.String] get_ProjectId()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: System.DateTime LoadTime
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: System.DateTime get_LoadTime()
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: System.String Label
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: System.String ProjectFileName
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: System.String get_Label()
+FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot: System.String get_ProjectFileName()
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpReferencedProjectSnapshot+FSharpReference: FSharpProjectSnapshot get_snapshot()
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpReferencedProjectSnapshot+FSharpReference: FSharpProjectSnapshot snapshot
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpReferencedProjectSnapshot+FSharpReference: System.String get_projectOutputFile()
@@ -2395,6 +2423,14 @@ FSharp.Compiler.CodeAnalysis.ProjectSnapshot: FSharp.Compiler.CodeAnalysis.Proje
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot: FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpProjectSnapshot
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot: FSharp.Compiler.CodeAnalysis.ProjectSnapshot+FSharpReferencedProjectSnapshot
 FSharp.Compiler.CodeAnalysis.ProjectSnapshot: FSharp.Compiler.CodeAnalysis.ProjectSnapshot+ReferenceOnDisk
+FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems: FSharp.Compiler.EditorServices.ToolTipText Description
+FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems: FSharp.Compiler.EditorServices.ToolTipText get_Description()
+FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.FSharpSymbolUse] SymbolUses
+FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.CodeAnalysis.FSharpSymbolUse] get_SymbolUses()
+FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems: System.String Name
+FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems: System.String get_Name()
+FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems: System.String[] NamespaceToOpen
+FSharp.Compiler.CodeAnalysis.RiderDeclarationListItems: System.String[] get_NamespaceToOpen()
 FSharp.Compiler.CompilerEnvironment: Boolean IsCheckerSupportedSubcategory(System.String)
 FSharp.Compiler.CompilerEnvironment: Boolean IsCompilable(System.String)
 FSharp.Compiler.CompilerEnvironment: Boolean IsScriptFile(System.String)
@@ -5249,7 +5285,9 @@ FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: FSharp.Compiler.Text.Tagg
 FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Int32 GetHashCode()
 FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpEntity] DeclaringEntity
 FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpEntity] get_DeclaringEntity()
+FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue] AccessorProperty
 FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue] EventForFSharpProperty
+FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue] get_AccessorProperty()
 FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue] get_EventForFSharpProperty()
 FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpType] FullTypeSafe
 FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Symbols.FSharpType] get_FullTypeSafe()
@@ -10294,6 +10332,30 @@ FSharp.Compiler.SyntaxTrivia.SynValSigTrivia: Microsoft.FSharp.Core.FSharpOption
 FSharp.Compiler.SyntaxTrivia.SynValSigTrivia: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Text.Range] get_WithKeyword()
 FSharp.Compiler.SyntaxTrivia.SynValSigTrivia: System.String ToString()
 FSharp.Compiler.SyntaxTrivia.SynValSigTrivia: Void .ctor(FSharp.Compiler.SyntaxTrivia.SynLeadingKeyword, Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Text.Range], Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Text.Range], Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Text.Range])
+FSharp.Compiler.Tainted: Boolean EqTainted[T](FSharp.Compiler.Tainted`1[T], FSharp.Compiler.Tainted`1[T])
+FSharp.Compiler.Tainted: Boolean Eq[T](FSharp.Compiler.Tainted`1[T], T)
+FSharp.Compiler.Tainted: Boolean PhysicallyEqTainted[T](FSharp.Compiler.Tainted`1[T], FSharp.Compiler.Tainted`1[T])
+FSharp.Compiler.Tainted: Int32 GetHashCodeTainted[T](FSharp.Compiler.Tainted`1[T])
+FSharp.Compiler.Tainted: Microsoft.FSharp.Core.FSharpChoice`2[Microsoft.FSharp.Core.Unit,FSharp.Compiler.Tainted`1[T]] |Null|NonNull|[T](FSharp.Compiler.Tainted`1[T])
+FSharp.Compiler.Tainted`1[T]: FSharp.Compiler.Tainted`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider] TypeProvider
+FSharp.Compiler.Tainted`1[T]: FSharp.Compiler.Tainted`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider] get_TypeProvider()
+FSharp.Compiler.Tainted`1[T]: FSharp.Compiler.Tainted`1[U] Coerce[U](FSharp.Compiler.Text.Range)
+FSharp.Compiler.Tainted`1[T]: FSharp.Compiler.Tainted`1[U] PApplyNoFailure[U](Microsoft.FSharp.Core.FSharpFunc`2[T,U])
+FSharp.Compiler.Tainted`1[T]: FSharp.Compiler.Tainted`1[U] PApplyWithProvider[U](Microsoft.FSharp.Core.FSharpFunc`2[System.Tuple`2[T,Microsoft.FSharp.Core.CompilerServices.ITypeProvider],U], FSharp.Compiler.Text.Range)
+FSharp.Compiler.Tainted`1[T]: FSharp.Compiler.Tainted`1[U] PApply[U](Microsoft.FSharp.Core.FSharpFunc`2[T,U], FSharp.Compiler.Text.Range)
+FSharp.Compiler.Tainted`1[T]: FSharp.Compiler.Tainted`1[U][] PApplyArray[U](Microsoft.FSharp.Core.FSharpFunc`2[T,U[]], System.String, FSharp.Compiler.Text.Range)
+FSharp.Compiler.Tainted`1[T]: ILScopeRef TypeProviderAssemblyRef
+FSharp.Compiler.Tainted`1[T]: ILScopeRef get_TypeProviderAssemblyRef()
+FSharp.Compiler.Tainted`1[T]: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.Tainted`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider]] CreateAll(Microsoft.FSharp.Collections.FSharpList`1[System.Tuple`3[Microsoft.FSharp.Core.CompilerServices.ITypeProvider,FSharp.Compiler.AbstractIL.IL+ILScopeRef,System.String]])
+FSharp.Compiler.Tainted`1[T]: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Tainted`1[U]] OfType[U]()
+FSharp.Compiler.Tainted`1[T]: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Tainted`1[U]] PApplyOption[U](Microsoft.FSharp.Core.FSharpFunc`2[T,Microsoft.FSharp.Core.FSharpOption`1[U]], FSharp.Compiler.Text.Range)
+FSharp.Compiler.Tainted`1[T]: System.String TypeProviderDesignation
+FSharp.Compiler.Tainted`1[T]: System.String get_TypeProviderDesignation()
+FSharp.Compiler.Tainted`1[T]: System.Tuple`2[FSharp.Compiler.Tainted`1[U1],FSharp.Compiler.Tainted`1[U2]] PApply2[U1,U2](Microsoft.FSharp.Core.FSharpFunc`2[T,System.Tuple`2[U1,U2]], FSharp.Compiler.Text.Range)
+FSharp.Compiler.Tainted`1[T]: System.Tuple`3[FSharp.Compiler.Tainted`1[U1],FSharp.Compiler.Tainted`1[U2],FSharp.Compiler.Tainted`1[U3]] PApply3[U1,U2,U3](Microsoft.FSharp.Core.FSharpFunc`2[T,System.Tuple`3[U1,U2,U3]], FSharp.Compiler.Text.Range)
+FSharp.Compiler.Tainted`1[T]: System.Tuple`4[FSharp.Compiler.Tainted`1[U1],FSharp.Compiler.Tainted`1[U2],FSharp.Compiler.Tainted`1[U3],FSharp.Compiler.Tainted`1[U4]] PApply4[U1,U2,U3,U4](Microsoft.FSharp.Core.FSharpFunc`2[T,System.Tuple`4[U1,U2,U3,U4]], FSharp.Compiler.Text.Range)
+FSharp.Compiler.Tainted`1[T]: U PUntaintNoFailure[U](Microsoft.FSharp.Core.FSharpFunc`2[T,U])
+FSharp.Compiler.Tainted`1[T]: U PUntaint[U](Microsoft.FSharp.Core.FSharpFunc`2[T,U], FSharp.Compiler.Text.Range)
 FSharp.Compiler.Text.ISourceText: Boolean ContentEquals(FSharp.Compiler.Text.ISourceText)
 FSharp.Compiler.Text.ISourceText: Boolean SubTextEquals(System.String, Int32)
 FSharp.Compiler.Text.ISourceText: Char Item [Int32]
@@ -11805,6 +11867,592 @@ FSharp.Compiler.Tokenization.FSharpTokenizerLexState: Int64 get_OtherBits()
 FSharp.Compiler.Tokenization.FSharpTokenizerLexState: Int64 get_PosBits()
 FSharp.Compiler.Tokenization.FSharpTokenizerLexState: System.String ToString()
 FSharp.Compiler.Tokenization.FSharpTokenizerLexState: Void .ctor(Int64, Int64)
+FSharp.Compiler.TypeProviderError: FSharp.Compiler.Text.Range Range
+FSharp.Compiler.TypeProviderError: FSharp.Compiler.Text.Range get_Range()
+FSharp.Compiler.TypeProviderError: FSharp.Compiler.TypeProviderError MapText(Microsoft.FSharp.Core.FSharpFunc`2[System.String,System.Tuple`2[System.Int32,System.String]], System.String, FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviderError: FSharp.Compiler.TypeProviderError WithContext(System.String, System.String)
+FSharp.Compiler.TypeProviderError: Int32 Number
+FSharp.Compiler.TypeProviderError: Int32 get_Number()
+FSharp.Compiler.TypeProviderError: System.String ContextualErrorMessage
+FSharp.Compiler.TypeProviderError: System.String Message
+FSharp.Compiler.TypeProviderError: System.String get_ContextualErrorMessage()
+FSharp.Compiler.TypeProviderError: System.String get_Message()
+FSharp.Compiler.TypeProviderError: Void .ctor(Int32, System.String, FSharp.Compiler.Text.Range, System.Collections.Generic.IEnumerable`1[System.String])
+FSharp.Compiler.TypeProviderError: Void .ctor(System.Tuple`2[System.Int32,System.String], System.String, FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviderError: Void Iter(Microsoft.FSharp.Core.FSharpFunc`2[FSharp.Compiler.TypeProviderError,Microsoft.FSharp.Core.Unit])
+FSharp.Compiler.TypeProviders+IProvidedCustomAttributeProvider: Boolean GetHasTypeProviderEditorHideMethodsAttribute(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+IProvidedCustomAttributeProvider: Microsoft.FSharp.Core.FSharpOption`1[System.Tuple`2[Microsoft.FSharp.Collections.FSharpList`1[Microsoft.FSharp.Core.FSharpOption`1[System.Object]],Microsoft.FSharp.Collections.FSharpList`1[System.Tuple`2[System.String,Microsoft.FSharp.Core.FSharpOption`1[System.Object]]]]] GetAttributeConstructorArgs(Microsoft.FSharp.Core.CompilerServices.ITypeProvider, System.String)
+FSharp.Compiler.TypeProviders+IProvidedCustomAttributeProvider: Microsoft.FSharp.Core.FSharpOption`1[System.Tuple`3[System.String,System.Int32,System.Int32]] GetDefinitionLocationAttribute(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+IProvidedCustomAttributeProvider: System.Collections.Generic.IEnumerable`1[System.Reflection.CustomAttributeData] GetCustomAttributes(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+IProvidedCustomAttributeProvider: System.String[] GetXmlDocAttributes(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedAssembly: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedAssembly: Byte[] GetManifestModuleContents(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedAssembly: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedAssembly: System.Reflection.Assembly Handle
+FSharp.Compiler.TypeProviders+ProvidedAssembly: System.Reflection.Assembly get_Handle()
+FSharp.Compiler.TypeProviders+ProvidedAssembly: System.Reflection.AssemblyName GetName()
+FSharp.Compiler.TypeProviders+ProvidedAssembly: System.String FullName
+FSharp.Compiler.TypeProviders+ProvidedAssembly: System.String get_FullName()
+FSharp.Compiler.TypeProviders+ProvidedAssembly: Void .ctor(System.Reflection.Assembly)
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: Boolean Equals(ProvidedAssemblyStaticLinkingMap)
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: Boolean Equals(System.Object, System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: Int32 GetHashCode(System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: ProvidedAssemblyStaticLinkingMap CreateNew()
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: System.Collections.Generic.Dictionary`2[FSharp.Compiler.AbstractIL.IL+ILTypeRef,FSharp.Compiler.AbstractIL.IL+ILTypeRef] ILTypeMap
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: System.Collections.Generic.Dictionary`2[FSharp.Compiler.AbstractIL.IL+ILTypeRef,FSharp.Compiler.AbstractIL.IL+ILTypeRef] get_ILTypeMap()
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: System.String ToString()
+FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap: Void .ctor(System.Collections.Generic.Dictionary`2[FSharp.Compiler.AbstractIL.IL+ILTypeRef,FSharp.Compiler.AbstractIL.IL+ILTypeRef])
+FSharp.Compiler.TypeProviders+ProvidedConstructorInfo: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedConstructorInfo: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedConstructorInfo: Void .ctor(System.Reflection.ConstructorInfo, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: Boolean TaintedEquals(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedEventInfo], FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedEventInfo])
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: Int32 TaintedGetHashCode(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedEventInfo])
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: ProvidedMethodInfo GetAddMethod()
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: ProvidedMethodInfo GetRemoveMethod()
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: ProvidedType EventHandlerType
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: ProvidedType get_EventHandlerType()
+FSharp.Compiler.TypeProviders+ProvidedEventInfo: Void .ctor(System.Reflection.EventInfo, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedExpr: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedExpr: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedExpr: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.TypeProviders+ProvidedExprType] GetExprType()
+FSharp.Compiler.TypeProviders+ProvidedExpr: Microsoft.FSharp.Quotations.FSharpExpr Handle
+FSharp.Compiler.TypeProviders+ProvidedExpr: Microsoft.FSharp.Quotations.FSharpExpr get_Handle()
+FSharp.Compiler.TypeProviders+ProvidedExpr: ProvidedType Type
+FSharp.Compiler.TypeProviders+ProvidedExpr: ProvidedType get_Type()
+FSharp.Compiler.TypeProviders+ProvidedExpr: System.String UnderlyingExpressionString
+FSharp.Compiler.TypeProviders+ProvidedExpr: System.String get_UnderlyingExpressionString()
+FSharp.Compiler.TypeProviders+ProvidedExpr: Void .ctor(Microsoft.FSharp.Quotations.FSharpExpr, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedCallExpr: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.TypeProviders+ProvidedExpr] Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedCallExpr: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.TypeProviders+ProvidedExpr] get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedCallExpr: ProvidedExpr[] Item3
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedCallExpr: ProvidedExpr[] get_Item3()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedCallExpr: ProvidedMethodInfo Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedCallExpr: ProvidedMethodInfo get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedConstantExpr: ProvidedType Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedConstantExpr: ProvidedType get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedConstantExpr: System.Object Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedConstantExpr: System.Object get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedDefaultExpr: ProvidedType Item
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedDefaultExpr: ProvidedType get_Item()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr: ProvidedExpr Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr: ProvidedExpr Item3
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr: ProvidedExpr Item4
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr: ProvidedExpr get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr: ProvidedExpr get_Item3()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr: ProvidedExpr get_Item4()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr: ProvidedVar Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr: ProvidedVar get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedIfThenElseExpr: ProvidedExpr Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedIfThenElseExpr: ProvidedExpr Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedIfThenElseExpr: ProvidedExpr Item3
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedIfThenElseExpr: ProvidedExpr get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedIfThenElseExpr: ProvidedExpr get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedIfThenElseExpr: ProvidedExpr get_Item3()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLambdaExpr: ProvidedExpr Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLambdaExpr: ProvidedExpr get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLambdaExpr: ProvidedVar Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLambdaExpr: ProvidedVar get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLetExpr: ProvidedExpr Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLetExpr: ProvidedExpr Item3
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLetExpr: ProvidedExpr get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLetExpr: ProvidedExpr get_Item3()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLetExpr: ProvidedVar Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLetExpr: ProvidedVar get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewArrayExpr: ProvidedExpr[] Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewArrayExpr: ProvidedExpr[] get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewArrayExpr: ProvidedType Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewArrayExpr: ProvidedType get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewDelegateExpr: ProvidedExpr Item3
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewDelegateExpr: ProvidedExpr get_Item3()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewDelegateExpr: ProvidedType Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewDelegateExpr: ProvidedType get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewDelegateExpr: ProvidedVar[] Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewDelegateExpr: ProvidedVar[] get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewObjectExpr: ProvidedConstructorInfo Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewObjectExpr: ProvidedConstructorInfo get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewObjectExpr: ProvidedExpr[] Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewObjectExpr: ProvidedExpr[] get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewTupleExpr: ProvidedExpr[] Item
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewTupleExpr: ProvidedExpr[] get_Item()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedSequentialExpr: ProvidedExpr Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedSequentialExpr: ProvidedExpr Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedSequentialExpr: ProvidedExpr get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedSequentialExpr: ProvidedExpr get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryFinallyExpr: ProvidedExpr Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryFinallyExpr: ProvidedExpr Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryFinallyExpr: ProvidedExpr get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryFinallyExpr: ProvidedExpr get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedExpr Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedExpr Item3
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedExpr Item5
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedExpr get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedExpr get_Item3()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedExpr get_Item5()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedVar Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedVar Item4
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedVar get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr: ProvidedVar get_Item4()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTupleGetExpr: Int32 Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTupleGetExpr: Int32 get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTupleGetExpr: ProvidedExpr Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTupleGetExpr: ProvidedExpr get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeAsExpr: ProvidedExpr Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeAsExpr: ProvidedExpr get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeAsExpr: ProvidedType Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeAsExpr: ProvidedType get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeTestExpr: ProvidedExpr Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeTestExpr: ProvidedExpr get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeTestExpr: ProvidedType Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeTestExpr: ProvidedType get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedVarExpr: ProvidedVar Item
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedVarExpr: ProvidedVar get_Item()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedVarSetExpr: ProvidedExpr Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedVarSetExpr: ProvidedExpr get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedVarSetExpr: ProvidedVar Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedVarSetExpr: ProvidedVar get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedWhileLoopExpr: ProvidedExpr Item1
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedWhileLoopExpr: ProvidedExpr Item2
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedWhileLoopExpr: ProvidedExpr get_Item1()
+FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedWhileLoopExpr: ProvidedExpr get_Item2()
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedCallExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedConstantExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedDefaultExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedForIntegerRangeLoopExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedIfThenElseExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedLambdaExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedLetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedNewArrayExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedNewDelegateExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedNewObjectExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedNewTupleExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedSequentialExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedTryFinallyExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedTryWithExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedTupleGetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedTypeAsExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedTypeTestExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedVarExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedVarSetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType+Tags: Int32 ProvidedWhileLoopExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean Equals(ProvidedExprType)
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean Equals(System.Object, System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedCallExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedConstantExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedDefaultExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedForIntegerRangeLoopExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedIfThenElseExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedLambdaExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedLetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedNewArrayExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedNewDelegateExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedNewObjectExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedNewTupleExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedSequentialExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedTryFinallyExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedTryWithExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedTupleGetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedTypeAsExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedTypeTestExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedVarExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedVarSetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean IsProvidedWhileLoopExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedCallExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedConstantExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedDefaultExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedForIntegerRangeLoopExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedIfThenElseExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedLambdaExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedLetExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedNewArrayExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedNewDelegateExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedNewObjectExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedNewTupleExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedSequentialExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedTryFinallyExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedTryWithExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedTupleGetExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedTypeAsExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedTypeTestExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedVarExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedVarSetExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Boolean get_IsProvidedWhileLoopExpr()
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedCallExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedConstantExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedDefaultExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedForIntegerRangeLoopExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedIfThenElseExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLambdaExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedLetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewArrayExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewDelegateExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewObjectExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedNewTupleExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedSequentialExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryFinallyExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTryWithExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTupleGetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeAsExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedTypeTestExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedVarExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedVarSetExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+ProvidedWhileLoopExpr
+FSharp.Compiler.TypeProviders+ProvidedExprType: FSharp.Compiler.TypeProviders+ProvidedExprType+Tags
+FSharp.Compiler.TypeProviders+ProvidedExprType: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedExprType: Int32 GetHashCode(System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedExprType: Int32 Tag
+FSharp.Compiler.TypeProviders+ProvidedExprType: Int32 get_Tag()
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedCallExpr(Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.TypeProviders+ProvidedExpr], ProvidedMethodInfo, ProvidedExpr[])
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedConstantExpr(System.Object, ProvidedType)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedDefaultExpr(ProvidedType)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedForIntegerRangeLoopExpr(ProvidedVar, ProvidedExpr, ProvidedExpr, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedIfThenElseExpr(ProvidedExpr, ProvidedExpr, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedLambdaExpr(ProvidedVar, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedLetExpr(ProvidedVar, ProvidedExpr, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedNewArrayExpr(ProvidedType, ProvidedExpr[])
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedNewDelegateExpr(ProvidedType, ProvidedVar[], ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedNewObjectExpr(ProvidedConstructorInfo, ProvidedExpr[])
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedNewTupleExpr(ProvidedExpr[])
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedSequentialExpr(ProvidedExpr, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedTryFinallyExpr(ProvidedExpr, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedTryWithExpr(ProvidedExpr, ProvidedVar, ProvidedExpr, ProvidedVar, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedTupleGetExpr(ProvidedExpr, Int32)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedTypeAsExpr(ProvidedExpr, ProvidedType)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedTypeTestExpr(ProvidedExpr, ProvidedType)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedVarExpr(ProvidedVar)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedVarSetExpr(ProvidedVar, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: ProvidedExprType NewProvidedWhileLoopExpr(ProvidedExpr, ProvidedExpr)
+FSharp.Compiler.TypeProviders+ProvidedExprType: System.String ToString()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsFamily
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsFamilyAndAssembly
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsFamilyOrAssembly
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsInitOnly
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsLiteral
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsPrivate
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsPublic
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsSpecialName
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean IsStatic
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean TaintedEquals(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedFieldInfo], FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedFieldInfo])
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsFamily()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsFamilyAndAssembly()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsFamilyOrAssembly()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsInitOnly()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsLiteral()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsPrivate()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsPublic()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsSpecialName()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Boolean get_IsStatic()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: ProvidedType FieldType
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: ProvidedType get_FieldType()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: System.Object GetRawConstantValue()
+FSharp.Compiler.TypeProviders+ProvidedFieldInfo: Void .ctor(System.Reflection.FieldInfo, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: Boolean GetHasTypeProviderEditorHideMethodsAttribute(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: Microsoft.FSharp.Core.FSharpOption`1[System.Tuple`2[Microsoft.FSharp.Collections.FSharpList`1[Microsoft.FSharp.Core.FSharpOption`1[System.Object]],Microsoft.FSharp.Collections.FSharpList`1[System.Tuple`2[System.String,Microsoft.FSharp.Core.FSharpOption`1[System.Object]]]]] GetAttributeConstructorArgs(Microsoft.FSharp.Core.CompilerServices.ITypeProvider, System.String)
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: Microsoft.FSharp.Core.FSharpOption`1[System.Tuple`3[System.String,System.Int32,System.Int32]] GetDefinitionLocationAttribute(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: ProvidedType DeclaringType
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: ProvidedType get_DeclaringType()
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: System.Collections.Generic.IEnumerable`1[System.Reflection.CustomAttributeData] GetCustomAttributes(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: System.String Name
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: System.String get_Name()
+FSharp.Compiler.TypeProviders+ProvidedMemberInfo: System.String[] GetXmlDocAttributes(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsAbstract
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsConstructor
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsFamily
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsFamilyAndAssembly
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsFamilyOrAssembly
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsFinal
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsGenericMethod
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsHideBySig
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsPublic
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsStatic
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean IsVirtual
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean TaintedEquals(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedMethodBase], FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedMethodBase])
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsAbstract()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsConstructor()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsFamily()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsFamilyAndAssembly()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsFamilyOrAssembly()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsFinal()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsGenericMethod()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsHideBySig()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsPublic()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsStatic()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Boolean get_IsVirtual()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: Int32 TaintedGetHashCode(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedMethodBase])
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: ProvidedMethodBase ApplyStaticArgumentsForMethod(Microsoft.FSharp.Core.CompilerServices.ITypeProvider, System.String, System.Object[])
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: ProvidedParameterInfo[] GetParameters()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: ProvidedParameterInfo[] GetStaticParametersForMethod(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: ProvidedTypeContext Context
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: ProvidedTypeContext get_Context()
+FSharp.Compiler.TypeProviders+ProvidedMethodBase: ProvidedType[] GetGenericArguments()
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: Int32 MetadataToken
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: Int32 get_MetadataToken()
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: ProvidedType ReturnType
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: ProvidedType get_ReturnType()
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: System.Reflection.MethodInfo Handle
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: System.Reflection.MethodInfo get_Handle()
+FSharp.Compiler.TypeProviders+ProvidedMethodInfo: Void .ctor(System.Reflection.MethodInfo, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean GetHasTypeProviderEditorHideMethodsAttribute(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean HasDefaultValue
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean IsIn
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean IsOptional
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean IsOut
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean get_HasDefaultValue()
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean get_IsIn()
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean get_IsOptional()
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Boolean get_IsOut()
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Microsoft.FSharp.Core.FSharpOption`1[System.Tuple`2[Microsoft.FSharp.Collections.FSharpList`1[Microsoft.FSharp.Core.FSharpOption`1[System.Object]],Microsoft.FSharp.Collections.FSharpList`1[System.Tuple`2[System.String,Microsoft.FSharp.Core.FSharpOption`1[System.Object]]]]] GetAttributeConstructorArgs(Microsoft.FSharp.Core.CompilerServices.ITypeProvider, System.String)
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Microsoft.FSharp.Core.FSharpOption`1[System.Tuple`3[System.String,System.Int32,System.Int32]] GetDefinitionLocationAttribute(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: ProvidedType ParameterType
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: ProvidedType get_ParameterType()
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: System.Collections.Generic.IEnumerable`1[System.Reflection.CustomAttributeData] GetCustomAttributes(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: System.Object RawDefaultValue
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: System.Object get_RawDefaultValue()
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: System.String Name
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: System.String get_Name()
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: System.String[] GetXmlDocAttributes(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedParameterInfo: Void .ctor(System.Reflection.ParameterInfo, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Boolean CanRead
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Boolean CanWrite
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Boolean TaintedEquals(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedPropertyInfo], FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedPropertyInfo])
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Boolean get_CanRead()
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Boolean get_CanWrite()
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Int32 TaintedGetHashCode(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedPropertyInfo])
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: ProvidedMethodInfo GetGetMethod()
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: ProvidedMethodInfo GetSetMethod()
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: ProvidedParameterInfo[] GetIndexParameters()
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: ProvidedType PropertyType
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: ProvidedType get_PropertyType()
+FSharp.Compiler.TypeProviders+ProvidedPropertyInfo: Void .ctor(System.Reflection.PropertyInfo, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsAbstract
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsArray
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsByRef
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsClass
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsEnum
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsErased
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsGenericParameter
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsGenericType
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsInterface
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsMeasure
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsNestedPublic
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsPointer
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsPublic
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsSealed
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsSuppressRelocate
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsValueType
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean IsVoid
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean TaintedEquals(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType], FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType])
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsAbstract()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsArray()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsByRef()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsClass()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsEnum()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsErased()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsGenericParameter()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsGenericType()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsInterface()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsMeasure()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsNestedPublic()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsPointer()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsPublic()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsSealed()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsSuppressRelocate()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsValueType()
+FSharp.Compiler.TypeProviders+ProvidedType: Boolean get_IsVoid()
+FSharp.Compiler.TypeProviders+ProvidedType: Int32 GenericParameterPosition
+FSharp.Compiler.TypeProviders+ProvidedType: Int32 GetArrayRank()
+FSharp.Compiler.TypeProviders+ProvidedType: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedType: Int32 get_GenericParameterPosition()
+FSharp.Compiler.TypeProviders+ProvidedType: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.AbstractIL.IL+ILTypeRef] TryGetILTypeRef()
+FSharp.Compiler.TypeProviders+ProvidedType: Microsoft.FSharp.Core.FSharpOption`1[System.Object] TryGetTyconRef()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedAssembly Assembly
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedAssembly get_Assembly()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedConstructorInfo[] GetConstructors()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedEventInfo GetEvent(System.String)
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedEventInfo[] GetEvents()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedFieldInfo GetField(System.String)
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedFieldInfo[] GetFields()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedMethodInfo[] GetMethods()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedParameterInfo[] GetStaticParameters(Microsoft.FSharp.Core.CompilerServices.ITypeProvider)
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedPropertyInfo GetProperty(System.String)
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedPropertyInfo[] GetProperties()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType ApplyContext(ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType ApplyStaticArguments(Microsoft.FSharp.Core.CompilerServices.ITypeProvider, System.String[], System.Object[])
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType BaseType
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType CreateNoContext(System.Type)
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType GetElementType()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType GetEnumUnderlyingType()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType GetGenericTypeDefinition()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType GetNestedType(System.String)
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType MakeArrayType()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType MakeArrayType(Int32)
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType MakeByRefType()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType MakeGenericType(ProvidedType[])
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType MakePointerType()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType Void
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType get_BaseType()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType get_Void()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedTypeContext Context
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedTypeContext get_Context()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType[] GetAllNestedTypes()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType[] GetGenericArguments()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType[] GetInterfaces()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedType[] GetNestedTypes()
+FSharp.Compiler.TypeProviders+ProvidedType: ProvidedVar AsProvidedVar(System.String)
+FSharp.Compiler.TypeProviders+ProvidedType: System.String FullName
+FSharp.Compiler.TypeProviders+ProvidedType: System.String Namespace
+FSharp.Compiler.TypeProviders+ProvidedType: System.String get_FullName()
+FSharp.Compiler.TypeProviders+ProvidedType: System.String get_Namespace()
+FSharp.Compiler.TypeProviders+ProvidedType: System.Type RawSystemType
+FSharp.Compiler.TypeProviders+ProvidedType: System.Type get_RawSystemType()
+FSharp.Compiler.TypeProviders+ProvidedType: Void .ctor(System.Type, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: Boolean Equals(ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: Boolean Equals(System.Object, System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: Int32 GetHashCode(System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.AbstractIL.IL+ILTypeRef] TryGetILTypeRef(ProvidedType)
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: Microsoft.FSharp.Core.FSharpOption`1[System.Object] TryGetTyconRef(ProvidedType)
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: ProvidedTypeContext Create(System.Collections.Concurrent.ConcurrentDictionary`2[FSharp.Compiler.TypeProviders+ProvidedType,FSharp.Compiler.AbstractIL.IL+ILTypeRef], System.Collections.Concurrent.ConcurrentDictionary`2[FSharp.Compiler.TypeProviders+ProvidedType,System.Object])
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: ProvidedTypeContext Empty
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: ProvidedTypeContext RemapTyconRefs(Microsoft.FSharp.Core.FSharpFunc`2[System.Object,System.Object])
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: ProvidedTypeContext get_Empty()
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: System.String ToString()
+FSharp.Compiler.TypeProviders+ProvidedTypeContext: System.Tuple`2[System.Collections.Concurrent.ConcurrentDictionary`2[FSharp.Compiler.TypeProviders+ProvidedType,FSharp.Compiler.AbstractIL.IL+ILTypeRef],System.Collections.Concurrent.ConcurrentDictionary`2[FSharp.Compiler.TypeProviders+ProvidedType,System.Object]] GetDictionaries()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: Boolean Equals(System.Object, System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: FSharp.Compiler.Text.Range Data0
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: FSharp.Compiler.Text.Range get_Data0()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: Int32 GetHashCode(System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: System.Exception Data1
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: System.Exception get_Data1()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: System.String get_Message()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: Void .ctor()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolution: Void .ctor(FSharp.Compiler.Text.Range, System.Exception)
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: Boolean Equals(System.Object, System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: Int32 GetHashCode(System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: System.Exception Data0
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: System.Exception get_Data0()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: System.String get_Message()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: Void .ctor()
+FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange: Void .ctor(System.Exception)
+FSharp.Compiler.TypeProviders+ProvidedVar: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProvidedVar: Boolean IsMutable
+FSharp.Compiler.TypeProviders+ProvidedVar: Boolean get_IsMutable()
+FSharp.Compiler.TypeProviders+ProvidedVar: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProvidedVar: ProvidedType Type
+FSharp.Compiler.TypeProviders+ProvidedVar: ProvidedType get_Type()
+FSharp.Compiler.TypeProviders+ProvidedVar: System.String Name
+FSharp.Compiler.TypeProviders+ProvidedVar: System.String get_Name()
+FSharp.Compiler.TypeProviders+ProvidedVar: Void .ctor(Microsoft.FSharp.Quotations.FSharpVar, ProvidedTypeContext)
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Boolean Equals(ProviderGeneratedType)
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Boolean Equals(System.Object, System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: ILTypeRef get_ilOrigTyRef()
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: ILTypeRef get_ilRenamedTyRef()
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: ILTypeRef ilOrigTyRef
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: ILTypeRef ilRenamedTyRef
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Int32 CompareTo(ProviderGeneratedType)
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Int32 CompareTo(System.Object)
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Int32 CompareTo(System.Object, System.Collections.IComparer)
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Int32 GetHashCode(System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Int32 Tag
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Int32 get_Tag()
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.TypeProviders+ProviderGeneratedType] Item3
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.TypeProviders+ProviderGeneratedType] get_Item3()
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: ProviderGeneratedType NewProviderGeneratedType(ILTypeRef, ILTypeRef, Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.TypeProviders+ProviderGeneratedType])
+FSharp.Compiler.TypeProviders+ProviderGeneratedType: System.String ToString()
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: Boolean ShowResolutionMessages
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: Boolean get_ShowResolutionMessages()
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: Microsoft.FSharp.Core.FSharpFunc`2[Microsoft.FSharp.Core.Unit,System.String[]] GetReferencedAssemblies
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: Microsoft.FSharp.Core.FSharpFunc`2[Microsoft.FSharp.Core.Unit,System.String[]] get_GetReferencedAssemblies()
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: Microsoft.FSharp.Core.FSharpOption`1[System.String] OutputFile
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: Microsoft.FSharp.Core.FSharpOption`1[System.String] get_OutputFile()
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: System.String ResolutionFolder
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: System.String TemporaryFolder
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: System.String ToString()
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: System.String get_ResolutionFolder()
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: System.String get_TemporaryFolder()
+FSharp.Compiler.TypeProviders+ResolutionEnvironment: Void .ctor(System.String, Microsoft.FSharp.Core.FSharpOption`1[System.String], Boolean, Microsoft.FSharp.Core.FSharpFunc`2[Microsoft.FSharp.Core.Unit,System.String[]], System.String)
+FSharp.Compiler.TypeProviders+Shim+ExtensionTyping: IExtensionTypingProvider Provider
+FSharp.Compiler.TypeProviders+Shim+ExtensionTyping: IExtensionTypingProvider get_Provider()
+FSharp.Compiler.TypeProviders+Shim+ExtensionTyping: Void set_Provider(IExtensionTypingProvider)
+FSharp.Compiler.TypeProviders+Shim+IExtensionTypingProvider: Microsoft.FSharp.Collections.FSharpList`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider] InstantiateTypeProvidersOfAssembly(System.String, System.String, ResolutionEnvironment, Boolean, Boolean, Microsoft.FSharp.Core.FSharpFunc`2[System.String,System.Boolean], System.Version, Microsoft.FSharp.Collections.FSharpList`1[System.String], Microsoft.FSharp.Core.FSharpFunc`2[FSharp.Compiler.TypeProviderError,Microsoft.FSharp.Core.Unit], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders+Shim+IExtensionTypingProvider: ProvidedExpr GetInvokerExpression(Microsoft.FSharp.Core.CompilerServices.ITypeProvider, ProvidedMethodBase, ProvidedVar[])
+FSharp.Compiler.TypeProviders+Shim+IExtensionTypingProvider: ProvidedType ResolveTypeName(Microsoft.FSharp.Core.CompilerServices.IProvidedNamespace, System.String)
+FSharp.Compiler.TypeProviders+Shim+IExtensionTypingProvider: ProvidedType[] GetProvidedTypes(Microsoft.FSharp.Core.CompilerServices.IProvidedNamespace)
+FSharp.Compiler.TypeProviders+Shim+IExtensionTypingProvider: System.String DisplayNameOfTypeProvider(Microsoft.FSharp.Core.CompilerServices.ITypeProvider, Boolean)
+FSharp.Compiler.TypeProviders+Shim: FSharp.Compiler.TypeProviders+Shim+DefaultExtensionTypingProvider
+FSharp.Compiler.TypeProviders+Shim: FSharp.Compiler.TypeProviders+Shim+ExtensionTyping
+FSharp.Compiler.TypeProviders+Shim: FSharp.Compiler.TypeProviders+Shim+IExtensionTypingProvider
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Boolean Equals(System.Object)
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Boolean Equals(System.Object, System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Boolean Equals(TypeProviderDesignation)
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Int32 CompareTo(System.Object)
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Int32 CompareTo(System.Object, System.Collections.IComparer)
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Int32 CompareTo(TypeProviderDesignation)
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Int32 GetHashCode()
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Int32 GetHashCode(System.Collections.IEqualityComparer)
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Int32 Tag
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: Int32 get_Tag()
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: System.String Item
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: System.String ToString()
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: System.String get_Item()
+FSharp.Compiler.TypeProviders+TypeProviderDesignation: TypeProviderDesignation NewTypeProviderDesignation(System.String)
+FSharp.Compiler.TypeProviders: Boolean IsGeneratedTypeDirectReference(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+IProvidedCustomAttributeProvider
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedAssembly
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedAssemblyStaticLinkingMap
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedConstructorInfo
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedEventInfo
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedExpr
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedExprType
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedFieldInfo
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedMemberInfo
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedMethodBase
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedMethodInfo
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedParameterInfo
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedPropertyInfo
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedType
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedTypeContext
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedTypeResolution
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedTypeResolutionNoRange
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProvidedVar
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ProviderGeneratedType
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+ResolutionEnvironment
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+Shim
+FSharp.Compiler.TypeProviders: FSharp.Compiler.TypeProviders+TypeProviderDesignation
+FSharp.Compiler.TypeProviders: ILTypeRef GetILTypeRefOfProvidedType(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: ILTypeRef GetOriginalILTypeRefOfProvidedType(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: Microsoft.FSharp.Collections.FSharpList`1[FSharp.Compiler.Tainted`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider]] GetTypeProvidersOfAssembly(System.String, ILScopeRef, System.String, ResolutionEnvironment, Boolean, Boolean, Microsoft.FSharp.Core.FSharpFunc`2[System.String,System.Boolean], System.Version, Microsoft.FSharp.Collections.FSharpList`1[System.String], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: Microsoft.FSharp.Collections.FSharpList`1[System.String] GetFSharpPathToProvidedType(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: Microsoft.FSharp.Collections.FSharpList`1[System.String] GetProvidedNamespaceAsPath(FSharp.Compiler.Text.Range, FSharp.Compiler.Tainted`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider], System.String)
+FSharp.Compiler.TypeProviders: Microsoft.FSharp.Collections.FSharpList`1[System.String] toolingCompatiblePaths()
+FSharp.Compiler.TypeProviders: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedMethodBase]] TryApplyProvidedMethod(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedMethodBase], System.Object[], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType]] TryLinkProvidedType(FSharp.Compiler.Tainted`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider], System.String[], System.String, FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: Microsoft.FSharp.Core.FSharpOption`1[FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType]] TryResolveProvidedType(FSharp.Compiler.Tainted`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider], FSharp.Compiler.Text.Range, System.String[], System.String)
+FSharp.Compiler.TypeProviders: Microsoft.FSharp.Core.FSharpOption`1[System.Tuple`2[FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType],Microsoft.FSharp.Core.FSharpFunc`2[Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Core.Unit]]] TryApplyProvidedType(FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType], Microsoft.FSharp.Core.FSharpOption`1[Microsoft.FSharp.Collections.FSharpList`1[System.String]], System.Object[], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: ProvidedExpr GetInvokerExpression(Microsoft.FSharp.Core.CompilerServices.ITypeProvider, ProvidedMethodBase, ProvidedVar[])
+FSharp.Compiler.TypeProviders: ProvidedType[] GetProvidedTypes(Microsoft.FSharp.Core.CompilerServices.IProvidedNamespace)
+FSharp.Compiler.TypeProviders: System.String DisplayNameOfTypeProvider(FSharp.Compiler.Tainted`1[Microsoft.FSharp.Core.CompilerServices.ITypeProvider], FSharp.Compiler.Text.Range)
+FSharp.Compiler.TypeProviders: Void ValidateProvidedTypeAfterStaticInstantiation(FSharp.Compiler.Text.Range, FSharp.Compiler.Tainted`1[FSharp.Compiler.TypeProviders+ProvidedType], System.String[], System.String)
 FSharp.Compiler.Xml.PreXmlDoc: Boolean Equals(FSharp.Compiler.Xml.PreXmlDoc)
 FSharp.Compiler.Xml.PreXmlDoc: Boolean Equals(System.Object)
 FSharp.Compiler.Xml.PreXmlDoc: Boolean Equals(System.Object, System.Collections.IEqualityComparer)
