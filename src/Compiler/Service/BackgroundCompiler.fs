@@ -165,7 +165,7 @@ type internal IBackgroundCompiler =
         fileName: string * options: FSharpProjectOptions * sourceText: ISourceText option * userOpName: string ->
             (FSharpParseFileResults * FSharpCheckFileResults * SourceTextHash) option
 
-    abstract GetCachedScriptOptions: path: string -> FSharpProjectOptions option
+    abstract GetCachedScriptSnapshot: path: string -> FSharpProjectSnapshot option
 
     abstract member BeforeBackgroundFileCheck: IEvent<string * FSharpProjectOptions>
 
@@ -1687,5 +1687,10 @@ type internal BackgroundCompiler
             ) : (FSharpParseFileResults * FSharpCheckFileResults * SourceTextHash) option =
             self.TryGetRecentCheckResultsForFile(fileName, options, sourceText, userOpName)
 
-        member _.GetCachedScriptOptions(path) =
-            incrementalBuildersCache.Keys(AnyCallerThread) |> List.tryFind (fun x -> x.ProjectFileName = path)
+        member _.GetCachedScriptSnapshot(path) =
+            incrementalBuildersCache.Keys(AnyCallerThread)
+            |> List.tryFind (fun x -> x.ProjectFileName = path)
+            |> Option.map (fun options ->
+                // I'm not expecting anything actually async to happen here.
+                // As the snapshot will most likely not have any referenced projects
+                FSharpProjectSnapshot.FromOptions options |> Async.RunSynchronously)
