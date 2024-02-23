@@ -181,6 +181,10 @@ type internal IBackgroundCompiler =
 
     abstract GetCachedScriptSnapshot: path: string -> FSharpProjectSnapshot option
 
+    abstract member TryGetRecentCheckResultsForFile:
+        fileName: string * projectSnapshot: FSharpProjectSnapshot * userOpName: string ->
+            (FSharpParseFileResults * FSharpCheckFileResults) option
+
     abstract member BeforeBackgroundFileCheck: IEvent<string * FSharpProjectOptions>
 
     abstract member FileChecked: IEvent<string * FSharpProjectOptions>
@@ -1176,6 +1180,16 @@ type internal BackgroundCompiler
             | None -> None
         | None -> None
 
+    member _.TryGetRecentCheckResultsForFile(fileName: string, projectSnapshot: FSharpProjectSnapshot, userOpName: string) =
+        projectSnapshot.ProjectSnapshot.SourceFiles
+        |> List.tryFind (fun f -> f.FileName = fileName)
+        |> Option.bind (fun (f: FSharpFileSnapshot) ->
+            let options = projectSnapshot.ToOptions()
+            let sourceText = f.GetSource() |> Async.AwaitTask |> Async.RunSynchronously
+
+            self.TryGetRecentCheckResultsForFile(fileName, options, Some sourceText, userOpName)
+            |> Option.map (fun (parseFileResults, checkFileResults, _hash) -> (parseFileResults, checkFileResults)))
+
     /// Parse and typecheck the whole project (the implementation, called recursively as project graph is evaluated)
     member private _.ParseAndCheckProjectImpl(options, userOpName) =
         node {
@@ -1641,7 +1655,7 @@ type internal BackgroundCompiler
                         userOpName
                     )
 
-                let! snapshot = FSharpProjectSnapshot.FromOptions(options, DocumentSource.FileSystem)
+                let! snapshot = FSharpProjectSnapshot.FromOptions(options)
                 return snapshot, diagnostics
             }
 
@@ -1742,3 +1756,11 @@ type internal BackgroundCompiler
                 // I'm not expecting anything actually async to happen here.
                 // As the snapshot will most likely not have any referenced projects
                 FSharpProjectSnapshot.FromOptions options |> Async.RunSynchronously)
+
+        member _.TryGetRecentCheckResultsForFile
+            (
+                fileName: string,
+                projectSnapshot: FSharpProjectSnapshot,
+                userOpName: string
+            ) : (FSharpParseFileResults * FSharpCheckFileResults) option =
+            self.TryGetRecentCheckResultsForFile(fileName, projectSnapshot, userOpName)

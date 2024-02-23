@@ -171,6 +171,10 @@ type internal IBackgroundCompiler =
 
     abstract GetCachedScriptSnapshot: path: string -> FSharpProjectSnapshot option
 
+    abstract TryGetRecentCheckResultsForFile:
+        fileName: string * projectSnapshot: FSharpProjectSnapshot * userOpName: string ->
+            (FSharpParseFileResults * FSharpCheckFileResults) option
+
     abstract BeforeBackgroundFileCheck: IEvent<string * FSharpProjectOptions>
 
     abstract FileChecked: IEvent<string * FSharpProjectOptions>

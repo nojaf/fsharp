@@ -19,12 +19,6 @@ open FSharp.Compiler.Syntax
 open FSharp.Compiler.Text
 open FSharp.Compiler.Tokenization
 
-[<Experimental "This type is experimental and likely to be removed in the future.">]
-[<RequireQualifiedAccess>]
-type DocumentSource =
-    | FileSystem
-    | Custom of (string -> Async<ISourceText option>)
-
 /// Used to parse and check F# source code.
 [<Sealed; AutoSerializable(false)>]
 type public FSharpChecker =
@@ -428,6 +422,11 @@ type public FSharpChecker =
     member TryGetRecentCheckResultsForFile:
         fileName: string * options: FSharpProjectOptions * ?sourceText: ISourceText * ?userOpName: string ->
             (FSharpParseFileResults * FSharpCheckFileResults (* hash *) * int64) option
+
+    [<Experimental("This FCS API is experimental and subject to change.")>]
+    member TryGetRecentCheckResultsForFile:
+        fileName: string * projectSnapshot: FSharpProjectSnapshot * ?userOpName: string ->
+            (FSharpParseFileResults * FSharpCheckFileResults) option
 
     /// This function is called when the entire environment is known to have changed for reasons not encoded in the ProjectOptions of any project/compilation.
     member InvalidateAll: unit -> unit

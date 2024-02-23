@@ -58,6 +58,12 @@ open System.Threading.Tasks
 open System.Runtime.CompilerServices
 open Internal.Utilities.Hashing
 
+[<Experimental "This type is experimental and likely to be removed in the future.">]
+[<RequireQualifiedAccess>]
+type DocumentSource =
+    | FileSystem
+    | Custom of (string -> Async<ISourceText option>)
+
 type FSharpUnresolvedReferencesSet = FSharpUnresolvedReferencesSet of UnresolvedAssemblyReference list
 
 [<Sealed>]
