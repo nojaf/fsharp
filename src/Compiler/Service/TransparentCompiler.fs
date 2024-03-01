@@ -1246,7 +1246,9 @@ type internal TransparentCompiler
 
                 let sink = TcResultsSinkImpl(tcGlobals, file.SourceText)
 
-                let hadParseErrors = not (Array.isEmpty file.ParseErrors)
+                let hadParseErrors =
+                    file.ParseDiagnostics
+                    |> Array.exists (snd >> (=) FSharpDiagnosticSeverity.Error)
 
                 let input, moduleNamesDict =
                     DeduplicateParsedInputModuleName prevTcInfo.moduleNamesDict input
@@ -1443,7 +1445,7 @@ type internal TransparentCompiler
                     tcConfig.diagnosticsOptions,
                     false,
                     file.FileName,
-                    parsedFile.ParseErrors,
+                    parsedFile.ParseDiagnostics,
                     suggestNamesForErrors,
                     tcConfig.flatErrors,
                     None
