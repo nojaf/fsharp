@@ -2052,11 +2052,7 @@ type internal TransparentCompiler
             ) : NodeCode<seq<range>> =
             node {
                 ignore canInvalidateProject
-
-                let! snapshot =
-                    FSharpProjectSnapshot.FromOptions(options)
-                    |> NodeCode.AwaitAsync
-
+                let! snapshot = FSharpProjectSnapshot.FromOptions(options) |> NodeCode.AwaitAsync
                 return! this.FindReferencesInFile(fileName, snapshot.ProjectSnapshot, symbol, userOpName)
             }
 
@@ -2068,10 +2064,7 @@ type internal TransparentCompiler
 
         member this.GetAssemblyData(options: FSharpProjectOptions, fileName, userOpName: string) : NodeCode<ProjectAssemblyDataResult> =
             node {
-                let! snapshot =
-                    FSharpProjectSnapshot.FromOptions(options)
-                    |> NodeCode.AwaitAsync
-
+                let! snapshot = FSharpProjectSnapshot.FromOptions(options) |> NodeCode.AwaitAsync
                 return! this.GetAssemblyData(snapshot.ProjectSnapshot, fileName, userOpName)
             }
 
@@ -2090,9 +2083,7 @@ type internal TransparentCompiler
                 userOpName: string
             ) : NodeCode<FSharpParseFileResults * FSharpCheckFileResults> =
             node {
-                let! snapshot =
-                    FSharpProjectSnapshot.FromOptions(options)
-                    |> NodeCode.AwaitAsync
+                let! snapshot = FSharpProjectSnapshot.FromOptions(options) |> NodeCode.AwaitAsync
 
                 match! this.ParseAndCheckFileInProject(fileName, snapshot.ProjectSnapshot, userOpName) with
                 | parseResult, FSharpCheckFileAnswer.Succeeded checkResult -> return parseResult, checkResult
@@ -2106,9 +2097,7 @@ type internal TransparentCompiler
                 userOpName: string
             ) : NodeCode<FSharpParseFileResults> =
             node {
-                let! snapshot =
-                    FSharpProjectSnapshot.FromOptions(options)
-                    |> NodeCode.AwaitAsync
+                let! snapshot = FSharpProjectSnapshot.FromOptions(options) |> NodeCode.AwaitAsync
 
                 return! this.ParseFile(fileName, snapshot.ProjectSnapshot, userOpName)
             }
@@ -2294,9 +2283,7 @@ type internal TransparentCompiler
             node {
                 ignore userOpName
 
-                let! snapshot =
-                    FSharpProjectSnapshot.FromOptions(options)
-                    |> NodeCode.AwaitAsync
+                let! snapshot = FSharpProjectSnapshot.FromOptions(options) |> NodeCode.AwaitAsync
 
                 return! ComputeSemanticClassification(fileName, snapshot.ProjectSnapshot)
             }
@@ -2339,9 +2326,7 @@ type internal TransparentCompiler
             node {
                 ignore userOpName
 
-                let! snapshot =
-                    FSharpProjectSnapshot.FromOptions(options)
-                    |> NodeCode.AwaitAsync
+                let! snapshot = FSharpProjectSnapshot.FromOptions(options) |> NodeCode.AwaitAsync
 
                 return! ComputeParseAndCheckProject snapshot.ProjectSnapshot
             }
@@ -2376,7 +2361,7 @@ type internal TransparentCompiler
             ) : (FSharpParseFileResults * FSharpCheckFileResults * SourceTextHash) option =
             backgroundCompiler.TryGetRecentCheckResultsForFile(fileName, options, sourceText, userOpName)
 
-        member this.GetCachedScriptSnapshot _ = None
+        member this.GetCachedScriptOptions(_path: string) = None
 
         member this.TryGetRecentCheckResultsForFile
             (
